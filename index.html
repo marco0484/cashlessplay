@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+
+  <meta charset="UTF-8" />
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  />
+
+  <title>Cosmic Cashless</title>
+
+  <link rel="stylesheet" href="css/styles.css" />
+
+  <link rel="icon" href="data:," />
+
+</head>
+
+<body>
+
+  <!-- ===================================== -->
+  <!-- 🌌 NAVBAR -->
+  <!-- ===================================== -->
+  <header class="navbar">
+
+    <div class="nav-left">
+
+      <h1>🌌 Cosmic Cashless</h1>
+
+      <span class="subtitle">
+       By: Marco Matehuala
+      </span>
+
+    </div>
+
+    <div class="nav-center">
+
+      <button
+        onclick="irMetricas()"
+        class="nav-btn"
+      >
+        📊 Métricas
+      </button>
+
+      <button
+        onclick="verHistorial()"
+        class="nav-btn"
+      >
+        🧾 Historial
+      </button>
+
+    </div>
+
+    <div class="nav-right">
+
+      <div class="usuario-box">
+
+        <span id="usuario-logeado">
+          👤 --
+        </span>
+
+      </div>
+
+      <button
+        onclick="logout()"
+        class="logout-btn"
+      >
+        Salir
+      </button>
+
+    </div>
+
+  </header>
+
+  <!-- ===================================== -->
+  <!-- 🌌 CONTENIDO -->
+  <!-- ===================================== -->
+  <main class="pos-container">
+
+    <!-- ===================================== -->
+    <!-- 💳 RECARGA -->
+    <!-- ===================================== -->
+    <section class="panel panel-izq">
+
+      <div class="panel-header">
+
+        <h2>💳 Recargar saldo</h2>
+
+        <p>
+          Escanea QR, RFID o escribe el identificador
+        </p>
+
+      </div>
+
+      <!-- ===================================== -->
+      <!-- 📷 SCANNER -->
+      <!-- ===================================== -->
+      <div class="scanner">
+
+        <button
+          class="scan-btn"
+          onclick="iniciarScanner('recarga')"
+        >
+          📷 Escanear QR
+        </button>
+
+        <div
+          id="reader-recarga"
+          class="reader-box"
+        ></div>
+
+      </div>
+
+      <!-- ===================================== -->
+      <!-- 👤 INPUT -->
+      <!-- ===================================== -->
+      <div class="input-group">
+
+        <label>
+          Usuario / RFID
+        </label>
+
+        <input
+          id="userid-recarga"
+          autocomplete="off"
+          spellcheck="false"
+          placeholder="Escanea QR, RFID o escribe ID"
+        />
+
+      </div>
+
+      <!-- ===================================== -->
+      <!-- 💰 INFO -->
+      <!-- ===================================== -->
+      <div
+        id="info-recarga"
+        class="info-box"
+      >
+
+        <div class="info-placeholder">
+
+          💳 Esperando usuario para recarga
+
+        </div>
+
+      </div>
+
+      <!-- ===================================== -->
+      <!-- 💸 MONTOS -->
+      <!-- ===================================== -->
+      <div class="monto-section">
+
+        <label>
+          Selecciona un monto
+        </label>
+
+        <div class="montos">
+
+          <button onclick="setMonto(100)">
+            $100
+          </button>
+
+          <button onclick="setMonto(200)">
+            $200
+          </button>
+
+          <button onclick="setMonto(500)">
+            $500
+          </button>
+
+          <button onclick="setMonto(1000)">
+            $1000
+          </button>
+
+        </div>
+
+      </div>
+
+      <!-- ===================================== -->
+      <!-- 💵 MONTO EXTRA -->
+      <!-- ===================================== -->
+      <div class="input-group">
+
+        <label>
+          Otro monto
+        </label>
+
+        <input
+          id="monto-recarga"
+          type="number"
+          inputmode="numeric"
+          placeholder="$0"
+        />
+
+      </div>
+
+      <!-- ===================================== -->
+      <!-- 💳 ACCIONES -->
+      <!-- ===================================== -->
+      <div class="acciones">
+
+        <button
+          class="mp-btn"
+          onclick="pagarMercadoPago()"
+        >
+          💳 Mercado Pago
+        </button>
+
+      </div>
+
+    </section>
+
+    <!-- ===================================== -->
+    <!-- 🛒 COBRO -->
+    <!-- ===================================== -->
+    <section class="panel panel-der">
+
+      <div class="panel-header">
+
+        <h2>🛒 Cobrar producto</h2>
+
+        <p>
+          Escanea QR, RFID o escribe el identificador
+        </p>
+
+      </div>
+
+      <!-- ===================================== -->
+      <!-- 📷 SCANNER -->
+      <!-- ===================================== -->
+      <div class="scanner">
+
+        <button
+          class="scan-btn"
+          onclick="iniciarScanner('pago')"
+        >
+          📷 Escanear QR
+        </button>
+
+        <div
+          id="reader-pago"
+          class="reader-box"
+        ></div>
+
+      </div>
+
+      <!-- ===================================== -->
+      <!-- 👤 INPUT -->
+      <!-- ===================================== -->
+      <div class="input-group">
+
+        <label>
+          Usuario / RFID
+        </label>
+
+        <input
+          id="userid-pago"
+          autocomplete="off"
+          spellcheck="false"
+          placeholder="Escanea QR, RFID o escribe ID"
+        />
+
+      </div>
+
+      <!-- ===================================== -->
+      <!-- 💰 INFO -->
+      <!-- ===================================== -->
+      <div
+        id="info-pago"
+        class="info-box"
+      >
+
+        <div class="info-placeholder">
+
+          👤 Escanea un QR, RFID o escribe un ID
+
+        </div>
+
+      </div>
+
+      <!-- ===================================== -->
+      <!-- 🍺 PRODUCTOS -->
+      <!-- ===================================== -->
+      <div class="productos-section">
+
+        <label>
+          Productos
+        </label>
+
+        <div class="productos">
+
+          <button
+            onclick="agregarProducto(1,'Cerveza',70)"
+          >
+            🍺 Cerveza · $80
+          </button>
+
+          <button
+            onclick="agregarProducto(2,'Agua',50)"
+          >
+            💧 Agua · $50
+          </button>
+
+          <button
+            onclick="agregarProducto(3,'Refresco',50)"
+          >
+            🥤 Refresco · $50
+          </button>
+
+          <button
+            onclick="agregarProducto(4,'Vodka',180)"
+          >
+            🍸 Trago · $180
+          </button>
+
+          <button
+            onclick="agregarProducto(5,'Six',450)"
+          >
+            🔥 Six · $450
+          </button>
+
+        </div>
+
+      </div>
+
+      <!-- ===================================== -->
+      <!-- 🛒 CARRITO -->
+      <!-- ===================================== -->
+      <div class="carrito-section">
+
+        <label>
+          Carrito
+        </label>
+
+        <div
+          id="carrito"
+          class="carrito-box"
+        ></div>
+
+      </div>
+
+      <!-- ===================================== -->
+      <!-- 💰 TOTAL -->
+      <!-- ===================================== -->
+      <div
+        id="total-box"
+        class="total-box"
+      >
+        Total: $0
+      </div>
+
+      <!-- ===================================== -->
+      <!-- 💵 MONTO EXTRA -->
+      <!-- ===================================== -->
+      <div class="input-group">
+
+        <label>
+          Otro monto
+        </label>
+
+        <input
+          id="montoPago"
+          type="number"
+          inputmode="numeric"
+          placeholder="$0"
+        />
+
+      </div>
+
+      <!-- ===================================== -->
+      <!-- ⚡ ACCIONES -->
+      <!-- ===================================== -->
+      <div class="acciones">
+
+        <button
+          onclick="limpiarCarrito()"
+          class="clear-btn"
+        >
+          🗑 Limpiar carrito
+        </button>
+
+        <button
+          class="pagar-btn"
+          onclick="pagar()"
+        >
+          ⚡ Cobrar
+        </button>
+
+      </div>
+
+      <!-- ===================================== -->
+      <!-- 🔥 QR -->
+      <!-- ===================================== -->
+      <div
+        id="qr-pago"
+        class="qr-box"
+      ></div>
+
+    </section>
+
+  </main>
+
+  <!-- ===================================== -->
+  <!-- 🔥 SCRIPTS -->
+  <!-- ===================================== -->
+  <script src="https://unpkg.com/html5-qrcode"></script>
+
+  <script src="js/app.js"></script>
+
+</body>
+</html>
