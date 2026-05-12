@@ -125,40 +125,56 @@ app.post("/recargar", async (req, res) => {
 
     const {
       user_id,
-      monto,
-      staff_id
+      monto
     } = req.body
 
-    console.log("RECARGA:")
-    console.log(user_id)
-    console.log(monto)
+    /* BUSCAR WALLET */
 
-    /* VALIDACIONES */
+    const existe =
+    await pool.query(
 
-    if(!user_id){
+      `
+      SELECT user_id
+      FROM play.wallets
+      WHERE user_id = $1
+      `,
 
-      return res.status(400).json({
-        error:"USER_ID requerido"
-      })
+      [user_id]
+
+    )
+
+    /* SI NO EXISTE -> CREAR */
+
+    if(existe.rowCount === 0){
+
+      await pool.query(
+
+        `
+        INSERT INTO play.wallets
+        (
+          user_id,
+          saldo
+        )
+        VALUES
+        ($1,0)
+        `,
+
+        [user_id]
+
+      )
 
     }
 
-    if(!monto || monto <= 0){
-
-      return res.status(400).json({
-        error:"Monto inválido"
-      })
-
-    }
-
-    /* UPDATE WALLET */
+    /* RECARGAR */
 
     const result =
     await pool.query(
 
       `
-      UPDATE wallets
-      SET saldo = saldo + $1
+      UPDATE play.wallets
+      SET
+        saldo = saldo + $1,
+        actualizado = CURRENT_TIMESTAMP
       WHERE user_id = $2
       RETURNING saldo
       `,
@@ -170,62 +186,18 @@ app.post("/recargar", async (req, res) => {
 
     )
 
-    /* NO EXISTE */
-
-    if(result.rowCount === 0){
-
-      return res.status(404).json({
-        error:"Wallet no encontrada"
-      })
-
-    }
-
-    /* NUEVO SALDO */
-
-    const nuevoSaldo =
-    result.rows[0].saldo
-
-    /* HISTORIAL */
-
-    await pool.query(
-
-      `
-      INSERT INTO recargas
-      (
-        user_id,
-        monto,
-        staff_id
-      )
-      VALUES
-      ($1,$2,$3)
-      `,
-
-      [
-        user_id,
-        monto,
-        staff_id
-      ]
-
-    )
-
-    /* OK */
-
     res.json({
 
       ok:true,
 
-      mensaje:"Recarga exitosa",
-
-      saldo:nuevoSaldo
+      saldo:
+      result.rows[0].saldo
 
     })
 
   }catch(err){
 
-    console.error(
-      "ERROR RECARGA:",
-      err
-    )
+    console.error(err)
 
     res.status(500).json({
 
