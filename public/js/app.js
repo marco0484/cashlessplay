@@ -1,6 +1,9 @@
 const staff = localStorage.getItem("staff_id")
+
 let timerRFID = null
 
+let ultimoUsuarioRecarga = null
+let ultimoUsuarioPago = null
 
 if(!staff){
 
@@ -124,22 +127,10 @@ function onScanSuccess(decodedText){
 
   }
 
-  const input =
-  document.getElementById(
-    `userid-${moduloActivo}`
+  detectarRFID(
+    valor,
+    moduloActivo
   )
-
-  if(!input){
-
-    console.warn("Input no encontrado")
-
-    return
-
-  }
-
-  input.value = valor
-
-  cargarUsuario(valor, moduloActivo)
 
 }
 
@@ -158,9 +149,9 @@ document
   if(valor.length >= 1){
 
     detectarRFID(
-  valor,
-  "recarga"
-)
+      valor,
+      "recarga"
+    )
 
   }
 
@@ -175,7 +166,7 @@ document
 
   if(valor.length >= 1){
 
-    cargarUsuario(
+    detectarRFID(
       valor,
       "pago"
     )
@@ -315,12 +306,7 @@ function logout(){
 async function recargar(){
 
   const user_id =
-  document
-  .getElementById(
-    "userid-recarga"
-  )
-  .value
-  .trim()
+  ultimoUsuarioRecarga
 
   const monto =
   parseFloat(
@@ -399,12 +385,37 @@ async function recargar(){
 
     }
 
-    alert(data.mensaje)
+    /* ACTUALIZAR INFO */
 
-    cargarUsuario(
-      user_id,
-      "recarga"
-    )
+    document.getElementById(
+      "info-recarga"
+    ).innerHTML = `
+
+      <div style="
+        font-size:18px;
+        font-weight:800;
+        margin-bottom:6px;
+      ">
+        ✅ Recarga exitosa
+      </div>
+
+      <div style="
+        color:#00ffd0;
+        font-size:24px;
+        font-weight:900;
+      ">
+        Nuevo saldo: $${data.saldo}
+      </div>
+
+    `
+
+    /* LIMPIAR */
+
+    ultimoUsuarioRecarga = null
+
+    document.getElementById(
+      "monto-recarga"
+    ).value = ""
 
   }catch(err){
 
@@ -426,12 +437,7 @@ async function recargar(){
 async function pagar(){
 
   const user_id =
-  document
-  .getElementById(
-    "userid-pago"
-  )
-  .value
-  .trim()
+  ultimoUsuarioPago
 
   const monto =
   parseFloat(
@@ -535,26 +541,15 @@ async function pagar(){
 
     alert(data.mensaje)
 
-    cargarUsuario(
-      user_id,
-      "pago"
-    )
+    ultimoUsuarioPago = null
 
     carrito = []
 
     renderCarrito()
 
     document.getElementById(
-      "userid-pago"
-    ).value = ""
-
-    document.getElementById(
       "montoPago"
     ).value = ""
-
-    document.getElementById(
-      "userid-pago"
-    ).focus()
 
   }catch(err){
 
@@ -576,12 +571,7 @@ async function pagar(){
 async function pagarMercadoPago(){
 
   const user_id =
-  document
-  .getElementById(
-    "userid-recarga"
-  )
-  .value
-  .trim()
+  ultimoUsuarioRecarga
 
   const monto =
   parseFloat(
@@ -825,29 +815,90 @@ function renderCarrito(){
 
   }
 
-  
-
 }
 
-/* DETECTOR */
+/* ===================================== */
+/* 🔥 DETECTOR RFID / QR */
+/* ===================================== */
+
 function detectarRFID(valor, tipo){
 
   clearTimeout(timerRFID)
 
-  timerRFID = setTimeout(()=>{
+  timerRFID = setTimeout(async ()=>{
 
     const limpio =
     valor.trim()
 
-    if(limpio.length < 8){
+    let id = limpio
+
+    /* WINDOWS MANDA 000 EXTRA */
+
+    if(
+      limpio.length === 10 &&
+      limpio.startsWith("000")
+    ){
+
+      id = limpio.slice(3)
+
+    }
+
+    /* VALIDAR */
+
+    if(!/^\d{7}$/.test(id)){
       return
     }
 
-    cargarUsuario(
-      limpio,
+    /* GUARDAR USUARIO */
+
+    if(tipo === "recarga"){
+
+      ultimoUsuarioRecarga = id
+
+    }else{
+
+      ultimoUsuarioPago = id
+
+    }
+
+    /* INPUT */
+
+    const input =
+    document.getElementById(
+      `userid-${tipo}`
+    )
+
+    if(!input){
+      return
+    }
+
+    /* EFECTO VISUAL */
+
+    input.classList.add(
+      "scanned"
+    )
+
+    setTimeout(()=>{
+
+      input.classList.remove(
+        "scanned"
+      )
+
+    },400)
+
+    /* CONSULTAR */
+
+    await cargarUsuario(
+      id,
       tipo
     )
 
-  },200)
+    /* LIMPIAR */
+
+    input.value = ""
+
+    input.focus()
+
+  },150)
 
 }

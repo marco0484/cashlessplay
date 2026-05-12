@@ -120,63 +120,122 @@ res.status(500).json({
 // RECARGAR
 // ===============================
 app.post("/recargar", async (req, res) => {
-const { user_id, monto, staff_id } = req.body
-const client = await pool.connect()
 
-try{
-await client.query("BEGIN")
-await client.query(
-"UPDATE play.wallets SET saldo = saldo + $1 WHERE user_id=$2",
-[monto, user_id]
-)
+  try{
 
-console.log({
-  user_id,
-  monto,
-  evento_id: req.body.evento_id,
-  caja_id: req.body.caja_id,
-  terminal_id: req.body.terminal_id
+    const {
+      user_id,
+      monto,
+      staff_id
+    } = req.body
+
+    console.log("RECARGA:")
+    console.log(user_id)
+    console.log(monto)
+
+    /* VALIDACIONES */
+
+    if(!user_id){
+
+      return res.status(400).json({
+        error:"USER_ID requerido"
+      })
+
+    }
+
+    if(!monto || monto <= 0){
+
+      return res.status(400).json({
+        error:"Monto inválido"
+      })
+
+    }
+
+    /* UPDATE WALLET */
+
+    const result =
+    await pool.query(
+
+      `
+      UPDATE wallets
+      SET saldo = saldo + $1
+      WHERE user_id = $2
+      RETURNING saldo
+      `,
+
+      [
+        monto,
+        user_id
+      ]
+
+    )
+
+    /* NO EXISTE */
+
+    if(result.rowCount === 0){
+
+      return res.status(404).json({
+        error:"Wallet no encontrada"
+      })
+
+    }
+
+    /* NUEVO SALDO */
+
+    const nuevoSaldo =
+    result.rows[0].saldo
+
+    /* HISTORIAL */
+
+    await pool.query(
+
+      `
+      INSERT INTO recargas
+      (
+        user_id,
+        monto,
+        staff_id
+      )
+      VALUES
+      ($1,$2,$3)
+      `,
+
+      [
+        user_id,
+        monto,
+        staff_id
+      ]
+
+    )
+
+    /* OK */
+
+    res.json({
+
+      ok:true,
+
+      mensaje:"Recarga exitosa",
+
+      saldo:nuevoSaldo
+
+    })
+
+  }catch(err){
+
+    console.error(
+      "ERROR RECARGA:",
+      err
+    )
+
+    res.status(500).json({
+
+      error:"Error servidor"
+
+    })
+
+  }
+
 })
-
-// obtener caja real desde terminal
-const terminal_id = 1 // luego esto será dinámico
-
-const terminal = await client.query(
-  "SELECT caja_id FROM play.terminales WHERE id = $1",
-  [terminal_id]
-)
-
-if(terminal.rows.length === 0){
-  throw new Error("Terminal no existe")
-}
-
-const caja_id = terminal.rows[0].caja_id
-
-// ahora insert correcto
-await client.query(`
-INSERT INTO play.transacciones 
-(user_id, monto, tipo, evento_id, caja_id, terminal_id, staff_id)
-VALUES ($1,$2,$3,$4,$5,$6,$7)
-`, [user_id, monto, "recarga", 1, caja_id, terminal_id,staff_id])
-
-await client.query("COMMIT")
-
-res.json({mensaje:"Recarga exitosa"})
-
-}catch(err){
-
-await client.query("ROLLBACK")
-
-console.error("ERROR REAL:", err.message)
-
-res.status(500).json({error:err.message})
-
-}finally{
-client.release()
-}
-
-})
-
 // ===============================
 // PAGAR
 // ===============================
