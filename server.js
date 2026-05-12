@@ -1,4 +1,5 @@
 const express = require("express");
+const cors = require("cors");
 const { Pool } = require("pg");
 const path = require("path");
 const { MercadoPagoConfig, Preference } = require("mercadopago");
@@ -6,6 +7,9 @@ const { MercadoPagoConfig, Preference } = require("mercadopago");
 require("dotenv").config();
 
 const app = express();
+
+app.use(cors());
+
 app.use(express.json());
 
 const client = new MercadoPagoConfig({
@@ -19,7 +23,13 @@ app.get("/",(req,res)=>{
 
 // DB
 const pool = new Pool({
-  connectionString:"postgresql://localhost/cashless"
+
+  user:"postgres",
+  host:"localhost",
+  database:"postgres",
+  password:"Unitec88",
+  port:5432
+
 })
 
 // ===============================
@@ -54,34 +64,51 @@ app.post("/registro",async(req,res)=>{
 // ===============================
 app.post("/login", async (req, res) => {
 
-const { nombres, pin } = req.body
+const nombre = req.body.nombre
+const pin = parseInt(req.body.pin)
 
-if(!nombres || !pin){
-  return res.status(400).json({mensaje:"Datos incompletos"})
+if(!nombre || !pin){
+
+  return res.status(400).json({
+    mensaje:"Datos incompletos"
+  })
+
 }
 
 try{
 
 const result = await pool.query(
+
   "SELECT id, nombre FROM play.users WHERE nombre = $1 AND pin = $2",
-  [nombres, pin]
+
+  [nombre, pin]
+
 )
 
 if(result.rows.length === 0){
-  return res.status(401).json({mensaje:"Credenciales incorrectas"})
+
+  return res.status(401).json({
+    mensaje:"Credenciales incorrectas"
+  })
+
 }
 
 res.json({
+
   staff_id: result.rows[0].id,
   nombre: result.rows[0].nombre
+
 })
 
 }catch(err){
 
-console.error("LOGIN ERROR:", err.message)
+console.error(
+  "LOGIN ERROR:",
+  err.message
+)
 
 res.status(500).json({
-  error: "Error en login"
+  error:"Error en login"
 })
 
 }
