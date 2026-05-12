@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Registro usuario</title>
+
+<script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
+
+<style>
+
+/* ======================================== */
+/* RESET */
+/* ======================================== */
+*{
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+}
+
+/* ======================================== */
+/* BODY */
+/* ======================================== */
+body{
+  font-family:'Segoe UI', sans-serif;
+  min-height:100vh;
+  padding:20px;
+
+  display:flex;
+  justify-content:center;
+  align-items:center;
+
+  color:white;
+
+  background:
+    radial-gradient(circle at top right, rgba(0,255,204,0.10), transparent 30%),
+    radial-gradient(circle at bottom left, rgba(0,153,255,0.08), transparent 35%),
+    linear-gradient(135deg, #020617, #0f172a, #111827);
+}
+
+/* ======================================== */
+/* PANEL */
+/* ======================================== */
+.panel{
+  width:100%;
+  max-width:430px;
+
+  background:rgba(255,255,255,0.06);
+  border:1px solid rgba(255,255,255,0.08);
+
+  backdrop-filter:blur(18px);
+  -webkit-backdrop-filter:blur(18px);
+
+  border-radius:22px;
+  padding:40px 32px;
+
+  display:flex;
+  flex-direction:column;
+  gap:16px;
+
+  box-shadow:
+    0 20px 60px rgba(0,0,0,0.45),
+    inset 0 1px 0 rgba(255,255,255,0.05);
+
+  position:relative;
+  overflow:hidden;
+}
+
+/* línea premium arriba */
+.panel::before{
+  content:"";
+  position:absolute;
+  top:0;
+  left:10%;
+  width:80%;
+  height:3px;
+  border-radius:999px;
+  background:linear-gradient(to right, #00ffcc, #00bfff);
+}
+
+/* ======================================== */
+/* TITULO */
+/* ======================================== */
+h2{
+  text-align:center;
+  font-size:28px;
+  font-weight:700;
+  margin-bottom:8px;
+  letter-spacing:0.4px;
+}
+
+/* ======================================== */
+/* INPUTS */
+/* ======================================== */
+input{
+  width:100%;
+  padding:14px 16px;
+
+  border-radius:12px;
+  border:1px solid rgba(255,255,255,0.08);
+
+  background:rgba(255,255,255,0.05);
+  color:white;
+  font-size:15px;
+
+  outline:none;
+  transition:0.3s ease;
+}
+
+input::placeholder{
+  color:#94a3b8;
+}
+
+input:focus{
+  border-color:#00ffcc;
+  background:rgba(255,255,255,0.08);
+  box-shadow:0 0 0 4px rgba(0,255,204,0.08);
+}
+
+/* ======================================== */
+/* BOTONES */
+/* ======================================== */
+button{
+  width:100%;
+  padding:14px;
+
+  border:none;
+  border-radius:12px;
+
+  background:linear-gradient(to right, #00ffcc, #00bfff);
+  color:#02111b;
+
+  font-size:15px;
+  font-weight:700;
+  cursor:pointer;
+
+  display:flex;
+  justify-content:center;
+  align-items:center;
+
+  transition:0.25s ease;
+
+  box-shadow:0 10px 30px rgba(0,255,204,0.18);
+}
+
+button:hover{
+  transform:translateY(-2px);
+  box-shadow:0 14px 35px rgba(0,255,204,0.25);
+}
+
+/* ======================================== */
+/* RESULTADO */
+/* ======================================== */
+#resultado{
+  text-align:center;
+  font-size:14px;
+  color:#cbd5e1;
+  line-height:1.5;
+  margin-top:4px;
+}
+
+/* ======================================== */
+/* QR CONTENEDOR */
+/* ======================================== */
+#qr{
+  display:flex;
+  justify-content:center;
+  margin-top:10px;
+}
+
+/* ======================================== */
+/* QR CARD */
+/* ======================================== */
+.qr-card{
+  width:100%;
+  max-width:260px;
+
+  background:white;
+  color:#111827;
+
+  padding:18px;
+  border-radius:18px;
+  text-align:center;
+
+  box-shadow:0 15px 35px rgba(0,0,0,0.35);
+}
+
+/* brand */
+.qr-brand{
+  font-size:13px;
+  font-weight:700;
+  letter-spacing:0.8px;
+}
+
+/* folio */
+.qr-folio{
+  font-size:20px;
+  font-weight:800;
+  margin:8px 0;
+}
+
+/* id */
+.qr-id{
+  font-size:12px;
+  color:#64748b;
+  margin-bottom:14px;
+  line-height:1.4;
+}
+
+/* botón descargar */
+.download-btn{
+  margin-top:14px;
+  background:#111827;
+  color:white;
+  font-size:13px;
+  padding:10px;
+  border-radius:10px;
+  box-shadow:none;
+}
+
+.download-btn:hover{
+  background:#1f2937;
+  transform:none;
+}
+
+/* ======================================== */
+/* RESPONSIVE */
+/* ======================================== */
+
+/* tablet */
+@media(max-width:768px){
+  .panel{
+    padding:34px 24px;
+    border-radius:18px;
+  }
+
+  h2{
+    font-size:24px;
+  }
+}
+
+/* celular */
+@media(max-width:480px){
+  body{
+    padding:15px;
+  }
+
+  .panel{
+    padding:28px 20px;
+    border-radius:16px;
+  }
+
+  h2{
+    font-size:22px;
+  }
+
+  input{
+    padding:12px 14px;
+    font-size:14px;
+  }
+
+  button{
+    padding:12px;
+    font-size:14px;
+  }
+
+  .qr-card{
+    max-width:100%;
+  }
+}
+
+/* mini celular */
+@media(max-width:360px){
+  .panel{
+    padding:24px 16px;
+  }
+
+  h2{
+    font-size:20px;
+  }
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="panel">
+
+<h2>🎧 Registrar usuario</h2>
+
+<input id="nombre" placeholder="Nombre">
+<input id="email" placeholder="Email">
+
+<button onclick="registrar()">Crear usuario</button>
+
+<div id="resultado"></div>
+<div id="qr"></div>
+
+</div>
+
+<script>
+
+/* ===================== */
+/* REGISTRO */
+/* ===================== */
+async function registrar(){
+
+const nombre = document.getElementById("nombre").value
+const email = document.getElementById("email").value
+
+if(!nombre || !email){
+  alert("Completa los campos")
+  return
+}
+
+try{
+
+const res = await fetch("/registro",{
+method:"POST",
+headers:{ "Content-Type":"application/json" },
+body:JSON.stringify({ nombre, email })
+})
+
+const data = await res.json()
+
+if(!res.ok){
+  alert("Error al registrar")
+  return
+}
+
+document.getElementById("resultado").innerText =
+"Usuario creado ✔ ID: " + data.user_id
+
+generarQR(data.user_id, nombre)
+
+}catch(err){
+console.error(err)
+alert("Error de conexión")
+}
+
+}
+
+/* ===================== */
+/* QR */
+/* ===================== */
+function generarQR(id, nombre){
+
+const contenedor = document.getElementById("qr")
+contenedor.innerHTML=""
+
+const card = document.createElement("div")
+card.className = "qr-card"
+
+const brand = document.createElement("div")
+brand.className = "qr-brand"
+brand.innerText = "PLAY LABEL"
+
+const folio = document.createElement("div")
+folio.className = "qr-folio"
+folio.innerText = "Folio #" + id
+
+const sub = document.createElement("div")
+sub.className = "qr-id"
+sub.innerText = nombre + " | ID: " + id
+
+QRCode.toCanvas(id,{width:180},function(err,canvas){
+
+if(err) return console.error(err)
+
+card.appendChild(brand)
+card.appendChild(folio)
+card.appendChild(sub)
+card.appendChild(canvas)
+
+const btn = document.createElement("button")
+btn.innerText = "Descargar QR"
+btn.className = "download-btn"
+
+btn.onclick = () => {
+  const link = document.createElement("a")
+  link.download = "qr-"+id+".png"
+  link.href = canvas.toDataURL()
+  link.click()
+}
+
+card.appendChild(btn)
+
+contenedor.appendChild(card)
+
+})
+
+}
+
+</script>
+
+</body>
+</html>
