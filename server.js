@@ -78,59 +78,111 @@ app.post("/registro",async(req,res)=>{
 // ===============================
 // LOGIN STAFF
 // ===============================
+/*app.post("/login", async (req, res) => {
+
+  const nombre = req.body.nombre;
+  const pin = parseInt(req.body.pin);
+
+  if(!nombre || !pin){
+
+    return res.status(400).json({
+      mensaje:"Datos incompletos"
+    });
+
+  }
+
+  try{
+
+    const { data, error } = await supabase
+      .from("users")
+      .select("id,nombre")
+      .eq("nombre", nombre)
+      .eq("pin", pin)
+      .single();
+
+    if(error || !data){
+
+      return res.status(401).json({
+        mensaje:"Credenciales incorrectas"
+      });
+
+    }
+
+    res.json({
+      staff_id: data.id,
+      nombre: data.nombre
+    });
+
+  }catch(err){
+
+    console.error(
+      "LOGIN ERROR:",
+      err.message
+    );
+
+    res.status(500).json({
+      error:"Error en login"
+    });
+
+  }
+
+});
+
+*/
+
+// LOGIN EXPERIMENTO 
+
 app.post("/login", async (req, res) => {
 
-const nombre = req.body.nombre
-const pin = parseInt(req.body.pin)
+  const nombre = req.body.nombre;
+  const pin = parseInt(req.body.pin);
 
-if(!nombre || !pin){
+  if(!nombre || !pin){
 
-  return res.status(400).json({
-    mensaje:"Datos incompletos"
-  })
+    return res.status(400).json({
+      mensaje:"Datos incompletos"
+    });
 
-}
+  }
 
-try{
+  try{
 
-const result = await pool.query(
+    const { data, error } = await supabase
+      .from("users")
+      .select("id,nombre")
+      .eq("nombre", nombre)
+      .eq("pin", pin)
+      .single();
 
-  "SELECT id, nombre FROM play.users WHERE nombre = $1 AND pin = $2",
+    if(error){
 
-  [nombre, pin]
+      console.error("SUPABASE ERROR:", error);
 
-)
+      return res.status(401).json({
+        mensaje:"Credenciales incorrectas"
+      });
 
-if(result.rows.length === 0){
+    }
 
-  return res.status(401).json({
-    mensaje:"Credenciales incorrectas"
-  })
+    res.json({
+      staff_id: data.id,
+      nombre: data.nombre
+    });
 
-}
+  }catch(err){
 
-res.json({
+    console.error(
+      "LOGIN ERROR:",
+      err
+    );
 
-  staff_id: result.rows[0].id,
-  nombre: result.rows[0].nombre
+    res.status(500).json({
+      error: err.message
+    });
 
-})
+  }
 
-}catch(err){
-
-console.error(
-  "LOGIN ERROR:",
-  err.message
-)
-
-res.status(500).json({
-  error:"Error en login"
-})
-
-}
-
-})
-
+});
 
 // ===============================
 // RECARGAR
@@ -180,7 +232,6 @@ app.post("/recargar", async (req, res) => {
       )
 
     }
-
     /* RECARGAR */
 
     const result =
