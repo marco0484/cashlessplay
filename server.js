@@ -386,107 +386,64 @@ client.release()
 // ===============================
 app.get("/usuario/:user_id", async (req, res) => {
 
-  const user_id = parseInt(req.params.user_id)
-
-  const user = await pool.query(
-    `
-    SELECT
-      user_id,
-      desc_dispositivo,
-      saldo
-    FROM play.wallets
-    WHERE user_id = $1
-    `,
-    [user_id]
-  )
-
-  if(user.rows.length === 0){
-
-    return res.status(404).json({
-      mensaje:"Usuario no encontrado"
-    })
-
-  }
-
-  res.json(user.rows[0])
-
-})
-
-app.post("/crear-recarga-mp", async (req, res) => {
-  const { user_id, monto } = req.body;
-
-  if (!user_id || !monto) {
-    return res.status(400).json({
-      error: "Datos incompletos"
-    });
-  }
-
-  try {
-    const preference = {
-      items: [
-        {
-          title: "Recarga Cashless",
-          quantity: 1,
-          unit_price: Number(monto),
-          currency_id: "MXN"
-        }
-      ],
-      external_reference: `recarga_${user_id}_${Date.now()}`,
-
-      metadata: {
-        user_id,
-        tipo: "recarga_cashless"
-      },
-
-      back_urls: {
-        success: "http://localhost:3000/pago-exitoso",
-        failure: "http://localhost:3000/pago-fallido",
-        pending: "http://localhost:3000/pago-pendiente"
-      },
-
-      //auto_return: "approved"
-    };
-
-const preferenceClient = new Preference(client);  // FULL
-const response = await preferenceClient.create({
-  body: preference
-});
-
-    res.json({
-      init_point: response.init_point
-    });
-
-  } catch (error) {
-    console.error("MP ERROR:", error);
-
-    res.status(500).json({
-      error: "Error creando preferencia de pago"
-    });
-  }
-});
-
-app.get("/test-supabase", async (req,res)=>{
-
   try{
 
-    const { data, error } =
-    await supabase
-    .from("users")
-    .select("*")
-    .limit(1);
+    const user_id = parseInt(req.params.user_id);
 
-    if(error){
+    // CLOUD (Vercel)
+    if(process.env.VERCEL){
 
-      console.log(error);
+      const { data, error } = await supabase
+        .from("wallets")
+        .select(`
+          user_id,
+          desc_dispositivo,
+          saldo
+        `)
+        .eq("user_id", user_id)
+        .single();
 
-      return res.status(500)
-      .json(error);
+      if(error || !data){
+
+        return res.status(404).json({
+          mensaje:"Usuario no encontrado"
+        });
+
+      }
+
+      return res.json(data);
 
     }
 
-    res.json(data);
+    // LOCAL
+    const user = await pool.query(
+      `
+      SELECT
+        user_id,
+        desc_dispositivo,
+        saldo
+      FROM play.wallets
+      WHERE user_id = $1
+      `,
+      [user_id]
+    );
+
+    if(user.rows.length === 0){
+
+      return res.status(404).json({
+        mensaje:"Usuario no encontrado"
+      });
+
+    }
+
+    res.json(user.rows[0]);
 
   }catch(err){
+
+    console.error(
+      "USUARIO ERROR:",
+      err
+    );
 
     res.status(500).json({
       error: err.message
@@ -497,6 +454,148 @@ app.get("/test-supabase", async (req,res)=>{
 });
 
 
-app.listen(3000,()=>{
-  console.log("Servidor corriendo 🚀")
-})
+// RECARGA 
+
+/* ===================================================== */
+/* MERCADO PAGO - CREAR PREFERENCIA DE RECARGA */
+/* ===================================================== */
+app.post("/crear-recarga-mp", async (req, res) => {
+
+  const { user_id, monto } = req.body;
+
+  /* VALIDAR DATOS */
+
+  if (!user_id || !monto) {
+
+    return res.status(400).json({
+      error: "Datos incompletos"
+    });
+
+  }
+
+  try {
+
+    /* URLS SEGÚN ENTORNO */
+
+    const BASE_URL =
+      process.env.VERCEL
+        ? "https://cashlessplay.vercel.app"   // CLOUD
+        : "http://localhost:3000";            // LOCAL
+
+    /* PREFERENCIA MP */
+
+    const preference = {
+
+      items: [
+        {
+          title: "Recarga Cashless",
+          quantity: 1,
+          unit_price: Number(monto),
+          currency_id: "MXN"
+        }
+      ],
+
+      external_reference:
+        `recarga_${user_id}_${Date.now()}`,
+
+      metadata: {
+        user_id,
+        tipo: "recarga_cashless"
+      },
+
+      back_urls: {
+
+        success:
+          `${BASE_URL}/pago-exitoso`,
+
+        failure:
+          `${BASE_URL}/pago-fallido`,
+
+        pending:
+          `${BASE_URL}/pago-pendiente`
+
+      }
+
+      // auto_return: "approved"
+
+    };
+
+    const preferenceClient =
+      new Preference(client);
+
+    const response =
+      await preferenceClient.create({
+        body: preference
+      });
+
+    res.json({
+      init_point: response.init_point
+    });
+
+  } catch (error) {
+
+    console.error(
+      "MP ERROR:",
+      error
+    );
+
+    res.status(500).json({
+      error:
+      "Error creando preferencia de pago"
+    });
+
+  }
+
+});
+
+
+/* ===================================================== */
+/* TEST SUPABASE */
+/* SOLO PARA VALIDAR CONECTIVIDAD */
+/* ===================================================== */
+app.get("/test-supabase", async (req, res) => {
+
+  try {
+
+    const { data, error } =
+      await supabase
+        .from("users")
+        .select("*")
+        .limit(1);
+
+    if (error) {
+
+      console.error(
+        "SUPABASE ERROR:",
+        error
+      );
+
+      return res.status(500)
+        .json(error);
+
+    }
+
+    res.json(data);
+
+  } catch (err) {
+
+    res.status(500).json({
+      error: err.message
+    });
+
+  }
+
+});
+
+
+/* ===================================================== */
+/* INICIAR SERVIDOR LOCAL */
+/* EN VERCEL APP.LISTEN SE IGNORA */
+/* ===================================================== */
+app.listen(3000, () => {
+
+  console.log(
+    "Servidor corriendo 🚀"
+  );
+
+});
