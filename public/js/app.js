@@ -1,4 +1,20 @@
-const staff = localStorage.getItem("staff_id")
+/* ========================= */
+/* SUPABASE */
+/* ========================= */
+
+const SUPABASE_URL =
+  "https://caoqqzzwwpiivmqqeigw.supabase.co";
+
+const SUPABASE_KEY =
+  "sb_publishable_4FaRj7XuzifYgPa8BjtO8A_C46t5q0Q";
+
+const supabaseClient =
+  supabase.createClient(
+    SUPABASE_URL,
+    SUPABASE_KEY
+  );
+  
+  const staff = localStorage.getItem("staff_id")
 
 let timerRFID = null
 
@@ -22,7 +38,7 @@ localStorage.getItem("modo") || "local";
 
 const API =
   modo === "cloud"
-    ? "https://api.cosmicpass.space"
+    ? "https://cashlessplay.vercel.app"
     : "http://localhost:3000";
 
 console.log("MODO:", modo);
