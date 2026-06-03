@@ -1,23 +1,5 @@
-/* ========================= */
-/* SUPABASE */
-/* ========================= */
-
-const SUPABASE_URL =
-  "https://caoqqzzwwpiivmqqeigw.supabase.co";
-
-const SUPABASE_KEY =
-  "sb_publishable_4FaRj7XuzifYgPa8BjtO8A_C46t5q0Q";
-
-const supabaseClient =
-  supabase.createClient(
-    SUPABASE_URL,
-    SUPABASE_KEY
-  );
-  
-  const staff = localStorage.getItem("staff_id")
-
+const staff = localStorage.getItem("staff_id")
 let timerRFID = null
-
 let ultimoUsuarioRecarga = null
 let ultimoUsuarioPago = null
 
