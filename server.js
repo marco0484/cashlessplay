@@ -194,9 +194,79 @@ app.post("/recargar", async (req, res) => {
     const {
       user_id,
       monto
-    } = req.body
+    } = req.body;
 
-    /* BUSCAR WALLET */
+    /* ========================= */
+    /* CLOUD - SUPABASE */
+    /* ========================= */
+
+    if(process.env.VERCEL){
+
+      const { data: wallet } =
+      await supabase
+        .from("wallets")
+        .select("user_id,saldo")
+        .eq("user_id", user_id)
+        .single();
+
+      /* SI NO EXISTE */
+
+      if(!wallet){
+
+        await supabase
+          .from("wallets")
+          .insert([{
+            user_id,
+            saldo: 0
+          }]);
+
+      }
+
+      /* OBTENER SALDO ACTUAL */
+
+      const { data: actual } =
+      await supabase
+        .from("wallets")
+        .select("saldo")
+        .eq("user_id", user_id)
+        .single();
+
+      const nuevoSaldo =
+        Number(actual?.saldo || 0)
+        + Number(monto);
+
+      /* ACTUALIZAR */
+
+      const { error } =
+      await supabase
+        .from("wallets")
+        .update({
+
+          saldo: nuevoSaldo,
+          actualizado:
+          new Date().toISOString()
+
+        })
+        .eq("user_id", user_id);
+
+      if(error){
+
+        throw error;
+
+      }
+
+      return res.json({
+
+        ok:true,
+        saldo:nuevoSaldo
+
+      });
+
+    }
+
+    /* ========================= */
+    /* LOCAL - POSTGRES */
+    /* ========================= */
 
     const existe =
     await pool.query(
@@ -209,9 +279,7 @@ app.post("/recargar", async (req, res) => {
 
       [user_id]
 
-    )
-
-    /* SI NO EXISTE -> CREAR */
+    );
 
     if(existe.rowCount === 0){
 
@@ -229,10 +297,9 @@ app.post("/recargar", async (req, res) => {
 
         [user_id]
 
-      )
+      );
 
     }
-    /* RECARGAR */
 
     const result =
     await pool.query(
@@ -251,7 +318,7 @@ app.post("/recargar", async (req, res) => {
         user_id
       ]
 
-    )
+    );
 
     res.json({
 
@@ -260,126 +327,139 @@ app.post("/recargar", async (req, res) => {
       saldo:
       result.rows[0].saldo
 
-    })
+    });
 
   }catch(err){
 
-    console.error(err)
+    console.error(
+      "RECARGA ERROR:",
+      err
+    );
 
     res.status(500).json({
 
       error:"Error servidor"
 
-    })
+    });
 
   }
 
-})
+});
 // ===============================
 // PAGAR
 // ===============================
-app.post("/pagar", async (req, res) => {
+/* ========================= */
+/* CLOUD - SUPABASE */
+/* ========================= */
 
-const { user_id, monto, carrito, staff_id } = req.body
-const client = await pool.connect()
+if(process.env.VERCEL){
 
-try{
+  // VALIDACIONES
 
-await client.query("BEGIN")
+  if(!user_id || !monto){
+    throw new Error("Datos incompletos");
+  }
 
-// 🔥 VALIDACIONES BÁSICAS
-if(!user_id || !monto){
-  throw new Error("Datos incompletos")
+  if(!Array.isArray(carrito) || carrito.length === 0){
+    throw new Error("Carrito vacío");
+  }
+
+  if(!staff_id){
+    throw new Error("Staff no identificado");
+  }
+
+  // SALDO
+
+  const { data: wallet } =
+  await supabase
+    .from("wallets")
+    .select("saldo")
+    .eq("user_id", user_id)
+    .single();
+
+  if(!wallet){
+    throw new Error("Usuario no encontrado");
+  }
+
+  const saldo =
+    Number(wallet.saldo);
+
+  if(saldo < monto){
+    throw new Error("Saldo insuficiente");
+  }
+
+  // STAFF
+
+  const { data: staff } =
+  await supabase
+    .from("users")
+    .select("caja_id,terminal_id")
+    .eq("id", staff_id)
+    .single();
+
+  if(!staff){
+    throw new Error("Staff no encontrado");
+  }
+
+  // DESCONTAR SALDO
+
+  await supabase
+    .from("wallets")
+    .update({
+      saldo: saldo - monto
+    })
+    .eq("user_id", user_id);
+
+  // TRANSACCION
+
+  const { data: transaccion } =
+  await supabase
+    .from("transacciones")
+    .insert([{
+      user_id,
+      monto,
+      tipo: "pago",
+      evento_id: 1,
+      caja_id: staff.caja_id,
+      terminal_id: staff.terminal_id,
+      staff_id
+    }])
+    .select()
+    .single();
+
+  // DETALLE
+
+  for(const item of carrito){
+
+    await supabase
+      .from("detalle_ventas")
+      .insert([{
+
+        transaccion_id:
+          transaccion.id,
+
+        producto_id:
+          item.producto_id || 1,
+
+        cantidad:
+          item.cantidad,
+
+        precio_unitario:
+          item.precio,
+
+        subtotal:
+          item.precio *
+          item.cantidad
+
+      }]);
+
+  }
+
+  return res.json({
+    mensaje:"Pago realizado"
+  });
+
 }
-
-if(!Array.isArray(carrito) || carrito.length === 0){
-  throw new Error("Carrito vacío")
-}
-
-if(!staff_id){
-  throw new Error("Staff no identificado")
-}
-
-// 🔥 VALIDAR SALDO
-const result = await client.query(
-  "SELECT saldo FROM play.wallets WHERE user_id=$1",
-  [user_id]
-)
-
-if(result.rows.length === 0){
-  throw new Error("Usuario no encontrado")
-}
-
-const saldo = parseFloat(result.rows[0].saldo)
-
-if(saldo < monto){
-  throw new Error("Saldo insuficiente")
-}
-
-// 🔥 OBTENER CAJA Y TERMINAL DESDE USER (STAFF)
-const staff = await client.query(
-  "SELECT caja_id, terminal_id FROM play.users WHERE id = $1",
-  [staff_id]
-)
-
-if(staff.rows.length === 0){
-  throw new Error("Staff no encontrado")
-}
-
-const caja_id = staff.rows[0].caja_id
-const terminal_id = staff.rows[0].terminal_id
-const evento_id = 1
-
-// 🔥 DESCONTAR SALDO
-await client.query(
-  "UPDATE play.wallets SET saldo = saldo - $1 WHERE user_id=$2",
-  [monto,user_id]
-)
-
-// 🔥 INSERT TRANSACCIÓN (YA CON TODO)
-const transaccion = await client.query(`
-INSERT INTO play.transacciones 
-(user_id,monto,tipo,evento_id,caja_id,terminal_id,staff_id)
-VALUES ($1,$2,'pago',$3,$4,$5,$6)
-RETURNING id
-`, [user_id, monto, evento_id, caja_id, terminal_id,staff_id])
-
-const transaccion_id = transaccion.rows[0].id
-
-// 🔥 INSERT DETALLE
-for(const item of carrito){
-
-await client.query(`
-INSERT INTO play.detalle_ventas
-(transaccion_id, producto_id, cantidad, precio_unitario, subtotal)
-VALUES ($1,$2,$3,$4,$5)
-`, [
-  transaccion_id,
-  item.producto_id || 1, // temporal si algo falla
-  item.cantidad,
-  item.precio,
-  item.precio * item.cantidad
-])
-
-}
-
-await client.query("COMMIT")
-
-res.json({mensaje:"Pago realizado"})
-
-}catch(err){
-
-await client.query("ROLLBACK")
-
-console.error("ERROR PAGO:", err.message)
-
-res.status(500).json({error:err.message})
-
-}finally{
-client.release()
-}
-
-})
 
 // ===============================
 // CONSULTAR
@@ -388,18 +468,25 @@ app.get("/usuario/:user_id", async (req, res) => {
 
   try{
 
-    const user_id = parseInt(req.params.user_id);
+    const user_id =
+      parseInt(req.params.user_id);
 
-    // CLOUD (Vercel)
+    if(isNaN(user_id)){
+
+      return res.status(400).json({
+        mensaje:"ID inválido"
+      });
+
+    }
+
     if(process.env.VERCEL){
 
-      const { data, error } = await supabase
+      const { data, error } =
+      await supabase
         .from("wallets")
-        .select(`
-          user_id,
-          desc_dispositivo,
-          saldo
-        `)
+        .select(
+          "user_id,desc_dispositivo,saldo"
+        )
         .eq("user_id", user_id)
         .single();
 
@@ -415,8 +502,8 @@ app.get("/usuario/:user_id", async (req, res) => {
 
     }
 
-    // LOCAL
-    const user = await pool.query(
+    const user =
+    await pool.query(
       `
       SELECT
         user_id,
@@ -436,7 +523,7 @@ app.get("/usuario/:user_id", async (req, res) => {
 
     }
 
-    res.json(user.rows[0]);
+    return res.json(user.rows[0]);
 
   }catch(err){
 
@@ -445,7 +532,7 @@ app.get("/usuario/:user_id", async (req, res) => {
       err
     );
 
-    res.status(500).json({
+    return res.status(500).json({
       error: err.message
     });
 
@@ -453,8 +540,6 @@ app.get("/usuario/:user_id", async (req, res) => {
 
 });
 
-
-// RECARGA 
 
 /* ===================================================== */
 /* MERCADO PAGO - CREAR PREFERENCIA DE RECARGA */
