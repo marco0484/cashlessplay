@@ -16,11 +16,14 @@ require("@supabase/supabase-js");
 /* SUPABASE */
 /* ========================= */
 
+const { createClient } =
+require("@supabase/supabase-js");
+
 const SUPABASE_URL =
   "https://caoqqzzwwpiivmqqeigw.supabase.co";
 
 const SUPABASE_KEY =
-  process.env.SUPABASE_SERVICE_KEY;
+  "sb_publishable_4FaRj7XuzifYgPa8BjtO8A_C46t5q0Q";
 
 const supabase =
 createClient(
