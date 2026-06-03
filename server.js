@@ -3,14 +3,30 @@ const cors = require("cors");
 const { Pool } = require("pg");
 const path = require("path");
 const { MercadoPagoConfig, Preference } = require("mercadopago");
-
 require("dotenv").config();
-
 const app = express();
 
 app.use(cors());
-
 app.use(express.json());
+
+const { createClient } =
+require("@supabase/supabase-js");
+
+/* ========================= */
+/* SUPABASE */
+/* ========================= */
+
+const SUPABASE_URL =
+  "https://caoqqzzwwpiivmqqeigw.supabase.co";
+
+const SUPABASE_KEY =
+  process.env.SUPABASE_SERVICE_KEY;
+
+const supabase =
+createClient(
+  SUPABASE_URL,
+  SUPABASE_KEY
+);
 
 const client = new MercadoPagoConfig({
   accessToken: process.env.MP_TOKEN
@@ -396,6 +412,37 @@ const response = await preferenceClient.create({
       error: "Error creando preferencia de pago"
     });
   }
+});
+
+app.get("/test-supabase", async (req,res)=>{
+
+  try{
+
+    const { data, error } =
+    await supabase
+    .from("users")
+    .select("*")
+    .limit(1);
+
+    if(error){
+
+      console.log(error);
+
+      return res.status(500)
+      .json(error);
+
+    }
+
+    res.json(data);
+
+  }catch(err){
+
+    res.status(500).json({
+      error: err.message
+    });
+
+  }
+
 });
 
 

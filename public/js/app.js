@@ -17,7 +17,16 @@ if(!staff){
 /* CONFIG API */
 /* ===================================== */
 
-const API = "http://localhost:3000"
+const modo =
+localStorage.getItem("modo") || "local";
+
+const API =
+  modo === "cloud"
+    ? "https://api.cosmicpass.space"
+    : "http://localhost:3000";
+
+console.log("MODO:", modo);
+console.log("API:", API);
 
 // const API = "http://192.168.100.23:3000"
 
@@ -35,11 +44,15 @@ window.addEventListener("DOMContentLoaded", () => {
   const nombre =
   localStorage.getItem("staff_nombre")
 
+  const modo =
+  localStorage.getItem("modo") || "local"
+
   if(nombre){
 
     document.getElementById(
       "usuario-logeado"
-    ).innerText = "👤 " + nombre
+    ).innerText =
+    `👤 ${nombre} | ${modo.toUpperCase()}`
 
   }
 

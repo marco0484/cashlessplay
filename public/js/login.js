@@ -1,95 +1,82 @@
-const API = ""
+async function login(modo){
 
-async function login(){
+  localStorage.setItem(
+    "modo",
+    modo
+  );
 
-const nombre =
-document.getElementById("username").value.trim()
+  const API =
+    modo === "cloud"
+      ? "https://api.cosmicpass.space"
+      : "http://localhost:3000";
 
-const pin =
-document.getElementById("pin").value.trim()
+  const nombre =
+  document.getElementById("username").value.trim();
 
-// 🔥 VALIDACIÓN
-if(!nombre || !pin){
+  const pin =
+  document.getElementById("pin").value.trim();
 
-  alert("Completa los campos")
+  if(!nombre || !pin){
 
-  return
+    alert("Completa los campos");
+    return;
 
-}
+  }
 
-try{
+  try{
 
-const res = await fetch(API + "/login", {
+    const res = await fetch(API + "/login", {
 
-  method: "POST",
+      method: "POST",
 
-  headers: {
-    "Content-Type": "application/json"
-  },
+      headers: {
+        "Content-Type": "application/json"
+      },
 
-  body: JSON.stringify({
-    nombre,
-    pin
-  })
+      body: JSON.stringify({
+        nombre,
+        pin
+      })
 
-})
+    });
 
-const data = await res.json()
+    const data = await res.json();
 
-if(!res.ok){
+    if(!res.ok){
 
-  alert(
-    data.mensaje ||
-    "Credenciales incorrectas"
-  )
+      alert(
+        data.mensaje ||
+        "Credenciales incorrectas"
+      );
 
-  return
-
-}
-
-// 🔥 GUARDAR SESIÓN
-localStorage.setItem(
-  "staff_id",
-  data.staff_id
-)
-
-localStorage.setItem(
-  "staff_nombre",
-  data.nombre
-)
-
-console.log(
-  "✅ LOGIN OK:",
-  data
-)
-
-// 🔥 REDIRECCIÓN
-window.location.href = "index.html"
-
-}catch(err){
-
-console.error(
-  "❌ ERROR LOGIN:",
-  err
-)
-
-alert(
-  "Error de conexión con el servidor"
-)
-
-}
-
-}
-
-// 🔥 ENTER PARA LOGIN
-document.addEventListener(
-  "keydown",
-  (e) => {
-
-    if(e.key === "Enter"){
-
-      login()
+      return;
 
     }
 
-})
+    localStorage.setItem(
+      "staff_id",
+      data.staff_id
+    );
+
+    localStorage.setItem(
+      "staff_nombre",
+      data.nombre
+    );
+
+    window.location.href =
+    "index.html";
+
+  }catch(err){
+
+    console.error(
+      "❌ ERROR LOGIN:",
+      err
+    );
+
+    alert(
+      "Error de conexión con el servidor"
+    );
+
+  }
+
+}

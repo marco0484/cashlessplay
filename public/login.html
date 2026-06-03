@@ -13,13 +13,23 @@
 <div class="login-container">
 
   <div class="login-card">
-    
+
     <h2>🔐 Acceso Staff</h2>
 
     <input id="username" placeholder="Usuario">
     <input id="pin" type="password" placeholder="PIN">
 
-    <button onclick="login()">Entrar</button>
+    <div class="modo-container">
+
+      <button onclick="login('local')">
+  🏠 Entrar Local
+</button>
+
+<button onclick="login('cloud')">
+  ☁️ Entrar Cloud
+</button>
+
+    </div>
 
   </div>
 
