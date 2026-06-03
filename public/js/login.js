@@ -7,7 +7,7 @@ async function login(modo){
 
   const API =
     modo === "cloud"
-      ? "https://api.cosmicpass.space"
+      ? "https://cashlessplay.vercel.app"
       : "http://localhost:3000";
 
   const nombre =
