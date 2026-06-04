@@ -440,6 +440,60 @@ app.post("/pagar", async (req, res) => {
 
   try {
 
+    /* ========================= */
+    /* CLOUD - SUPABASE */
+    /* ========================= */
+
+    if(process.env.VERCEL){
+
+      const { data: wallet } =
+      await supabase
+        .from("wallets")
+        .select("saldo")
+        .eq("user_id", user_id)
+        .single();
+
+      if(!wallet){
+
+        return res.status(404).json({
+          mensaje:"Wallet no encontrada"
+        });
+
+      }
+
+      const saldoActual =
+      Number(wallet.saldo);
+
+      if(saldoActual < monto){
+
+        return res.status(400).json({
+          mensaje:"Saldo insuficiente"
+        });
+
+      }
+
+      const nuevoSaldo =
+      saldoActual - monto;
+
+      await supabase
+        .from("wallets")
+        .update({
+          saldo:nuevoSaldo,
+          actualizado:new Date().toISOString()
+        })
+        .eq("user_id", user_id);
+
+      return res.json({
+        mensaje:"Pago realizado",
+        saldo:nuevoSaldo
+      });
+
+    }
+
+    /* ========================= */
+    /* LOCAL - POSTGRES */
+    /* ========================= */
+
     const wallet = await pool.query(
       `
       SELECT saldo
@@ -485,7 +539,7 @@ app.post("/pagar", async (req, res) => {
       ]
     );
 
-    res.json({
+    return res.json({
       mensaje:"Pago realizado",
       saldo:nuevoSaldo
     });
