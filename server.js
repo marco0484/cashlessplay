@@ -493,7 +493,7 @@ app.post("/pagar", async (req, res) => {
         error: trxError
       } =
       await supabase
-        .from("transactions")
+        .from("transacciones")
         .insert({
           user_id,
           monto,
