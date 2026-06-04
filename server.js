@@ -446,14 +446,14 @@ app.post("/pagar", async (req, res) => {
 
     if(process.env.VERCEL){
 
-      const { data: wallet } =
+      const { data: wallet, error: walletError } =
       await supabase
         .from("wallets")
         .select("saldo")
         .eq("user_id", user_id)
         .single();
 
-      if(!wallet){
+      if(walletError || !wallet){
 
         return res.status(404).json({
           mensaje:"Wallet no encontrada"
@@ -475,6 +475,7 @@ app.post("/pagar", async (req, res) => {
       const nuevoSaldo =
       saldoActual - monto;
 
+      const { error:updateError } =
       await supabase
         .from("wallets")
         .update({
@@ -483,9 +484,65 @@ app.post("/pagar", async (req, res) => {
         })
         .eq("user_id", user_id);
 
+      if(updateError){
+        throw updateError;
+      }
+
+      const {
+        data: transaccion,
+        error: trxError
+      } =
+      await supabase
+        .from("transactions")
+        .insert({
+          user_id,
+          monto,
+          tipo:"VENTA",
+          staff_id
+        })
+        .select()
+        .single();
+
+      if(trxError){
+        throw trxError;
+      }
+
+      for(const item of carrito){
+
+        const { error } =
+        await supabase
+          .from("detalle_ventas")
+          .insert({
+
+            transaccion_id:
+            transaccion.id,
+
+            producto_id:
+            item.producto_id,
+
+            cantidad:
+            item.cantidad,
+
+            precio_unitario:
+            item.precio,
+
+            subtotal:
+            item.precio * item.cantidad
+
+          });
+
+        if(error){
+          throw error;
+        }
+
+      }
+
       return res.json({
+
+        ok:true,
         mensaje:"Pago realizado",
         saldo:nuevoSaldo
+
       });
 
     }
@@ -539,14 +596,81 @@ app.post("/pagar", async (req, res) => {
       ]
     );
 
+    const transaccion =
+    await pool.query(
+      `
+      INSERT INTO play.transactions
+      (
+        user_id,
+        monto,
+        tipo,
+        staff_id
+      )
+      VALUES
+      (
+        $1,
+        $2,
+        'VENTA',
+        $3
+      )
+      RETURNING id
+      `,
+      [
+        user_id,
+        monto,
+        staff_id
+      ]
+    );
+
+    const transaccion_id =
+    transaccion.rows[0].id;
+
+    for(const item of carrito){
+
+      await pool.query(
+        `
+        INSERT INTO play.detalle_ventas
+        (
+          transaccion_id,
+          producto_id,
+          cantidad,
+          precio_unitario,
+          subtotal
+        )
+        VALUES
+        (
+          $1,
+          $2,
+          $3,
+          $4,
+          $5
+        )
+        `,
+        [
+          transaccion_id,
+          item.producto_id,
+          item.cantidad,
+          item.precio,
+          item.precio * item.cantidad
+        ]
+      );
+
+    }
+
     return res.json({
+
+      ok:true,
       mensaje:"Pago realizado",
       saldo:nuevoSaldo
+
     });
 
   } catch(err){
 
-    console.error(err);
+    console.error(
+      "PAGO ERROR:",
+      err
+    );
 
     res.status(500).json({
       error:err.message
