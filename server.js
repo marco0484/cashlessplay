@@ -345,121 +345,6 @@ app.post("/recargar", async (req, res) => {
   }
 
 });
-// ===============================
-// PAGAR
-// ===============================
-/* ========================= */
-/* CLOUD - SUPABASE */
-/* ========================= */
-
-if(process.env.VERCEL){
-
-  // VALIDACIONES
-
-  if(!user_id || !monto){
-    throw new Error("Datos incompletos");
-  }
-
-  if(!Array.isArray(carrito) || carrito.length === 0){
-    throw new Error("Carrito vacío");
-  }
-
-  if(!staff_id){
-    throw new Error("Staff no identificado");
-  }
-
-  // SALDO
-
-  const { data: wallet } =
-  await supabase
-    .from("wallets")
-    .select("saldo")
-    .eq("user_id", user_id)
-    .single();
-
-  if(!wallet){
-    throw new Error("Usuario no encontrado");
-  }
-
-  const saldo =
-    Number(wallet.saldo);
-
-  if(saldo < monto){
-    throw new Error("Saldo insuficiente");
-  }
-
-  // STAFF
-
-  const { data: staff } =
-  await supabase
-    .from("users")
-    .select("caja_id,terminal_id")
-    .eq("id", staff_id)
-    .single();
-
-  if(!staff){
-    throw new Error("Staff no encontrado");
-  }
-
-  // DESCONTAR SALDO
-
-  await supabase
-    .from("wallets")
-    .update({
-      saldo: saldo - monto
-    })
-    .eq("user_id", user_id);
-
-  // TRANSACCION
-
-  const { data: transaccion } =
-  await supabase
-    .from("transacciones")
-    .insert([{
-      user_id,
-      monto,
-      tipo: "pago",
-      evento_id: 1,
-      caja_id: staff.caja_id,
-      terminal_id: staff.terminal_id,
-      staff_id
-    }])
-    .select()
-    .single();
-
-  // DETALLE
-
-  for(const item of carrito){
-
-    await supabase
-      .from("detalle_ventas")
-      .insert([{
-
-        transaccion_id:
-          transaccion.id,
-
-        producto_id:
-          item.producto_id || 1,
-
-        cantidad:
-          item.cantidad,
-
-        precio_unitario:
-          item.precio,
-
-        subtotal:
-          item.precio *
-          item.cantidad
-
-      }]);
-
-  }
-
-  return res.json({
-    mensaje:"Pago realizado"
-  });
-
-}
 
 // ===============================
 // CONSULTAR
@@ -544,95 +429,28 @@ app.get("/usuario/:user_id", async (req, res) => {
 /* ===================================================== */
 /* MERCADO PAGO - CREAR PREFERENCIA DE RECARGA */
 /* ===================================================== */
-app.post("/crear-recarga-mp", async (req, res) => {
+app.post("/pagar", async (req, res) => {
 
-  const { user_id, monto } = req.body;
+  try{
 
-  /* VALIDAR DATOS */
-
-  if (!user_id || !monto) {
-
-    return res.status(400).json({
-      error: "Datos incompletos"
+    return res.json({
+      mensaje:"Pago realizado"
     });
 
-  }
-
-  try {
-
-    /* URLS SEGÚN ENTORNO */
-
-    const BASE_URL =
-      process.env.VERCEL
-        ? "https://cashlessplay.vercel.app"   // CLOUD
-        : "http://localhost:3000";            // LOCAL
-
-    /* PREFERENCIA MP */
-
-    const preference = {
-
-      items: [
-        {
-          title: "Recarga Cashless",
-          quantity: 1,
-          unit_price: Number(monto),
-          currency_id: "MXN"
-        }
-      ],
-
-      external_reference:
-        `recarga_${user_id}_${Date.now()}`,
-
-      metadata: {
-        user_id,
-        tipo: "recarga_cashless"
-      },
-
-      back_urls: {
-
-        success:
-          `${BASE_URL}/pago-exitoso`,
-
-        failure:
-          `${BASE_URL}/pago-fallido`,
-
-        pending:
-          `${BASE_URL}/pago-pendiente`
-
-      }
-
-      // auto_return: "approved"
-
-    };
-
-    const preferenceClient =
-      new Preference(client);
-
-    const response =
-      await preferenceClient.create({
-        body: preference
-      });
-
-    res.json({
-      init_point: response.init_point
-    });
-
-  } catch (error) {
+  }catch(err){
 
     console.error(
-      "MP ERROR:",
-      error
+      "ERROR PAGO:",
+      err
     );
 
     res.status(500).json({
-      error:
-      "Error creando preferencia de pago"
+      error: err.message
     });
 
   }
 
 });
-
 
 /* ===================================================== */
 /* TEST SUPABASE */
