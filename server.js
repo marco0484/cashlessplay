@@ -431,21 +431,71 @@ app.get("/usuario/:user_id", async (req, res) => {
 /* ===================================================== */
 app.post("/pagar", async (req, res) => {
 
-  try{
+  const {
+    user_id,
+    monto,
+    carrito,
+    staff_id
+  } = req.body;
 
-    return res.json({
-      mensaje:"Pago realizado"
-    });
+  try {
 
-  }catch(err){
-
-    console.error(
-      "ERROR PAGO:",
-      err
+    const wallet = await pool.query(
+      `
+      SELECT saldo
+      FROM play.wallets
+      WHERE user_id = $1
+      `,
+      [user_id]
     );
 
+    if(wallet.rowCount === 0){
+
+      return res.status(404).json({
+        mensaje:"Wallet no encontrada"
+      });
+
+    }
+
+    const saldoActual =
+    Number(wallet.rows[0].saldo);
+
+    if(saldoActual < monto){
+
+      return res.status(400).json({
+        mensaje:"Saldo insuficiente"
+      });
+
+    }
+
+    const nuevoSaldo =
+    saldoActual - monto;
+
+    await pool.query(
+      `
+      UPDATE play.wallets
+      SET
+        saldo = $1,
+        actualizado = CURRENT_TIMESTAMP
+      WHERE user_id = $2
+      `,
+      [
+        nuevoSaldo,
+        user_id
+      ]
+    );
+
+    res.json({
+      mensaje:"Pago realizado",
+      saldo:nuevoSaldo
+    });
+
+  } catch(err){
+
+    console.error(err);
+
     res.status(500).json({
-      error: err.message
+      error:err.message
     });
 
   }
