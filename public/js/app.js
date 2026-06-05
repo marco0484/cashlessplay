@@ -291,13 +291,15 @@ async function cargarUsuario(valor, tipo){
 
 function irMetricas(){
 
-  alert("Aquí irán las métricas 📊")
+  window.location.href =
+  "metricas.html";
 
 }
 
 function verHistorial(){
 
-  alert("Aquí irá el historial 🧾")
+  window.location.href =
+  "historial.html";
 
 }
 
