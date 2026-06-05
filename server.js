@@ -255,6 +255,15 @@ app.post("/recargar", async (req, res) => {
 
       }
 
+      await supabase
+  .from("transacciones")
+  .insert({
+    user_id,
+    monto,
+    tipo:"RECARGA"
+  });
+
+
       return res.json({
 
         ok:true,
@@ -335,6 +344,28 @@ app.post("/recargar", async (req, res) => {
       "RECARGA ERROR:",
       err
     );
+
+    await pool.query(
+`
+INSERT INTO play.transacciones
+(
+  user_id,
+  monto,
+  tipo
+)
+VALUES
+(
+  $1,
+  $2,
+  'RECARGA'
+)
+`,
+[
+  user_id,
+  monto
+]
+);
+
 
     res.status(500).json({
 
@@ -599,7 +630,7 @@ app.post("/pagar", async (req, res) => {
     const transaccion =
     await pool.query(
       `
-      INSERT INTO play.transactions
+      INSERT INTO play.transacciones
       (
         user_id,
         monto,
@@ -669,6 +700,190 @@ app.post("/pagar", async (req, res) => {
 
     console.error(
       "PAGO ERROR:",
+      err
+    );
+
+    res.status(500).json({
+      error:err.message
+    });
+
+  }
+
+});
+
+/* ===================================================== */
+/* HISTORIAL */
+/* ===================================================== */
+app.get("/historial", async (req, res) => {
+
+  try{
+
+    if(process.env.VERCEL){
+
+      const { data, error } =
+      await supabase
+        .from("transacciones")
+        .select("*")
+        .order("creado", {
+          ascending:false
+        });
+
+      if(error){
+        throw error;
+      }
+
+      return res.json(data);
+
+    }
+
+    const result =
+    await pool.query(`
+      SELECT
+        id,
+        user_id,
+        monto,
+        tipo,
+        staff_id,
+        creado
+      FROM play.transacciones
+      ORDER BY creado DESC
+    `);
+
+    res.json(result.rows);
+
+  }catch(err){
+
+    console.error(
+      "HISTORIAL ERROR:",
+      err
+    );
+
+    res.status(500).json({
+      error:err.message
+    });
+
+  }
+
+});
+
+/* ===================================================== */
+/* DASHBOARD */
+/* ===================================================== */
+app.get("/dashboard", async (req, res) => {
+
+  try{
+
+    if(process.env.VERCEL){
+
+      const { data: wallets } =
+      await supabase
+        .from("wallets")
+        .select("saldo");
+
+      const { data: ventas } =
+      await supabase
+        .from("transacciones")
+        .select("monto")
+        .eq("tipo","VENTA");
+
+      const { data: recargas } =
+      await supabase
+        .from("transacciones")
+        .select("monto")
+        .eq("tipo","RECARGA");
+
+      const saldoTotal =
+      wallets.reduce(
+        (a,b)=>a+Number(b.saldo),
+        0
+      );
+
+      const totalVentas =
+      ventas.reduce(
+        (a,b)=>a+Number(b.monto),
+        0
+      );
+
+      const totalRecargas =
+      recargas.reduce(
+        (a,b)=>a+Number(b.monto),
+        0
+      );
+
+      return res.json({
+
+        saldo_total:
+        saldoTotal,
+
+        ventas_total:
+        totalVentas,
+
+        recargas_total:
+        totalRecargas,
+
+        usuarios:
+        wallets.length
+
+      });
+
+    }
+
+    const saldo =
+    await pool.query(`
+      SELECT
+      COALESCE(
+      SUM(saldo),0
+      ) total
+      FROM play.wallets
+    `);
+
+    const ventas =
+    await pool.query(`
+      SELECT
+      COALESCE(
+      SUM(monto),0
+      ) total
+      FROM play.transacciones
+      WHERE tipo='VENTA'
+    `);
+
+    const recargas =
+    await pool.query(`
+      SELECT
+      COALESCE(
+      SUM(monto),0
+      ) total
+      FROM play.transacciones
+      WHERE tipo='RECARGA'
+    `);
+
+    const usuarios =
+    await pool.query(`
+      SELECT COUNT(*)
+      total
+      FROM play.wallets
+    `);
+
+    res.json({
+
+      saldo_total:
+      saldo.rows[0].total,
+
+      ventas_total:
+      ventas.rows[0].total,
+
+      recargas_total:
+      recargas.rows[0].total,
+
+      usuarios:
+      usuarios.rows[0].total
+
+    });
+
+  }catch(err){
+
+    console.error(
+      "DASHBOARD ERROR:",
       err
     );
 

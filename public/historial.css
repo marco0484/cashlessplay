@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+
+<title>Historial | Cosmic Cashless</title>
+
+<link rel="stylesheet" href="css/styles.css">
+<link rel="stylesheet" href="css/historial.css">
+
+</head>
+
+<body>
+
+<header class="navbar">
+
+  <div class="nav-left">
+    <h1>🧾 Historial</h1>
+    <span class="subtitle">
+      Todas las transacciones registradas
+    </span>
+  </div>
+
+  <div class="nav-right">
+
+    <button
+      class="nav-btn"
+      onclick="window.location.href='index.html'"
+    >
+      ← POS
+    </button>
+
+  </div>
+
+</header>
+
+<main class="historial-container">
+
+  <div class="historial-card">
+
+    <div class="card-header">
+
+      <h2>
+        Movimientos
+      </h2>
+
+      <span id="total-registros">
+        0 registros
+      </span>
+
+    </div>
+
+    <div class="tabla-wrapper">
+
+      <table>
+
+        <thead>
+
+          <tr>
+            <th>ID</th>
+            <th>Fecha</th>
+            <th>Usuario</th>
+            <th>Tipo</th>
+            <th>Monto</th>
+            <th>Staff</th>
+          </tr>
+
+        </thead>
+
+        <tbody id="tabla-historial">
+
+        </tbody>
+
+      </table>
+
+    </div>
+
+  </div>
+
+</main>
+
+<script src="js/historial.js"></script>
+
+</body>
+</html>

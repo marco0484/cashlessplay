@@ -1,0 +1,29 @@
+.dashboard{
+  padding:30px;
+  display:grid;
+  grid-template-columns:
+    repeat(auto-fit,minmax(280px,1fr));
+  gap:20px;
+}
+
+.metric-card{
+  background:#111;
+  border:1px solid #222;
+  border-radius:20px;
+  padding:30px;
+  transition:.3s;
+}
+
+.metric-card:hover{
+  transform:translateY(-4px);
+}
+
+.metric-card h3{
+  color:#00ffd0;
+  margin-bottom:15px;
+}
+
+.metric-value{
+  font-size:42px;
+  font-weight:900;
+}
