@@ -6,10 +6,12 @@
 
 body{
   min-height:100vh;
+  font-family:'Segoe UI',sans-serif;
+  color:#fff;
+
   background:
     radial-gradient(circle at top,#1b1040 0%,#050816 40%,#02030d 100%);
-  color:white;
-  font-family:'Segoe UI',sans-serif;
+
   overflow-x:hidden;
 }
 
@@ -17,25 +19,65 @@ body::before{
   content:"";
   position:fixed;
   inset:0;
-  background-image:
-    radial-gradient(rgba(255,255,255,.12) 1px,transparent 1px);
+
+  background:
+  radial-gradient(
+    circle,
+    rgba(255,255,255,.10) 1px,
+    transparent 1px
+  );
+
   background-size:140px 140px;
+
   pointer-events:none;
 }
+
+/* ========================= */
+/* NAVBAR */
+/* ========================= */
 
 .navbar{
   display:flex;
   justify-content:space-between;
   align-items:center;
-  padding:20px 30px;
-  border-bottom:1px solid rgba(255,255,255,.08);
-  backdrop-filter:blur(12px);
+  gap:20px;
+
+  padding:20px 40px;
+
+  position:sticky;
+  top:0;
+  z-index:100;
+
+  backdrop-filter:blur(20px);
+
+  background:
+  rgba(3,7,18,.75);
+
+  border-bottom:
+  1px solid rgba(255,255,255,.08);
+}
+
+.nav-left{
+  display:flex;
+  flex-direction:column;
+  gap:6px;
 }
 
 .nav-left h1{
+
   font-size:3rem;
-  font-weight:800;
-  color:#9f7aea;
+  font-weight:900;
+
+  background:
+  linear-gradient(
+    90deg,
+    #c084fc,
+    #8b5cf6,
+    #06b6d4
+  );
+
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
 }
 
 .subtitle{
@@ -45,119 +87,250 @@ body::before{
 
 .nav-btn{
   border:none;
-  background:#111827;
+
+  background:
+  rgba(255,255,255,.05);
+
   color:white;
+
   padding:12px 22px;
+
   border-radius:14px;
+
   cursor:pointer;
+
   transition:.3s;
 }
 
 .nav-btn:hover{
+
   background:#7c3aed;
+
+  transform:
+  translateY(-2px);
+
 }
+
+/* ========================= */
+/* CONTENEDOR */
+/* ========================= */
 
 .historial-container{
-  padding:30px;
+
+  max-width:1600px;
+
+  margin:auto;
+
+  padding:40px;
+
 }
 
+/* ========================= */
+/* CARD */
+/* ========================= */
+
 .historial-card{
-  background:rgba(15,23,42,.55);
-  backdrop-filter:blur(16px);
-  border:1px solid rgba(255,255,255,.08);
+
+  background:
+  rgba(15,23,42,.65);
+
+  backdrop-filter:
+  blur(20px);
+
+  border:
+  1px solid rgba(255,255,255,.08);
+
   border-radius:24px;
+
   overflow:hidden;
+
   box-shadow:
-    0 10px 30px rgba(0,0,0,.35);
+  0 10px 30px rgba(0,0,0,.35);
+
 }
 
 .card-header{
+
   display:flex;
   justify-content:space-between;
   align-items:center;
+
   padding:25px;
-  border-bottom:1px solid rgba(255,255,255,.08);
+
+  border-bottom:
+  1px solid rgba(255,255,255,.08);
+
 }
 
 .card-header h2{
+
   font-size:1.4rem;
+  color:white;
+
 }
 
 #total-registros{
+
   color:#94a3b8;
+  font-weight:600;
+
 }
 
+/* ========================= */
+/* TABLA */
+/* ========================= */
+
 .tabla-wrapper{
+
   overflow-x:auto;
+
 }
 
 table{
+
   width:100%;
   border-collapse:collapse;
+  min-width:900px;
+
 }
 
 thead{
-  background:rgba(124,58,237,.15);
+
+  background:
+  rgba(124,58,237,.15);
+
 }
 
 th{
-  padding:18px;
+
+  padding:20px;
+
   text-align:left;
+
   color:#c4b5fd;
+
   font-size:.85rem;
+
   text-transform:uppercase;
+
   letter-spacing:1px;
+
 }
 
 td{
+
   padding:18px;
-  border-top:1px solid rgba(255,255,255,.05);
+
+  border-top:
+  1px solid rgba(255,255,255,.05);
+
   white-space:nowrap;
+
 }
 
 tbody tr{
+
   transition:.25s;
+
 }
 
 tbody tr:hover{
-  background:rgba(255,255,255,.04);
+
+  background:
+  rgba(255,255,255,.04);
+
 }
 
 tbody tr:nth-child(even){
-  background:rgba(255,255,255,.015);
+
+  background:
+  rgba(255,255,255,.02);
+
 }
 
+/* ========================= */
+/* TIPOS */
+/* ========================= */
+
 .tipo-recarga{
+
   color:#22c55e;
-  font-weight:700;
+  font-weight:800;
+
 }
 
 .tipo-venta{
+
   color:#f59e0b;
-  font-weight:700;
+  font-weight:800;
+
 }
 
 .monto{
-  font-weight:700;
-  color:#f8fafc;
+
+  font-weight:900;
+  color:#ffffff;
+
 }
+
+/* ========================= */
+/* SCROLL */
+/* ========================= */
+
+::-webkit-scrollbar{
+  width:10px;
+  height:10px;
+}
+
+::-webkit-scrollbar-thumb{
+  background:#7c3aed;
+  border-radius:999px;
+}
+
+::-webkit-scrollbar-track{
+  background:transparent;
+}
+
+/* ========================= */
+/* MOBILE */
+/* ========================= */
 
 @media(max-width:900px){
 
   .navbar{
+
     flex-direction:column;
-    gap:15px;
     align-items:flex-start;
+
+    padding:20px;
+
   }
 
   .nav-left h1{
-    font-size:2rem;
+
+    font-size:2.2rem;
+
+  }
+
+  .historial-container{
+
+    padding:20px;
+
+  }
+
+  .card-header{
+
+    flex-direction:column;
+    align-items:flex-start;
+    gap:10px;
+
   }
 
   th,
   td{
+
     padding:14px;
-    font-size:.9rem;
+
   }
 
 }
