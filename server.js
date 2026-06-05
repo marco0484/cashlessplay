@@ -329,22 +329,6 @@ app.post("/recargar", async (req, res) => {
 
     );
 
-    res.json({
-
-      ok:true,
-
-      saldo:
-      result.rows[0].saldo
-
-    });
-
-  }catch(err){
-
-    console.error(
-      "RECARGA ERROR:",
-      err
-    );
-
     await pool.query(
 `
 INSERT INTO play.transacciones
@@ -366,6 +350,21 @@ VALUES
 ]
 );
 
+    res.json({
+
+      ok:true,
+
+      saldo:
+      result.rows[0].saldo
+
+    });
+
+  }catch(err){
+
+    console.error(
+      "RECARGA ERROR:",
+      err
+    );
 
     res.status(500).json({
 

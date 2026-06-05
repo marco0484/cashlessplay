@@ -1,88 +1,163 @@
-<!DOCTYPE html>
-<html lang="es">
+*{
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+}
 
-<head>
+body{
+  min-height:100vh;
+  background:
+    radial-gradient(circle at top,#1b1040 0%,#050816 40%,#02030d 100%);
+  color:white;
+  font-family:'Segoe UI',sans-serif;
+  overflow-x:hidden;
+}
 
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0">
+body::before{
+  content:"";
+  position:fixed;
+  inset:0;
+  background-image:
+    radial-gradient(rgba(255,255,255,.12) 1px,transparent 1px);
+  background-size:140px 140px;
+  pointer-events:none;
+}
 
-<title>Historial | Cosmic Cashless</title>
+.navbar{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:20px 30px;
+  border-bottom:1px solid rgba(255,255,255,.08);
+  backdrop-filter:blur(12px);
+}
 
-<link rel="stylesheet" href="css/styles.css">
-<link rel="stylesheet" href="css/historial.css">
+.nav-left h1{
+  font-size:3rem;
+  font-weight:800;
+  color:#9f7aea;
+}
 
-</head>
+.subtitle{
+  color:#94a3b8;
+  font-size:.95rem;
+}
 
-<body>
+.nav-btn{
+  border:none;
+  background:#111827;
+  color:white;
+  padding:12px 22px;
+  border-radius:14px;
+  cursor:pointer;
+  transition:.3s;
+}
 
-<header class="navbar">
+.nav-btn:hover{
+  background:#7c3aed;
+}
 
-  <div class="nav-left">
-    <h1>🧾 Historial</h1>
-    <span class="subtitle">
-      Todas las transacciones registradas
-    </span>
-  </div>
+.historial-container{
+  padding:30px;
+}
 
-  <div class="nav-right">
+.historial-card{
+  background:rgba(15,23,42,.55);
+  backdrop-filter:blur(16px);
+  border:1px solid rgba(255,255,255,.08);
+  border-radius:24px;
+  overflow:hidden;
+  box-shadow:
+    0 10px 30px rgba(0,0,0,.35);
+}
 
-    <button
-      class="nav-btn"
-      onclick="window.location.href='index.html'"
-    >
-      ← POS
-    </button>
+.card-header{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:25px;
+  border-bottom:1px solid rgba(255,255,255,.08);
+}
 
-  </div>
+.card-header h2{
+  font-size:1.4rem;
+}
 
-</header>
+#total-registros{
+  color:#94a3b8;
+}
 
-<main class="historial-container">
+.tabla-wrapper{
+  overflow-x:auto;
+}
 
-  <div class="historial-card">
+table{
+  width:100%;
+  border-collapse:collapse;
+}
 
-    <div class="card-header">
+thead{
+  background:rgba(124,58,237,.15);
+}
 
-      <h2>
-        Movimientos
-      </h2>
+th{
+  padding:18px;
+  text-align:left;
+  color:#c4b5fd;
+  font-size:.85rem;
+  text-transform:uppercase;
+  letter-spacing:1px;
+}
 
-      <span id="total-registros">
-        0 registros
-      </span>
+td{
+  padding:18px;
+  border-top:1px solid rgba(255,255,255,.05);
+  white-space:nowrap;
+}
 
-    </div>
+tbody tr{
+  transition:.25s;
+}
 
-    <div class="tabla-wrapper">
+tbody tr:hover{
+  background:rgba(255,255,255,.04);
+}
 
-      <table>
+tbody tr:nth-child(even){
+  background:rgba(255,255,255,.015);
+}
 
-        <thead>
+.tipo-recarga{
+  color:#22c55e;
+  font-weight:700;
+}
 
-          <tr>
-            <th>ID</th>
-            <th>Fecha</th>
-            <th>Usuario</th>
-            <th>Tipo</th>
-            <th>Monto</th>
-            <th>Staff</th>
-          </tr>
+.tipo-venta{
+  color:#f59e0b;
+  font-weight:700;
+}
 
-        </thead>
+.monto{
+  font-weight:700;
+  color:#f8fafc;
+}
 
-        <tbody id="tabla-historial">
+@media(max-width:900px){
 
-        </tbody>
+  .navbar{
+    flex-direction:column;
+    gap:15px;
+    align-items:flex-start;
+  }
 
-      </table>
+  .nav-left h1{
+    font-size:2rem;
+  }
 
-    </div>
+  th,
+  td{
+    padding:14px;
+    font-size:.9rem;
+  }
 
-  </div>
-
-</main>
-
-<script src="js/historial.js"></script>
-
-</body>
-</html>
+}

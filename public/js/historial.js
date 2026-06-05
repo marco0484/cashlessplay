@@ -27,47 +27,52 @@ async function cargarHistorial(){
     }
 
     const data =
-    await res.json();
+await res.json();
 
-    const tabla =
-    document.getElementById(
-      "tabla-historial"
-    );
+const tabla =
+document.getElementById(
+  "tabla-historial"
+);
 
-    const total =
-    document.getElementById(
-      "total-registros"
-    );
+const total =
+document.getElementById(
+  "total-registros"
+);
 
-    tabla.innerHTML = "";
+tabla.innerHTML = "";
 
-    if(total){
+if(total){
 
-      total.innerText =
-      `${data.length} registros`;
+  total.innerText =
+  `${data.length} registros`;
 
-    }
+}
 
-    data.forEach(item=>{
+data.forEach(item=>{
 
-      tabla.innerHTML += `
-      <tr>
-        <td>${item.id}</td>
-        <td>${
-          item.creado
-          ? new Date(
-              item.creado
-            ).toLocaleString()
-          : "-"
-        }</td>
-        <td>${item.user_id}</td>
-        <td>${item.tipo}</td>
-        <td>$${item.monto}</td>
-        <td>${item.staff_id || "-"}</td>
-      </tr>
-      `;
+  tabla.innerHTML += `
+  <tr>
+    <td>${item.id}</td>
+    <td>${new Date(item.creado).toLocaleString()}</td>
+    <td>${item.user_id}</td>
+    <td class="${
+      item.tipo === "RECARGA"
+        ? "tipo-recarga"
+        : "tipo-venta"
+    }">
+      ${item.tipo}
+    </td>
+    <td class="monto">
+      $${item.monto}
+    </td>
+    <td>
+      ${item.staff_id || "-"}
+    </td>
+  </tr>
+  `;
 
-    });
+});
+
 
   }catch(err){
 
