@@ -1,5 +1,13 @@
+const modo =
+localStorage.getItem("modo") || "local";
+
 const API =
-"https://api.cosmicpass.space";
+  modo === "cloud"
+    ? "https://cashlessplay.vercel.app"
+    : "http://localhost:3000";
+
+console.log("MODO:", modo);
+console.log("API:", API);
 
 async function cargarHistorial(){
 
@@ -10,6 +18,14 @@ async function cargarHistorial(){
       `${API}/historial`
     );
 
+    if(!res.ok){
+
+      throw new Error(
+        `HTTP ${res.status}`
+      );
+
+    }
+
     const data =
     await res.json();
 
@@ -18,14 +34,32 @@ async function cargarHistorial(){
       "tabla-historial"
     );
 
+    const total =
+    document.getElementById(
+      "total-registros"
+    );
+
     tabla.innerHTML = "";
+
+    if(total){
+
+      total.innerText =
+      `${data.length} registros`;
+
+    }
 
     data.forEach(item=>{
 
       tabla.innerHTML += `
       <tr>
         <td>${item.id}</td>
-        <td>${item.creado}</td>
+        <td>${
+          item.creado
+          ? new Date(
+              item.creado
+            ).toLocaleString()
+          : "-"
+        }</td>
         <td>${item.user_id}</td>
         <td>${item.tipo}</td>
         <td>$${item.monto}</td>
