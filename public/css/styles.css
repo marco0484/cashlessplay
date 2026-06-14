@@ -5,29 +5,27 @@
 
 :root{
 
-  --bg:#070B14;
+  --bg:#020617;
 
-  --panel:#0D1320;
+  --panel:
+  rgba(15,23,42,0.82);
 
   --panel-border:
-  rgba(255,255,255,.06);
+  rgba(255,255,255,0.04);
 
-  --primary:#00E5FF;
+  --primary:#7c3aed;
+  --primary2:#06b6d4;
 
-  --primary2:#7B61FF;
+  --success:#00ffd0;
+  --danger:#ef4444;
 
-  --success:#00FF88;
-
-  --danger:#FF4D6D;
-
-  --text:#F8FAFC;
-
-  --text-soft:#94A3B8;
-
-  --radius:24px;
+  --text:#ffffff;
+  --text-soft:#94a3b8;
 
   --shadow:
-  0 20px 60px rgba(0,0,0,.55);
+  0 20px 50px rgba(0,0,0,.45);
+
+  --radius:20px;
 
 }
 
@@ -80,7 +78,12 @@ body{
   );
 
   position:relative;
+
 }
+
+/* ===================================================== */
+/* ✨ STARS */
+/* ===================================================== */
 
 body::before{
 
@@ -90,21 +93,44 @@ body::before{
 
   inset:0;
 
-  background:
-
-  linear-gradient(
-    rgba(255,255,255,.02) 1px,
-    transparent 1px
-  ),
-
-  linear-gradient(
-    90deg,
-    rgba(255,255,255,.02) 1px,
+  background-image:
+  radial-gradient(
+    rgba(255,255,255,.8) 1px,
     transparent 1px
   );
 
   background-size:
-  40px 40px;
+  140px 140px;
+
+  opacity:.08;
+
+  pointer-events:none;
+
+}
+
+/* ===================================================== */
+/* 🌌 SPACE GLOW */
+/* ===================================================== */
+
+body::after{
+
+  content:"";
+
+  position:fixed;
+
+  width:700px;
+  height:700px;
+
+  top:-250px;
+  right:-250px;
+
+  background:
+  radial-gradient(
+    rgba(124,58,237,.20),
+    transparent 70%
+  );
+
+  filter:blur(70px);
 
   pointer-events:none;
 
@@ -137,13 +163,30 @@ body::before{
 
 .navbar{
 
-  height:90px;
+  position:fixed;
+
+  top:0;
+  left:0;
+
+  width:100%;
+  height:78px;
+
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+
+  padding:0 28px;
 
   background:
-  rgba(7,11,20,.95);
+  rgba(2,6,23,.82);
+
+  backdrop-filter:
+  blur(18px);
 
   border-bottom:
-  1px solid rgba(255,255,255,.06);
+  1px solid rgba(255,255,255,.05);
+
+  z-index:9999;
 
 }
 
@@ -151,18 +194,9 @@ body::before{
 /* NAV LEFT */
 /* ===================================================== */
 
-.nav-left h1{
-
-  color:white;
-
-  background:none;
-
-  -webkit-text-fill-color:white;
-
-  font-size:34px;
-
-  letter-spacing:-1px;
-
+.nav-left{
+  display:flex;
+  flex-direction:column;
 }
 
 .nav-left h1{
@@ -325,17 +359,29 @@ body::before{
 .panel{
 
   background:
-  rgba(12,18,32,.92);
+  var(--panel);
 
   border:
-  1px solid rgba(255,255,255,.06);
+  1px solid rgba(255,255,255,.04);
 
-  border-radius:28px;
+  border-radius:
+  var(--radius);
 
-  backdrop-filter:blur(30px);
+  padding:28px;
+
+  backdrop-filter:
+  blur(22px);
 
   box-shadow:
-  0 20px 80px rgba(0,0,0,.4);
+  0 20px 50px rgba(0,0,0,.45),
+  0 0 0 1px rgba(255,255,255,.02) inset;
+
+  position:relative;
+
+  overflow:hidden;
+
+  animation:
+  fadeUp .45s ease;
 
 }
 
@@ -376,10 +422,12 @@ body::before{
 }
 
 .panel-header h2{
-  font-size:30px;
+
+  font-size:32px;
   font-weight:900;
-  letter-spacing:-1px;
-  color:#fff;
+
+  margin-bottom:6px;
+
 }
 
 .panel-header p{
@@ -413,25 +461,47 @@ body::before{
 
 input{
 
-  background:
-  rgba(255,255,255,.03);
+  width:100%;
+
+  padding:16px;
+
+  border-radius:18px;
 
   border:
   1px solid rgba(255,255,255,.08);
 
-  min-height:64px;
+  background:
+  rgba(255,255,255,.04);
 
-  border-radius:20px;
+  color:white;
+
+  font-size:16px;
+  font-weight:500;
+
+  outline:none;
+
+  transition:.25s;
 
 }
 
 input:focus{
 
-  border-color:#00E5FF;
+  border-color:
+  rgba(139,92,246,.6);
 
   box-shadow:
-  0 0 0 1px #00E5FF,
-  0 0 30px rgba(0,229,255,.15);
+  0 0 0 4px rgba(139,92,246,.15);
+
+  background:
+  rgba(255,255,255,.06);
+
+  transform:
+  translateY(-1px);
+
+}
+
+input::placeholder{
+  color:#64748b;
 }
 
 /* ===================================================== */
@@ -648,24 +718,30 @@ button:active{
 
 .productos button{
 
-  min-height:72px;
+  padding:16px;
+
+  border-radius:16px;
 
   background:
-  rgba(255,255,255,.025);
+  rgba(255,255,255,.04);
 
   border:
-  1px solid rgba(255,255,255,.08);
+  1px solid rgba(255,255,255,.05);
 
-  border-radius:20px;
+  color:white;
+
+  font-size:15px;
+  font-weight:800;
 
 }
 
 .productos button:hover{
 
-  border-color:#00E5FF;
+  background:
+  rgba(124,58,237,.16);
 
-  box-shadow:
-  0 0 30px rgba(0,229,255,.15);
+  border-color:
+  rgba(139,92,246,.35);
 
 }
 
@@ -748,15 +824,19 @@ button:active{
 
 .total-box{
 
-  font-size:64px;
+  margin:26px 0;
 
+  text-align:center;
+
+  font-size:38px;
   font-weight:900;
 
-  color:#00FF88;
+  color:var(--success);
 
-  letter-spacing:-2px;
-
-  text-shadow:none;
+  text-shadow:
+  0 0 10px rgba(0,255,208,.4),
+  0 0 20px rgba(0,255,208,.25),
+  0 0 40px rgba(0,255,208,.15);
 
 }
 
@@ -783,12 +863,18 @@ button:active{
   background:
   linear-gradient(
     135deg,
-    #121A2A,
-    #1B2537
+    #009ee3,
+    #0077b6
   );
 
-  border:
-  1px solid rgba(255,255,255,.08);
+  color:white;
+
+  padding:17px;
+
+  border-radius:18px;
+
+  font-size:16px;
+  font-weight:900;
 
 }
 
