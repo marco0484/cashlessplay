@@ -56,7 +56,7 @@ app.post("/registro",async(req,res)=>{
 
   try{
     const user = await pool.query(
-      "INSERT INTO play.users (nombre,email) VALUES ($1,$2) RETURNING id",
+      "INSERT INTO cash_users (nombre,email) VALUES ($1,$2) RETURNING id",
       [nombre,email]
     )
 
@@ -94,7 +94,7 @@ app.post("/registro",async(req,res)=>{
   try{
 
     const { data, error } = await supabase
-      .from("users")
+      .from("cash_users")
       .select("id,nombre")
       .eq("nombre", nombre)
       .eq("pin", pin)
@@ -148,7 +148,7 @@ app.post("/login", async (req, res) => {
   try{
 
     const { data, error } = await supabase
-      .from("users")
+      .from("cash_users")
       .select("id,nombre")
       .eq("nombre", nombre)
       .eq("pin", pin)
@@ -904,7 +904,7 @@ app.get("/test-supabase", async (req, res) => {
 
     const { data, error } =
       await supabase
-        .from("users")
+        .from("cash_users")
         .select("*")
         .limit(1);
 

@@ -5,27 +5,29 @@
 
 :root{
 
-  --bg:#020617;
+  --bg:#070B14;
 
-  --panel:
-  rgba(15,23,42,0.82);
+  --panel:#0D1320;
 
   --panel-border:
-  rgba(255,255,255,0.04);
+  rgba(255,255,255,.06);
 
-  --primary:#7c3aed;
-  --primary2:#06b6d4;
+  --primary:#00E5FF;
 
-  --success:#00ffd0;
-  --danger:#ef4444;
+  --primary2:#7B61FF;
 
-  --text:#ffffff;
-  --text-soft:#94a3b8;
+  --success:#00FF88;
+
+  --danger:#FF4D6D;
+
+  --text:#F8FAFC;
+
+  --text-soft:#94A3B8;
+
+  --radius:24px;
 
   --shadow:
-  0 20px 50px rgba(0,0,0,.45);
-
-  --radius:20px;
+  0 20px 60px rgba(0,0,0,.55);
 
 }
 
@@ -78,12 +80,7 @@ body{
   );
 
   position:relative;
-
 }
-
-/* ===================================================== */
-/* ✨ STARS */
-/* ===================================================== */
 
 body::before{
 
@@ -93,44 +90,21 @@ body::before{
 
   inset:0;
 
-  background-image:
-  radial-gradient(
-    rgba(255,255,255,.8) 1px,
+  background:
+
+  linear-gradient(
+    rgba(255,255,255,.02) 1px,
+    transparent 1px
+  ),
+
+  linear-gradient(
+    90deg,
+    rgba(255,255,255,.02) 1px,
     transparent 1px
   );
 
   background-size:
-  140px 140px;
-
-  opacity:.08;
-
-  pointer-events:none;
-
-}
-
-/* ===================================================== */
-/* 🌌 SPACE GLOW */
-/* ===================================================== */
-
-body::after{
-
-  content:"";
-
-  position:fixed;
-
-  width:700px;
-  height:700px;
-
-  top:-250px;
-  right:-250px;
-
-  background:
-  radial-gradient(
-    rgba(124,58,237,.20),
-    transparent 70%
-  );
-
-  filter:blur(70px);
+  40px 40px;
 
   pointer-events:none;
 
@@ -163,30 +137,13 @@ body::after{
 
 .navbar{
 
-  position:fixed;
-
-  top:0;
-  left:0;
-
-  width:100%;
-  height:78px;
-
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-
-  padding:0 28px;
+  height:90px;
 
   background:
-  rgba(2,6,23,.82);
-
-  backdrop-filter:
-  blur(18px);
+  rgba(7,11,20,.95);
 
   border-bottom:
-  1px solid rgba(255,255,255,.05);
-
-  z-index:9999;
+  1px solid rgba(255,255,255,.06);
 
 }
 
@@ -194,9 +151,18 @@ body::after{
 /* NAV LEFT */
 /* ===================================================== */
 
-.nav-left{
-  display:flex;
-  flex-direction:column;
+.nav-left h1{
+
+  color:white;
+
+  background:none;
+
+  -webkit-text-fill-color:white;
+
+  font-size:34px;
+
+  letter-spacing:-1px;
+
 }
 
 .nav-left h1{
@@ -359,29 +325,17 @@ body::after{
 .panel{
 
   background:
-  var(--panel);
+  rgba(12,18,32,.92);
 
   border:
-  1px solid rgba(255,255,255,.04);
+  1px solid rgba(255,255,255,.06);
 
-  border-radius:
-  var(--radius);
+  border-radius:28px;
 
-  padding:28px;
-
-  backdrop-filter:
-  blur(22px);
+  backdrop-filter:blur(30px);
 
   box-shadow:
-  0 20px 50px rgba(0,0,0,.45),
-  0 0 0 1px rgba(255,255,255,.02) inset;
-
-  position:relative;
-
-  overflow:hidden;
-
-  animation:
-  fadeUp .45s ease;
+  0 20px 80px rgba(0,0,0,.4);
 
 }
 
@@ -422,12 +376,10 @@ body::after{
 }
 
 .panel-header h2{
-
-  font-size:32px;
+  font-size:30px;
   font-weight:900;
-
-  margin-bottom:6px;
-
+  letter-spacing:-1px;
+  color:#fff;
 }
 
 .panel-header p{
@@ -461,47 +413,25 @@ body::after{
 
 input{
 
-  width:100%;
-
-  padding:16px;
-
-  border-radius:18px;
+  background:
+  rgba(255,255,255,.03);
 
   border:
   1px solid rgba(255,255,255,.08);
 
-  background:
-  rgba(255,255,255,.04);
+  min-height:64px;
 
-  color:white;
-
-  font-size:16px;
-  font-weight:500;
-
-  outline:none;
-
-  transition:.25s;
+  border-radius:20px;
 
 }
 
 input:focus{
 
-  border-color:
-  rgba(139,92,246,.6);
+  border-color:#00E5FF;
 
   box-shadow:
-  0 0 0 4px rgba(139,92,246,.15);
-
-  background:
-  rgba(255,255,255,.06);
-
-  transform:
-  translateY(-1px);
-
-}
-
-input::placeholder{
-  color:#64748b;
+  0 0 0 1px #00E5FF,
+  0 0 30px rgba(0,229,255,.15);
 }
 
 /* ===================================================== */
@@ -718,30 +648,24 @@ button:active{
 
 .productos button{
 
-  padding:16px;
-
-  border-radius:16px;
+  min-height:72px;
 
   background:
-  rgba(255,255,255,.04);
+  rgba(255,255,255,.025);
 
   border:
-  1px solid rgba(255,255,255,.05);
+  1px solid rgba(255,255,255,.08);
 
-  color:white;
-
-  font-size:15px;
-  font-weight:800;
+  border-radius:20px;
 
 }
 
 .productos button:hover{
 
-  background:
-  rgba(124,58,237,.16);
+  border-color:#00E5FF;
 
-  border-color:
-  rgba(139,92,246,.35);
+  box-shadow:
+  0 0 30px rgba(0,229,255,.15);
 
 }
 
@@ -824,19 +748,15 @@ button:active{
 
 .total-box{
 
-  margin:26px 0;
+  font-size:64px;
 
-  text-align:center;
-
-  font-size:38px;
   font-weight:900;
 
-  color:var(--success);
+  color:#00FF88;
 
-  text-shadow:
-  0 0 10px rgba(0,255,208,.4),
-  0 0 20px rgba(0,255,208,.25),
-  0 0 40px rgba(0,255,208,.15);
+  letter-spacing:-2px;
+
+  text-shadow:none;
 
 }
 
@@ -863,18 +783,12 @@ button:active{
   background:
   linear-gradient(
     135deg,
-    #009ee3,
-    #0077b6
+    #121A2A,
+    #1B2537
   );
 
-  color:white;
-
-  padding:17px;
-
-  border-radius:18px;
-
-  font-size:16px;
-  font-weight:900;
+  border:
+  1px solid rgba(255,255,255,.08);
 
 }
 
