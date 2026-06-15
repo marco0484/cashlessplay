@@ -4,6 +4,7 @@ const { Pool } = require("pg");
 const path = require("path");
 const { MercadoPagoConfig, Preference } = require("mercadopago");
 require("dotenv").config();
+console.log("MP TOKEN =", process.env.MP_TOKEN);
 const app = express();
 
 app.use(cors());
@@ -457,259 +458,98 @@ app.get("/usuario/:user_id", async (req, res) => {
 
 
 /* ===================================================== */
-/* MERCADO PAGO - CREAR PREFERENCIA DE RECARGA */
+/* MERCADO PAGO RECARGA */
 /* ===================================================== */
-app.post("/pagar", async (req, res) => {
 
-  const {
-    user_id,
-    monto,
-    carrito,
-    staff_id
-  } = req.body;
+app.post("/crear-recarga-mp", async (req, res) => {
 
   try {
 
-    /* ========================= */
-    /* CLOUD - SUPABASE */
-    /* ========================= */
+    const {
+      user_id,
+      monto
+    } = req.body;
 
-    if(process.env.VERCEL){
-
-      const { data: wallet, error: walletError } =
-      await supabase
-        .from("cash_wallets")
-        .select("saldo")
-        .eq("user_id", user_id)
-        .single();
-
-      if(walletError || !wallet){
-
-        return res.status(404).json({
-          mensaje:"Wallet no encontrada"
-        });
-
-      }
-
-      const saldoActual =
-      Number(wallet.saldo);
-
-      if(saldoActual < monto){
-
-        return res.status(400).json({
-          mensaje:"Saldo insuficiente"
-        });
-
-      }
-
-      const nuevoSaldo =
-      saldoActual - monto;
-
-      const { error:updateError } =
-      await supabase
-        .from("cash_wallets")
-        .update({
-          saldo:nuevoSaldo,
-          actualizado:new Date().toISOString()
-        })
-        .eq("user_id", user_id);
-
-      if(updateError){
-        throw updateError;
-      }
-
-      const {
-        data: transaccion,
-        error: trxError
-      } =
-      await supabase
-        .from("cash_transacciones")
-        .insert({
-          user_id,
-          monto,
-          tipo:"VENTA",
-          staff_id
-        })
-        .select()
-        .single();
-
-      if(trxError){
-        throw trxError;
-      }
-
-      for(const item of carrito){
-
-        const { error } =
-        await supabase
-          .from("cash_detalle_ventas")
-          .insert({
-
-            transaccion_id:
-            transaccion.id,
-
-            producto_id:
-            item.producto_id,
-
-            cantidad:
-            item.cantidad,
-
-            precio_unitario:
-            item.precio,
-
-            subtotal:
-            item.precio * item.cantidad
-
-          });
-
-        if(error){
-          throw error;
-        }
-
-      }
-
-      return res.json({
-
-        ok:true,
-        mensaje:"Pago realizado",
-        saldo:nuevoSaldo
-
-      });
-
-    }
-
-    /* ========================= */
-    /* LOCAL - POSTGRES */
-    /* ========================= */
-
-    const wallet = await pool.query(
-      `
-      SELECT saldo
-      FROM play.wallets
-      WHERE user_id = $1
-      `,
-      [user_id]
-    );
-
-    if(wallet.rowCount === 0){
-
-      return res.status(404).json({
-        mensaje:"Wallet no encontrada"
-      });
-
-    }
-
-    const saldoActual =
-    Number(wallet.rows[0].saldo);
-
-    if(saldoActual < monto){
+    if (!user_id || !monto) {
 
       return res.status(400).json({
-        mensaje:"Saldo insuficiente"
+        error: "Datos incompletos"
       });
 
     }
 
-    const nuevoSaldo =
-    saldoActual - monto;
+    const preference = new Preference(client);
 
-    await pool.query(
-      `
-      UPDATE play.wallets
-      SET
-        saldo = $1,
-        actualizado = CURRENT_TIMESTAMP
-      WHERE user_id = $2
-      `,
-      [
-        nuevoSaldo,
-        user_id
-      ]
-    );
+    const result =
+    await preference.create({
 
-    const transaccion =
-    await pool.query(
-      `
-      INSERT INTO play.transacciones
-      (
-        user_id,
-        monto,
-        tipo,
-        staff_id
-      )
-      VALUES
-      (
-        $1,
-        $2,
-        'VENTA',
-        $3
-      )
-      RETURNING id
-      `,
-      [
-        user_id,
-        monto,
-        staff_id
-      ]
-    );
+      body: {
 
-    const transaccion_id =
-    transaccion.rows[0].id;
+        items: [
 
-    for(const item of carrito){
+          {
 
-      await pool.query(
-        `
-        INSERT INTO play.detalle_ventas
-        (
-          transaccion_id,
-          producto_id,
-          cantidad,
-          precio_unitario,
-          subtotal
-        )
-        VALUES
-        (
-          $1,
-          $2,
-          $3,
-          $4,
-          $5
-        )
-        `,
-        [
-          transaccion_id,
-          item.producto_id,
-          item.cantidad,
-          item.precio,
-          item.precio * item.cantidad
-        ]
-      );
+            title:
+            `Recarga Cashless Usuario ${user_id}`,
 
-    }
+            quantity: 1,
 
-    return res.json({
+            unit_price:
+            Number(monto),
 
-      ok:true,
-      mensaje:"Pago realizado",
-      saldo:nuevoSaldo
+            currency_id: "MXN"
+
+          }
+
+        ],
+
+        external_reference:
+        String(user_id),
+
+        back_urls: {
+
+          success:
+          "http://localhost:3000",
+
+          failure:
+          "http://localhost:3000",
+
+          pending:
+          "http://localhost:3000"
+
+        },
+
+        auto_return:
+        "approved"
+
+      }
 
     });
 
-  } catch(err){
+    res.json({
+
+      init_point:
+      result.init_point
+
+    });
+
+  } catch(err) {
 
     console.error(
-      "PAGO ERROR:",
+      "MP ERROR:",
       err
     );
 
     res.status(500).json({
-      error:err.message
+
+      error:
+      err.message
+
     });
 
   }
 
 });
-
 /* ===================================================== */
 /* HISTORIAL */
 /* ===================================================== */
