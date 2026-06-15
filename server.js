@@ -204,7 +204,7 @@ app.post("/recargar", async (req, res) => {
 
       const { data: wallet } =
       await supabase
-        .from("wallets")
+        .from("cash_wallets")
         .select("user_id,saldo")
         .eq("user_id", user_id)
         .single();
@@ -214,7 +214,7 @@ app.post("/recargar", async (req, res) => {
       if(!wallet){
 
         await supabase
-          .from("wallets")
+          .from("cash_wallets")
           .insert([{
             user_id,
             saldo: 0
@@ -226,7 +226,7 @@ app.post("/recargar", async (req, res) => {
 
       const { data: actual } =
       await supabase
-        .from("wallets")
+        .from("cash_wallets")
         .select("saldo")
         .eq("user_id", user_id)
         .single();
@@ -239,7 +239,7 @@ app.post("/recargar", async (req, res) => {
 
       const { error } =
       await supabase
-        .from("wallets")
+        .from("cash_wallets")
         .update({
 
           saldo: nuevoSaldo,
@@ -256,7 +256,7 @@ app.post("/recargar", async (req, res) => {
       }
 
       await supabase
-  .from("transacciones")
+  .from("cash_transacciones")
   .insert({
     user_id,
     monto,
@@ -398,7 +398,7 @@ app.get("/usuario/:user_id", async (req, res) => {
 
       const { data, error } =
       await supabase
-        .from("wallets")
+        .from("cash_wallets")
         .select(
           "user_id,desc_dispositivo,saldo"
         )
@@ -478,7 +478,7 @@ app.post("/pagar", async (req, res) => {
 
       const { data: wallet, error: walletError } =
       await supabase
-        .from("wallets")
+        .from("cash_wallets")
         .select("saldo")
         .eq("user_id", user_id)
         .single();
@@ -507,7 +507,7 @@ app.post("/pagar", async (req, res) => {
 
       const { error:updateError } =
       await supabase
-        .from("wallets")
+        .from("cash_wallets")
         .update({
           saldo:nuevoSaldo,
           actualizado:new Date().toISOString()
@@ -523,7 +523,7 @@ app.post("/pagar", async (req, res) => {
         error: trxError
       } =
       await supabase
-        .from("transacciones")
+        .from("cash_transacciones")
         .insert({
           user_id,
           monto,
@@ -541,7 +541,7 @@ app.post("/pagar", async (req, res) => {
 
         const { error } =
         await supabase
-          .from("detalle_ventas")
+          .from("cash_detalle_ventas")
           .insert({
 
             transaccion_id:
@@ -721,7 +721,7 @@ app.get("/historial", async (req, res) => {
 
       const { data, error } =
       await supabase
-        .from("transacciones")
+        .from("cash_transacciones")
         .select("*")
         .order("creado", {
           ascending:false
@@ -776,18 +776,18 @@ app.get("/dashboard", async (req, res) => {
 
       const { data: wallets } =
       await supabase
-        .from("wallets")
+        .from("cash_wallets")
         .select("saldo");
 
       const { data: ventas } =
       await supabase
-        .from("transacciones")
+        .from("cash_transacciones")
         .select("monto")
         .eq("tipo","VENTA");
 
       const { data: recargas } =
       await supabase
-        .from("transacciones")
+        .from("cash_transacciones")
         .select("monto")
         .eq("tipo","RECARGA");
 
