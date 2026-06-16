@@ -4,7 +4,20 @@ const { Pool } = require("pg");
 const path = require("path");
 const { MercadoPagoConfig, Preference } = require("mercadopago");
 require("dotenv").config();
-console.log("MP TOKEN =", process.env.MP_TOKEN);
+console.log(
+  "TOKEN LENGTH:",
+  process.env.MP_TOKEN?.length
+);
+
+console.log(
+  "TOKEN START:",
+  process.env.MP_TOKEN?.substring(0,25)
+);
+
+console.log(
+  "TOKEN END:",
+  process.env.MP_TOKEN?.slice(-10)
+);
 const app = express();
 
 app.use(cors());
