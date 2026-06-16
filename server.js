@@ -478,6 +478,11 @@ app.post("/crear-recarga-mp", async (req, res) => {
 
     }
 
+console.log(
+  "TOKEN:",
+  process.env.MP_TOKEN?.substring(0,20)
+);
+
     const preference = new Preference(client);
 
     const result =
@@ -507,17 +512,10 @@ app.post("/crear-recarga-mp", async (req, res) => {
         String(user_id),
 
         back_urls: {
-
-          success:
-          "http://localhost:3000",
-
-          failure:
-          "http://localhost:3000",
-
-          pending:
-          "http://localhost:3000"
-
-        },
+  success: "https://cashlessplay.vercel.app",
+  failure: "https://cashlessplay.vercel.app",
+  pending: "https://cashlessplay.vercel.app"
+},
 
         auto_return:
         "approved"
