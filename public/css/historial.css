@@ -1,3 +1,13 @@
+:root{
+  --bg:#0b1220;
+  --surface:#111827;
+  --surface-2:#0f172a;
+  --border:#243041;
+  --text:#f8fafc;
+  --muted:#94a3b8;
+  --primary:#4f46e5;
+}
+
 *{
   margin:0;
   padding:0;
@@ -6,179 +16,172 @@
 
 body{
   min-height:100vh;
-  font-family:'Segoe UI',sans-serif;
-  color:#fff;
-
-  background:
-    radial-gradient(circle at top,#1b1040 0%,#050816 40%,#02030d 100%);
-
-  overflow-x:hidden;
+  background:var(--bg);
+  color:var(--text);
+  font-family:Inter,system-ui,sans-serif;
 }
 
-body::before{
-  content:"";
-  position:fixed;
-  inset:0;
-
-  background:
-  radial-gradient(
-    circle,
-    rgba(255,255,255,.10) 1px,
-    transparent 1px
-  );
-
-  background-size:140px 140px;
-
-  pointer-events:none;
-}
-
-/* ========================= */
+/* ====================== */
 /* NAVBAR */
-/* ========================= */
+/* ====================== */
 
 .navbar{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  gap:20px;
-
-  padding:20px 40px;
 
   position:sticky;
+
   top:0;
+
   z-index:100;
 
-  backdrop-filter:blur(20px);
+  height:76px;
 
-  background:
-  rgba(3,7,18,.75);
+  padding:0 24px;
 
-  border-bottom:
-  1px solid rgba(255,255,255,.08);
+  display:flex;
+
+  align-items:center;
+
+  justify-content:space-between;
+
+  background:rgba(11,18,32,.95);
+
+  backdrop-filter:blur(12px);
+
+  border-bottom:1px solid var(--border);
+
 }
 
 .nav-left{
   display:flex;
   flex-direction:column;
-  gap:6px;
 }
 
 .nav-left h1{
 
-  font-size:3rem;
-  font-weight:900;
+  font-size:1.8rem;
 
-  background:
-  linear-gradient(
-    90deg,
-    #c084fc,
-    #8b5cf6,
-    #06b6d4
-  );
+  font-weight:800;
 
-  -webkit-background-clip:text;
-  -webkit-text-fill-color:transparent;
+  color:#fff;
+
 }
 
 .subtitle{
-  color:#94a3b8;
-  font-size:.95rem;
+
+  margin-top:4px;
+
+  color:var(--muted);
+
+  font-size:.85rem;
+
 }
 
 .nav-btn{
+
+  height:44px;
+
+  padding:0 18px;
+
   border:none;
 
-  background:
-  rgba(255,255,255,.05);
+  border-radius:12px;
 
-  color:white;
+  background:#182233;
 
-  padding:12px 22px;
+  color:#fff;
 
-  border-radius:14px;
+  font-weight:600;
 
   cursor:pointer;
 
-  transition:.3s;
+  transition:.2s;
+
 }
 
 .nav-btn:hover{
 
-  background:#7c3aed;
-
-  transform:
-  translateY(-2px);
+  background:#223049;
 
 }
 
-/* ========================= */
+/* ====================== */
 /* CONTENEDOR */
-/* ========================= */
+/* ====================== */
 
 .historial-container{
 
-  max-width:1600px;
+  max-width:1400px;
 
-  margin:auto;
+  margin:40px auto;
 
-  padding:40px;
+  padding:0 24px;
 
 }
 
-/* ========================= */
+/* ====================== */
 /* CARD */
-/* ========================= */
+/* ====================== */
 
 .historial-card{
 
-  background:
-  rgba(15,23,42,.65);
+  background:var(--surface);
 
-  backdrop-filter:
-  blur(20px);
+  border:1px solid var(--border);
 
-  border:
-  1px solid rgba(255,255,255,.08);
-
-  border-radius:24px;
+  border-radius:20px;
 
   overflow:hidden;
 
   box-shadow:
-  0 10px 30px rgba(0,0,0,.35);
+    0 10px 25px rgba(0,0,0,.20);
 
 }
+
+/* ====================== */
+/* HEADER */
+/* ====================== */
 
 .card-header{
 
   display:flex;
+
   justify-content:space-between;
+
   align-items:center;
 
-  padding:25px;
+  padding:24px;
 
-  border-bottom:
-  1px solid rgba(255,255,255,.08);
+  border-bottom:1px solid var(--border);
 
 }
 
 .card-header h2{
 
-  font-size:1.4rem;
-  color:white;
+  font-size:1.2rem;
+
+  font-weight:800;
 
 }
 
 #total-registros{
 
-  color:#94a3b8;
+  padding:8px 12px;
+
+  border-radius:999px;
+
+  background:#182233;
+
+  color:var(--muted);
+
+  font-size:.85rem;
+
   font-weight:600;
 
 }
 
-/* ========================= */
+/* ====================== */
 /* TABLA */
-/* ========================= */
+/* ====================== */
 
 .tabla-wrapper{
 
@@ -189,147 +192,145 @@ body::before{
 table{
 
   width:100%;
+
   border-collapse:collapse;
-  min-width:900px;
 
 }
 
 thead{
 
-  background:
-  rgba(124,58,237,.15);
+  background:#0f172a;
 
 }
 
-th{
-
-  padding:20px;
-
-  text-align:left;
-
-  color:#c4b5fd;
-
-  font-size:.85rem;
-
-  text-transform:uppercase;
-
-  letter-spacing:1px;
-
-}
-
-td{
+thead th{
 
   padding:18px;
 
-  border-top:
-  1px solid rgba(255,255,255,.05);
+  text-align:left;
 
-  white-space:nowrap;
+  color:var(--muted);
+
+  font-size:.85rem;
+
+  font-weight:700;
+
+  letter-spacing:.05em;
+
+  text-transform:uppercase;
+
+  border-bottom:1px solid var(--border);
+
+}
+
+tbody td{
+
+  padding:18px;
+
+  border-bottom:1px solid rgba(255,255,255,.05);
+
+  color:#e5e7eb;
+
+  font-size:.95rem;
 
 }
 
 tbody tr{
 
-  transition:.25s;
+  transition:.2s;
 
 }
 
 tbody tr:hover{
 
-  background:
-  rgba(255,255,255,.04);
+  background:#162033;
 
 }
 
-tbody tr:nth-child(even){
+tbody tr:last-child td{
 
-  background:
-  rgba(255,255,255,.02);
+  border-bottom:none;
 
 }
 
-/* ========================= */
+/* ====================== */
 /* TIPOS */
-/* ========================= */
+/* ====================== */
 
 .tipo-recarga{
 
-  color:#22c55e;
-  font-weight:800;
+  color:#10b981;
+
+  font-weight:700;
 
 }
 
 .tipo-venta{
 
   color:#f59e0b;
-  font-weight:800;
+
+  font-weight:700;
 
 }
 
-.monto{
+.tipo-reembolso{
 
-  font-weight:900;
-  color:#ffffff;
+  color:#ef4444;
+
+  font-weight:700;
 
 }
 
-/* ========================= */
-/* SCROLL */
-/* ========================= */
+/* ====================== */
+/* RESPONSIVE */
+/* ====================== */
 
-::-webkit-scrollbar{
-  width:10px;
-  height:10px;
-}
-
-::-webkit-scrollbar-thumb{
-  background:#7c3aed;
-  border-radius:999px;
-}
-
-::-webkit-scrollbar-track{
-  background:transparent;
-}
-
-/* ========================= */
-/* MOBILE */
-/* ========================= */
-
-@media(max-width:900px){
+@media(max-width:768px){
 
   .navbar{
 
-    flex-direction:column;
-    align-items:flex-start;
+    height:auto;
 
-    padding:20px;
+    padding:16px;
+
+    gap:12px;
+
+    flex-direction:column;
+
+    align-items:flex-start;
 
   }
 
-  .nav-left h1{
+  .nav-btn{
 
-    font-size:2.2rem;
+    width:100%;
 
   }
 
   .historial-container{
 
-    padding:20px;
+    padding:0 16px;
+
+    margin:24px auto;
 
   }
 
   .card-header{
 
     flex-direction:column;
+
     align-items:flex-start;
-    gap:10px;
+
+    gap:12px;
 
   }
 
-  th,
-  td{
+  thead th,
+  tbody td{
 
     padding:14px;
+
+    font-size:.85rem;
 
   }
 
