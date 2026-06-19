@@ -86,9 +86,17 @@
 
       <div class="panel-header">
 
-        <h2>💳 Recargar saldo</h2>
+  <span class="panel-tag">
+    MÓDULO
+  </span>
 
-      </div>
+  <h2>Recargas</h2>
+
+  <p>
+    Agrega saldo a dispositivos registrados
+  </p>
+
+</div>
 
       <!-- ===================================== -->
       <!-- 📷 SCANNER -->
@@ -220,11 +228,19 @@
     <!-- ===================================== -->
     <section class="panel panel-der">
 
-      <div class="panel-header">
+     <div class="panel-header">
 
-        <h2>🛒 Cobrar producto</h2>
+  <span class="panel-tag">
+    MÓDULO
+  </span>
 
-      </div>
+  <h2>Cobros</h2>
+
+  <p>
+    Registro de consumos y pagos
+  </p>
+
+</div>
 
       <!-- ===================================== -->
       <!-- 📷 SCANNER -->
@@ -341,53 +357,36 @@
       </div>
 
       <!-- ===================================== -->
-      <!-- 💰 TOTAL -->
-      <!-- ===================================== -->
-      <div
-        id="total-box"
-        class="total-box"
-      >
-        Total: $0
-      </div>
-
-      <!-- ===================================== -->
-      <!-- 💵 MONTO EXTRA -->
-      <!-- ===================================== -->
-      <div class="input-group">
-
-        <label>
-          Otro monto
-        </label>
-
-        <input
-          id="montoPago"
-          type="number"
-          inputmode="numeric"
-          placeholder="$0"
-        />
-
-      </div>
-
-      <!-- ===================================== -->
       <!-- ⚡ ACCIONES -->
       <!-- ===================================== -->
-      <div class="acciones">
+<div class="checkout-bar">
 
-        <button
-          onclick="limpiarCarrito()"
-          class="clear-btn"
-        >
-          🗑 Limpiar carrito
-        </button>
+  <div
+    id="total-box"
+    class="total-box"
+  >
+    Total: $0
+  </div>
 
-        <button
-          class="pagar-btn"
-          onclick="pagar()"
-        >
-          ⚡ Cobrar
-        </button>
+  <button
+    class="pagar-btn"
+    onclick="pagar()"
+  >
+    ⚡ Cobrar
+  </button>
 
-      </div>
+</div>
+
+<div class="acciones-secundarias">
+
+  <button
+    onclick="limpiarCarrito()"
+    class="clear-btn"
+  >
+    🗑 Limpiar carrito
+  </button>
+
+</div>
 
       <!-- ===================================== -->
       <!-- 🔥 QR -->
