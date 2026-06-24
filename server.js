@@ -498,44 +498,35 @@ console.log(
 
     const preference = new Preference(client);
 
-    const result =
-    await preference.create({
+const result = await preference.create({
 
-      body: {
+  body: {
 
-        items: [
-
-          {
-
-            title:
-            `Recarga Cashless Usuario ${user_id}`,
-
-            quantity: 1,
-
-            unit_price:
-            Number(monto),
-
-            currency_id: "MXN"
-
-          }
-
-        ],
-
-        external_reference:
-        String(user_id),
-
-        back_urls: {
-  success: "https://cashlessplay.vercel.app",
-  failure: "https://cashlessplay.vercel.app",
-  pending: "https://cashlessplay.vercel.app"
-},
-
-        auto_return:
-        "approved"
-
+    items: [
+      {
+        title: `Recarga Cashless Usuario ${user_id}`,
+        quantity: 1,
+        unit_price: Number(monto),
+        currency_id: "MXN"
       }
+    ],
 
-    });
+    external_reference: String(user_id),
+
+    notification_url:
+      "https://cashlessplay.vercel.app/webhook-mp",
+
+    back_urls: {
+      success: "https://cashlessplay.vercel.app",
+      failure: "https://cashlessplay.vercel.app",
+      pending: "https://cashlessplay.vercel.app"
+    },
+
+    auto_return: "approved"
+
+  }
+
+});
 
     res.json({
 
@@ -780,6 +771,33 @@ app.get("/test-supabase", async (req, res) => {
     });
 
   }
+
+});
+
+/* ===================================================== */
+/* WEBHOOK MERCADO PAGO */
+/* ===================================================== */
+
+app.post("/webhook-mp", async (req, res) => {
+
+  console.log(
+    "WEBHOOK MP:",
+    JSON.stringify(req.body, null, 2)
+  );
+
+  return res.sendStatus(200);
+
+});
+
+/* ===================================================== */
+/* INICIAR SERVIDOR */
+/* ===================================================== */
+
+app.listen(3000, () => {
+
+  console.log(
+    "Servidor corriendo 🚀"
+  );
 
 });
 
