@@ -543,6 +543,58 @@ const result = await preference.create({
   }
 
 });
+
+//  end point stripe 
+
+app.post(
+  "/crear-recarga-stripe",
+  async (req,res)=>{
+
+    try{
+
+      const {
+        user_id,
+        monto
+      } = req.body;
+
+      const paymentIntent =
+      await stripe.paymentIntents.create({
+
+        amount:
+          Math.round(
+            Number(monto) * 100
+          ),
+
+        currency: "mxn",
+
+        metadata:{
+          user_id
+        }
+
+      });
+
+      res.json({
+
+        clientSecret:
+        paymentIntent.client_secret
+
+      });
+
+    }catch(err){
+
+      console.error(
+        "STRIPE ERROR:",
+        err
+      );
+
+      res.status(500).json({
+        error: err.message
+      });
+
+    }
+
+});
+
 /* ===================================================== */
 /* HISTORIAL */
 /* ===================================================== */
@@ -938,18 +990,6 @@ if (trxError) {
     return res.sendStatus(500);
 
   }
-
-});
-
-/* ===================================================== */
-/* INICIAR SERVIDOR */
-/* ===================================================== */
-
-app.listen(3000, () => {
-
-  console.log(
-    "Servidor corriendo 🚀"
-  );
 
 });
 
