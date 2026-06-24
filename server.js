@@ -849,17 +849,20 @@ console.log(
         pago.transaction_amount
       );
 
-      const { data: existe } =
-  await supabase
-    .from("cash_transacciones")
-    .select("id")
-    .eq("mp_payment_id", pago.id)
-    .maybeSingle();
+      const { error: trxError } =
+await supabase
+  .from("cash_transacciones")
+  .insert({
+    user_id,
+    monto,
+    tipo: "RECARGA",
+    mp_payment_id: pago.id
+  });
 
-if (existe) {
+if (trxError) {
 
   console.log(
-    "PAGO YA PROCESADO:",
+    "PAGO YA REGISTRADO:",
     pago.id
   );
 
@@ -908,15 +911,6 @@ if (existe) {
       return res.sendStatus(500);
 
     }
-
-    await supabase
-  .from("cash_transacciones")
-  .insert({
-    user_id,
-    monto,
-    tipo: "RECARGA",
-    mp_payment_id: pago.id
-  });
 
     console.log(
       "SALDO ACTUALIZADO:",
