@@ -575,6 +575,11 @@ app.post(
 
       res.json({
 
+        ok:true,
+
+        paymentIntentId:
+        paymentIntent.id,
+
         clientSecret:
         paymentIntent.client_secret
 
