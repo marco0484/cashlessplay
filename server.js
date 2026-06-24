@@ -2,22 +2,13 @@ const express = require("express");
 const cors = require("cors");
 const { Pool } = require("pg");
 const path = require("path");
-const { MercadoPagoConfig, Preference } = require("mercadopago");
+const {
+  MercadoPagoConfig,
+  Preference,
+  Payment
+} = require("mercadopago");
+
 require("dotenv").config();
-console.log(
-  "TOKEN LENGTH:",
-  process.env.MP_TOKEN?.length
-);
-
-console.log(
-  "TOKEN START:",
-  process.env.MP_TOKEN?.substring(0,25)
-);
-
-console.log(
-  "TOKEN END:",
-  process.env.MP_TOKEN?.slice(-10)
-);
 const app = express();
 
 app.use(cors());
@@ -780,12 +771,134 @@ app.get("/test-supabase", async (req, res) => {
 
 app.post("/webhook-mp", async (req, res) => {
 
-  console.log(
-    "WEBHOOK MP:",
-    JSON.stringify(req.body, null, 2)
-  );
+  try {
 
-  return res.sendStatus(200);
+    console.log(
+      "WEBHOOK MP:",
+      JSON.stringify(req.body, null, 2)
+    );
+
+    const paymentId =
+      req.body?.data?.id ||
+      req.body?.resource;
+
+    if (!paymentId) {
+
+      console.log(
+        "Webhook sin paymentId"
+      );
+
+      return res.sendStatus(200);
+
+    }
+
+    const payment =
+      new Payment(client);
+
+    const pago =
+      await payment.get({
+        id: paymentId
+      });
+
+    console.log(
+      "PAGO COMPLETO:",
+      JSON.stringify(
+        pago,
+        null,
+        2
+      )
+    );
+
+    if (
+      pago.status !== "approved"
+    ) {
+
+      console.log(
+        "Pago no aprobado:",
+        pago.status
+      );
+
+      return res.sendStatus(200);
+
+    }
+
+    const user_id =
+      Number(
+        pago.external_reference
+      );
+
+    const monto =
+      Number(
+        pago.transaction_amount
+      );
+
+    console.log(
+      "RECARGA APROBADA",
+      {
+        user_id,
+        monto
+      }
+    );
+
+    const { data: wallet } =
+      await supabase
+        .from("cash_wallets")
+        .select("saldo")
+        .eq("user_id", user_id)
+        .single();
+
+    const saldoActual =
+      Number(wallet?.saldo || 0);
+
+    const nuevoSaldo =
+      saldoActual + monto;
+
+    const { error } =
+      await supabase
+        .from("cash_wallets")
+        .update({
+          saldo: nuevoSaldo,
+          actualizado:
+            new Date().toISOString()
+        })
+        .eq("user_id", user_id);
+
+    if (error) {
+
+      console.error(
+        "ERROR WALLET:",
+        error
+      );
+
+      return res.sendStatus(500);
+
+    }
+
+    await supabase
+      .from("cash_transacciones")
+      .insert({
+        user_id,
+        monto,
+        tipo: "RECARGA"
+      });
+
+    console.log(
+      "SALDO ACTUALIZADO:",
+      nuevoSaldo
+    );
+
+    return res.sendStatus(200);
+
+  } catch (err) {
+
+    console.error(
+      "WEBHOOK ERROR:",
+      err
+    );
+
+    return res.sendStatus(500);
+
+  }
 
 });
 
