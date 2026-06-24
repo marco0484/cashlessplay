@@ -809,6 +809,26 @@ app.post("/webhook-mp", async (req, res) => {
       )
     );
 
+    console.log(
+  "PAYMENT ID:",
+  pago.id
+);
+
+console.log(
+  "STATUS:",
+  pago.status
+);
+
+console.log(
+  "USER:",
+  pago.external_reference
+);
+
+console.log(
+  "MONTO:",
+  pago.transaction_amount
+);
+
     if (
       pago.status !== "approved"
     ) {
