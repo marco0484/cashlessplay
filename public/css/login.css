@@ -132,6 +132,17 @@ body {
   text-decoration: underline;
 }
 
+.footer-credit{
+  margin-top:20px;
+  text-align:center;
+  font-size:14px;
+  color:rgba(255,255,255,.7);
+}
+
+.footer-credit strong{
+  color:#fff;
+}
+
 /* -------------------- */
 /* RESPONSIVE DESIGN */
 /* -------------------- */

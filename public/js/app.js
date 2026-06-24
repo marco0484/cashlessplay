@@ -674,6 +674,92 @@ async function pagarMercadoPago(){
 
 }
 
+
+/* STRIPE */
+
+async function pagarStripe(){
+
+  const user_id =
+    ultimoUsuarioRecarga;
+
+  const monto =
+    parseFloat(
+      document.getElementById(
+        "monto-recarga"
+      ).value
+    );
+
+  if(!user_id){
+
+    alert("Escanea usuario");
+
+    return;
+
+  }
+
+  if(
+    isNaN(monto)
+    || monto <= 0
+  ){
+
+    alert("Monto inválido");
+
+    return;
+
+  }
+
+  try{
+
+    const res =
+      await fetch(
+        API + "/crear-recarga-stripe",
+        {
+
+          method:"POST",
+
+          headers:{
+            "Content-Type":
+            "application/json"
+          },
+
+          body: JSON.stringify({
+
+            user_id,
+            monto
+
+          })
+
+        }
+      );
+
+    const data =
+      await res.json();
+
+    console.log(
+      "STRIPE:",
+      data
+    );
+
+    alert(
+      JSON.stringify(
+        data,
+        null,
+        2
+      )
+    );
+
+  }catch(err){
+
+    console.error(
+      "STRIPE ERROR:",
+      err
+    );
+
+  }
+
+}
+
+
 /* ===================================== */
 /* CARRITO */
 /* ===================================== */
