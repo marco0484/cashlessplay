@@ -32,7 +32,7 @@ createClient(
   SUPABASE_URL,
   SUPABASE_KEY
 );
-
+// Mercado
 const client = new MercadoPagoConfig({
   accessToken: process.env.MP_TOKEN
 });
@@ -42,6 +42,15 @@ app.get("/",(req,res)=>{
   res.sendFile(path.join(__dirname,"public","pos.html"))
 })
 
+// Stripe
+
+const Stripe =
+  require("stripe");
+
+const stripe =
+  new Stripe(
+    process.env.STRIPE_SECRET_KEY
+  );
 // DB
 const pool = new Pool({
 
@@ -944,11 +953,20 @@ app.listen(3000, () => {
 
 });
 
+// Stripe
 
-/* ===================================================== */
+app.get(
+  "/stripe-test",
+  async (req,res)=>{
+
+    res.json({
+      ok:true
+    });
+
+});
+
 /* INICIAR SERVIDOR LOCAL */
 /* EN VERCEL APP.LISTEN SE IGNORA */
-/* ===================================================== */
 app.listen(3000, () => {
 
   console.log(
