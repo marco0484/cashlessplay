@@ -260,15 +260,6 @@ app.post("/recargar", async (req, res) => {
 
       }
 
-      await supabase
-  .from("cash_transacciones")
-  .insert({
-    user_id,
-    monto,
-    tipo:"RECARGA"
-  });
-
-
       return res.json({
 
         ok:true,
@@ -618,12 +609,6 @@ app.get("/dashboard", async (req, res) => {
         .select("monto")
         .eq("tipo","VENTA");
 
-      const { data: recargas } =
-      await supabase
-        .from("cash_transacciones")
-        .select("monto")
-        .eq("tipo","RECARGA");
-
       const saldoTotal =
       wallets.reduce(
         (a,b)=>a+Number(b.saldo),
@@ -778,6 +763,18 @@ app.post("/webhook-mp", async (req, res) => {
       JSON.stringify(req.body, null, 2)
     );
 
+if (
+  req.body?.topic === "merchant_order"
+) {
+
+  console.log(
+    "IGNORANDO MERCHANT ORDER"
+  );
+
+  return res.sendStatus(200);
+
+}
+
     const paymentId =
       req.body?.data?.id ||
       req.body?.resource;
@@ -852,6 +849,24 @@ console.log(
         pago.transaction_amount
       );
 
+      const { data: existe } =
+  await supabase
+    .from("cash_transacciones")
+    .select("id")
+    .eq("mp_payment_id", pago.id)
+    .maybeSingle();
+
+if (existe) {
+
+  console.log(
+    "PAGO YA PROCESADO:",
+    pago.id
+  );
+
+  return res.sendStatus(200);
+
+}
+
     console.log(
       "RECARGA APROBADA",
       {
@@ -895,12 +910,13 @@ console.log(
     }
 
     await supabase
-      .from("cash_transacciones")
-      .insert({
-        user_id,
-        monto,
-        tipo: "RECARGA"
-      });
+  .from("cash_transacciones")
+  .insert({
+    user_id,
+    monto,
+    tipo: "RECARGA",
+    mp_payment_id: pago.id
+  });
 
     console.log(
       "SALDO ACTUALIZADO:",
