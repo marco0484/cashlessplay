@@ -225,9 +225,7 @@
 
     </section>
 
-    <!-- ===================================== -->
-    <!-- 🛒 COBRO -->
-    <!-- ===================================== -->
+    <!--COBRO -->
     <section class="panel panel-der">
 
      <div class="panel-header">
@@ -401,12 +399,48 @@
     </section>
 
   </main>
+<!-- ===================================== -->
+<!-- STRIPE MODAL -->
+<!-- ===================================== -->
 
+<div id="stripe-modal" class="stripe-modal">
+
+  <div class="stripe-card">
+
+    <div class="stripe-header">
+
+      <h3>💳 Pago con Tarjeta</h3>
+
+      <button
+        class="stripe-close"
+        onclick="cerrarModalStripe()"
+      >
+        ✕
+      </button>
+
+    </div>
+
+    <div
+      id="payment-element"
+      class="payment-element"
+    ></div>
+
+    <button
+      class="stripe-pay-btn"
+      onclick="confirmarPagoStripe()"
+    >
+      Pagar ahora
+    </button>
+
+  </div>
+
+</div>
 <footer class="footer-credit">
   Desarrollado por <strong>Cosmic Pass</strong> 🚀
 </footer>
 
   <script src="https://unpkg.com/html5-qrcode"></script>
+  <script src="https://js.stripe.com/v3/"></script>
   <script src="js/app.js"></script>
 
 </body>

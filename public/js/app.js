@@ -2,6 +2,9 @@ const staff = localStorage.getItem("staff_id")
 let timerRFID = null
 let ultimoUsuarioRecarga = null
 let ultimoUsuarioPago = null
+let stripe;
+let elements;
+let stripeClientSecret;
 
 if(!staff){
 
@@ -11,9 +14,7 @@ if(!staff){
 
 }
 
-/* ===================================== */
 /* CONFIG API */
-/* ===================================== */
 
 const modo =
 localStorage.getItem("modo") || "local";
@@ -740,13 +741,10 @@ async function pagarStripe(){
       data
     );
 
-    alert(
-      JSON.stringify(
-        data,
-        null,
-        2
-      )
-    );
+    stripeClientSecret =
+data.clientSecret;
+
+mostrarModalStripe();
 
   }catch(err){
 
@@ -999,5 +997,64 @@ function detectarRFID(valor, tipo){
     input.focus()
 
   },150)
+
+}
+
+async function mostrarModalStripe(){
+
+  stripe = Stripe(
+    "pk_test_51TlwPJELrOUgkIrx4ZAqN0ZtA4d5H4bba5XnjmIRc5I0VWHiloSbabF349rj9mBeSsJkYoyLRA2diY2kEYjfgyhC00srU3IRZH"
+  );
+
+  elements = stripe.elements({
+    clientSecret: stripeClientSecret
+  });
+
+  const paymentElement =
+    elements.create("payment");
+
+  document.getElementById(
+    "payment-element"
+  ).innerHTML = "";
+
+  paymentElement.mount(
+    "#payment-element"
+  );
+
+  document.getElementById(
+    "stripe-modal"
+  ).style.display = "flex";
+
+}
+
+function cerrarModalStripe(){
+
+  document.getElementById(
+    "stripe-modal"
+  ).style.display = "none";
+
+}
+
+async function confirmarPagoStripe(){
+
+  const { error } =
+    await stripe.confirmPayment({
+
+      elements,
+
+      confirmParams:{
+        return_url:
+          window.location.href
+      }
+
+    });
+
+  if(error){
+
+    alert(
+      error.message
+    );
+
+  }
 
 }
