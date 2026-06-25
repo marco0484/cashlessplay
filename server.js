@@ -12,7 +12,21 @@ require("dotenv").config();
 const app = express();
 
 app.use(cors());
-app.use(express.json());
+
+app.use((req, res, next) => {
+
+  if (req.originalUrl === "/webhook-stripe") {
+
+    next();
+
+  } else {
+
+    express.json()(req, res, next);
+
+  }
+
+});
+
 
 /* ========================= */
 /* SUPABASE */
@@ -1014,9 +1028,7 @@ app.get(
 
 app.post(
   "/webhook-stripe",
-  express.raw({
-    type: "application/json"
-  }),
+  express.raw({ type: "*/*" }),
   async (req,res)=>{
 
     const sig =
@@ -1027,6 +1039,15 @@ app.post(
     try{
 
       const event =
+      console.log(
+  "BUFFER:",
+  Buffer.isBuffer(req.body)
+);
+
+console.log(
+  "TIPO:",
+  typeof req.body
+);
         stripe.webhooks.constructEvent(
           req.body,
           sig,
