@@ -1038,7 +1038,7 @@ app.post(
 
     try{
 
-      console.log(
+console.log(
   "BUFFER:",
   Buffer.isBuffer(req.body)
 );
@@ -1067,6 +1067,9 @@ console.log(
 
         const paymentIntent =
           event.data.object;
+
+          const stripePaymentId =
+  paymentIntent.id;
 
         const user_id =
           Number(
@@ -1113,13 +1116,26 @@ console.log(
             user_id
           );
 
-        await supabase
-          .from("cash_transacciones")
-          .insert({
-            user_id,
-            monto,
-            tipo: "RECARGA"
-          });
+const { error: trxError } =
+await supabase
+  .from("cash_transacciones")
+  .insert({
+    user_id,
+    monto,
+    tipo: "RECARGA",
+    stripe_payment_id: stripePaymentId
+  });
+
+if (trxError) {
+
+  console.log(
+    "PAGO YA REGISTRADO:",
+    stripePaymentId
+  );
+
+  return res.sendStatus(200);
+
+}
 
         console.log(
           "SALDO ACTUALIZADO",
