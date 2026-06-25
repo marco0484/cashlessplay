@@ -106,63 +106,6 @@ app.post("/registro",async(req,res)=>{
   }
 })
 
-// ===============================
-// LOGIN STAFF
-// ===============================
-/*app.post("/login", async (req, res) => {
-
-  const nombre = req.body.nombre;
-  const pin = parseInt(req.body.pin);
-
-  if(!nombre || !pin){
-
-    return res.status(400).json({
-      mensaje:"Datos incompletos"
-    });
-
-  }
-
-  try{
-
-    const { data, error } = await supabase
-      .from("cash_users")
-      .select("id,nombre")
-      .eq("nombre", nombre)
-      .eq("pin", pin)
-      .single();
-
-    if(error || !data){
-
-      return res.status(401).json({
-        mensaje:"Credenciales incorrectas"
-      });
-
-    }
-
-    res.json({
-      staff_id: data.id,
-      nombre: data.nombre
-    });
-
-  }catch(err){
-
-    console.error(
-      "LOGIN ERROR:",
-      err.message
-    );
-
-    res.status(500).json({
-      error:"Error en login"
-    });
-
-  }
-
-});
-
-*/
-
-// LOGIN EXPERIMENTO 
-
 app.post("/login", async (req, res) => {
 
   const nombre = req.body.nombre;
@@ -451,22 +394,49 @@ console.log("CANTIDAD PRODUCTOS:", carrito?.length);
       })
       .eq("user_id", user_id);
 
-    await supabase
-      .from("cash_transacciones")
-      .insert({
-        user_id,
-        monto,
-        tipo:"VENTA",
-        staff_id
-      });
+   const { data: venta, error: ventaError } =
+await supabase
+  .from("cash_transacciones")
+  .insert({
+    user_id,
+    monto,
+    tipo: "VENTA",
+    staff_id
+  })
+  .select()
+  .single();
 
-    res.json({
+if (ventaError) {
+  throw ventaError;
+}
 
-      ok:true,
-      mensaje:"Pago realizado correctamente",
-      saldo:nuevoSaldo
+console.log("VENTA:", venta);
 
-    });
+const detalles = carrito.map(item => ({
+  transaccion_id: venta.id,
+  producto_id: item.producto_id,
+  cantidad: item.cantidad,
+  precio_unitario: item.precio,
+  subtotal: item.precio * item.cantidad
+}));
+
+console.log("DETALLES:", detalles);
+
+const { error: detalleError } =
+await supabase
+  .from("cash_detalle_ventas")
+  .insert(detalles);
+
+if (detalleError) {
+  console.error("ERROR DETALLE:", detalleError);
+  throw detalleError;
+}
+
+res.json({
+  ok: true,
+  mensaje: "Pago realizado correctamente",
+  saldo: nuevoSaldo
+});
 
   }catch(err){
 
@@ -1171,7 +1141,8 @@ await supabase
   .insert({
     user_id,
     monto,
-    tipo: "VENTA"
+    tipo: "VENTA",
+    staff_id
     })
   .select()
   .single();
