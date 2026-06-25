@@ -400,7 +400,7 @@ await supabase
   .insert({
     user_id,
     monto,
-    tipo: "VENTA"
+    tipo: "RECARGA"
   })
   .select()
   .single();
