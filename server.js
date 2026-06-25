@@ -129,9 +129,6 @@ app.post("/login", async (req, res) => {
       .single();
 
     if(error){
-
-      console.error("SUPABASE ERROR:", error);
-
       return res.status(401).json({
         mensaje:"Credenciales incorrectas"
       });
@@ -144,11 +141,6 @@ app.post("/login", async (req, res) => {
     });
 
   }catch(err){
-
-    console.error(
-      "LOGIN ERROR:",
-      err
-    );
 
     res.status(500).json({
       error: err.message
@@ -324,11 +316,6 @@ VALUES
 
   }catch(err){
 
-    console.error(
-      "RECARGA ERROR:",
-      err
-    );
-
     res.status(500).json({
 
       error:"Error servidor"
@@ -353,10 +340,6 @@ app.post("/pagar", async (req, res) => {
       carrito,
       staff_id
     } = req.body;
-
-    console.log("BODY:", req.body);
-console.log("CARRITO:", carrito);
-console.log("CANTIDAD PRODUCTOS:", carrito?.length);
 
     const { data: wallet } =
       await supabase
@@ -400,7 +383,7 @@ await supabase
   .insert({
     user_id,
     monto,
-    tipo: "RECARGA"
+    tipo: "VENTA"
   })
   .select()
   .single();
@@ -408,8 +391,6 @@ await supabase
 if (ventaError) {
   throw ventaError;
 }
-
-console.log("VENTA:", venta);
 
 const detalles = carrito.map(item => ({
   transaccion_id: venta.id,
@@ -419,15 +400,12 @@ const detalles = carrito.map(item => ({
   subtotal: item.precio * item.cantidad
 }));
 
-console.log("DETALLES:", detalles);
-
 const { error: detalleError } =
 await supabase
   .from("cash_detalle_ventas")
   .insert(detalles);
 
 if (detalleError) {
-  console.error("ERROR DETALLE:", detalleError);
   throw detalleError;
 }
 
@@ -438,9 +416,6 @@ res.json({
 });
 
   }catch(err){
-
-    console.error(err);
-
     res.status(500).json({
       error:err.message
     });
@@ -515,12 +490,6 @@ app.get("/usuario/:user_id", async (req, res) => {
     return res.json(user.rows[0]);
 
   }catch(err){
-
-    console.error(
-      "USUARIO ERROR:",
-      err
-    );
-
     return res.status(500).json({
       error: err.message
     });
@@ -550,15 +519,8 @@ app.post("/crear-recarga-mp", async (req, res) => {
       });
 
     }
-
-console.log(
-  "TOKEN:",
-  process.env.MP_TOKEN?.substring(0,20)
-);
-
     const preference = new Preference(client);
-
-const result = await preference.create({
+    const result = await preference.create({
 
   body: {
 
@@ -596,12 +558,6 @@ const result = await preference.create({
     });
 
   } catch(err) {
-
-    console.error(
-      "MP ERROR:",
-      err
-    );
-
     res.status(500).json({
 
       error:
@@ -655,12 +611,6 @@ app.post(
       });
 
     }catch(err){
-
-      console.error(
-        "STRIPE ERROR:",
-        err
-      );
-
       res.status(500).json({
         error: err.message
       });
@@ -709,12 +659,6 @@ app.get("/historial", async (req, res) => {
     res.json(result.rows);
 
   }catch(err){
-
-    console.error(
-      "HISTORIAL ERROR:",
-      err
-    );
-
     res.status(500).json({
       error:err.message
     });
@@ -832,12 +776,6 @@ app.get("/dashboard", async (req, res) => {
     });
 
   }catch(err){
-
-    console.error(
-      "DASHBOARD ERROR:",
-      err
-    );
-
     res.status(500).json({
       error:err.message
     });
@@ -861,15 +799,8 @@ app.get("/test-supabase", async (req, res) => {
         .limit(1);
 
     if (error) {
-
-      console.error(
-        "SUPABASE ERROR:",
-        error
-      );
-
       return res.status(500)
         .json(error);
-
     }
 
     res.json(data);
@@ -891,22 +822,10 @@ app.get("/test-supabase", async (req, res) => {
 app.post("/webhook-mp", async (req, res) => {
 
   try {
-
-    console.log(
-      "WEBHOOK MP:",
-      JSON.stringify(req.body, null, 2)
-    );
-
 if (
   req.body?.topic === "merchant_order"
 ) {
-
-  console.log(
-    "IGNORANDO MERCHANT ORDER"
-  );
-
   return res.sendStatus(200);
-
 }
 
     const paymentId =
@@ -914,13 +833,7 @@ if (
       req.body?.resource;
 
     if (!paymentId) {
-
-      console.log(
-        "Webhook sin paymentId"
-      );
-
       return res.sendStatus(200);
-
     }
 
     const payment =
@@ -931,46 +844,10 @@ if (
         id: paymentId
       });
 
-    console.log(
-      "PAGO COMPLETO:",
-      JSON.stringify(
-        pago,
-        null,
-        2
-      )
-    );
-
-    console.log(
-  "PAYMENT ID:",
-  pago.id
-);
-
-console.log(
-  "STATUS:",
-  pago.status
-);
-
-console.log(
-  "USER:",
-  pago.external_reference
-);
-
-console.log(
-  "MONTO:",
-  pago.transaction_amount
-);
-
     if (
       pago.status !== "approved"
     ) {
-
-      console.log(
-        "Pago no aprobado:",
-        pago.status
-      );
-
       return res.sendStatus(200);
-
     }
 
     const user_id =
@@ -995,22 +872,9 @@ await supabase
 
 if (trxError) {
 
-  console.log(
-    "PAGO YA REGISTRADO:",
-    pago.id
-  );
-
   return res.sendStatus(200);
 
 }
-
-    console.log(
-      "RECARGA APROBADA",
-      {
-        user_id,
-        monto
-      }
-    );
 
     const { data: wallet } =
       await supabase
@@ -1037,31 +901,14 @@ if (trxError) {
 
     if (error) {
 
-      console.error(
-        "ERROR WALLET:",
-        error
-      );
-
       return res.sendStatus(500);
 
     }
 
-    console.log(
-      "SALDO ACTUALIZADO:",
-      nuevoSaldo
-    );
-
     return res.sendStatus(200);
 
   } catch (err) {
-
-    console.error(
-      "WEBHOOK ERROR:",
-      err
-    );
-
     return res.sendStatus(500);
-
   }
 
 });
@@ -1090,27 +937,12 @@ app.post(
 
     try{
 
-console.log(
-  "BUFFER:",
-  Buffer.isBuffer(req.body)
-);
-
-console.log(
-  "TIPO:",
-  typeof req.body
-);
-
 const event =
   stripe.webhooks.constructEvent(
     req.body,
     sig,
     endpointSecret
   );
-
-console.log(
-  "EVENT:",
-  JSON.stringify(event, null, 2)
-);
 
       if(
         event.type ===
@@ -1149,15 +981,6 @@ await supabase
 if (ventaError) {
   throw ventaError;
 }
-
-        console.log(
-          "STRIPE APROBADO",
-          {
-            user_id,
-            monto
-          }
-        );
-
         const { data: wallet } =
           await supabase
             .from("cash_wallets")
@@ -1185,11 +1008,6 @@ if (ventaError) {
             user_id
           );
 
-        console.log(
-          "SALDO ACTUALIZADO",
-          nuevoSaldo
-        );
-
       }
 
       res.json({
@@ -1197,11 +1015,6 @@ if (ventaError) {
       });
 
     }catch(err){
-
-      console.error(
-        "WEBHOOK STRIPE ERROR:",
-        err
-      );
 
       res.status(400).send(
         err.message
@@ -1214,9 +1027,7 @@ if (ventaError) {
 /* INICIAR SERVIDOR LOCAL */
 /* EN VERCEL APP.LISTEN SE IGNORA */
 app.listen(3000, () => {
-
   console.log(
     "Servidor corriendo 🚀"
   );
-
 });
