@@ -451,40 +451,55 @@ async function recargar(){
 async function pagar(){
 
   const user_id =
-  ultimoUsuarioPago
+    ultimoUsuarioPago;
+
+  const inputMonto =
+    document.getElementById("montoPago");
+
+  console.log(
+    "INPUT MONTO:",
+    inputMonto
+  );
+
+  if(!inputMonto){
+
+    console.error(
+      "No existe el elemento con id='montoPago'"
+    );
+
+    alert(
+      "No se encontró el campo del monto."
+    );
+
+    return;
+
+  }
 
   const monto =
-  parseFloat(
-
-    document.getElementById(
-      "montoPago"
-    ).value
-
-  )
+    parseFloat(
+      inputMonto.value
+    );
 
   const staff_id =
-  localStorage.getItem(
-    "staff_id"
-  )
-
-  console.log("USER:", user_id)
-  console.log("MONTO:", monto)
+    localStorage.getItem(
+      "staff_id"
+    );
 
   if(!user_id){
 
     alert(
       "Escanea o escribe usuario"
-    )
+    );
 
-    return
+    return;
 
   }
 
   if(isNaN(monto) || monto <= 0){
 
-    alert("Carrito vacío")
+    alert("Carrito vacío");
 
-    return
+    return;
 
   }
 
@@ -493,51 +508,51 @@ async function pagar(){
     || carrito.length === 0
   ){
 
-    alert("Carrito vacío")
+    alert("Carrito vacío");
 
-    return
+    return;
 
   }
 
   if(!staff_id){
 
-    alert("Debes iniciar sesión")
+    alert("Debes iniciar sesión");
 
     window.location.href =
-    "login.html"
+      "login.html";
 
-    return
+    return;
 
   }
 
   try{
 
     const res =
-    await fetch(
-      API + "/pagar",
-      {
+      await fetch(
+        API + "/pagar",
+        {
 
-        method:"POST",
+          method:"POST",
 
-        headers:{
-          "Content-Type":
-          "application/json"
-        },
+          headers:{
+            "Content-Type":
+              "application/json"
+          },
 
-        body: JSON.stringify({
+          body:JSON.stringify({
 
-          user_id,
-          monto,
-          carrito,
-          staff_id
+            user_id,
+            monto,
+            carrito,
+            staff_id
 
-        })
+          })
 
-      }
-    )
+        }
+      );
 
     const data =
-    await res.json()
+      await res.json();
 
     if(!res.ok){
 
@@ -547,37 +562,34 @@ async function pagar(){
         data.error ||
         "Error en pago"
 
-      )
+      );
 
-      return
+      return;
 
     }
 
-    alert(data.mensaje)
+    alert(data.mensaje);
 
-    ultimoUsuarioPago = null
+    ultimoUsuarioPago = null;
 
-    carrito = []
+    carrito = [];
 
-    renderCarrito()
+    renderCarrito();
 
-    document.getElementById(
-      "montoPago"
-    ).value = ""
+    inputMonto.value = "";
 
   }catch(err){
 
     console.error(
       "ERROR PAGO:",
       err
-    )
+    );
 
-    alert("Error de conexión")
+    alert("Error de conexión");
 
   }
 
 }
-
 /* ===================================== */
 /* MERCADO PAGO */
 /* ===================================== */
