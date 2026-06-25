@@ -1038,7 +1038,6 @@ app.post(
 
     try{
 
-      const event =
       console.log(
   "BUFFER:",
   Buffer.isBuffer(req.body)
@@ -1048,11 +1047,18 @@ console.log(
   "TIPO:",
   typeof req.body
 );
-        stripe.webhooks.constructEvent(
-          req.body,
-          sig,
-          endpointSecret
-        );
+
+const event =
+  stripe.webhooks.constructEvent(
+    req.body,
+    sig,
+    endpointSecret
+  );
+
+console.log(
+  "EVENT:",
+  JSON.stringify(event, null, 2)
+);
 
       if(
         event.type ===
