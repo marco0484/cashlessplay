@@ -411,6 +411,10 @@ app.post("/pagar", async (req, res) => {
       staff_id
     } = req.body;
 
+    console.log("BODY:", req.body);
+console.log("CARRITO:", carrito);
+console.log("CANTIDAD PRODUCTOS:", carrito?.length);
+
     const { data: wallet } =
       await supabase
         .from("cash_wallets")
@@ -450,12 +454,10 @@ app.post("/pagar", async (req, res) => {
     await supabase
       .from("cash_transacciones")
       .insert({
-
         user_id,
         monto,
         tipo:"VENTA",
         staff_id
-
       });
 
     res.json({
