@@ -1162,15 +1162,56 @@ console.log(
             paymentIntent.amount
           ) / 100;
 
-          const { error: trxError } =
+          const { data: venta, error: ventaError } =
 await supabase
   .from("cash_transacciones")
   .insert({
+
     user_id,
     monto,
-    tipo: "RECARGA",
-    stripe_payment_id: stripePaymentId
-  });
+    tipo:"VENTA",
+    staff_id
+
+  })
+  .select()
+  .single();
+
+if(ventaError){
+
+  throw ventaError;
+
+}
+
+const detalles =
+carrito.map(item => ({
+
+  transaccion_id:
+    venta.id,
+
+  producto_id:
+    item.producto_id,
+
+  cantidad:
+    item.cantidad,
+
+  precio_unitario:
+    item.precio,
+
+  subtotal:
+    item.precio * item.cantidad
+
+}));
+
+const { error: detalleError } =
+await supabase
+  .from("cash_detalle_ventas")
+  .insert(detalles);
+
+if(detalleError){
+
+  throw detalleError;
+
+}
 
 if (trxError) {
 
