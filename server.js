@@ -1081,6 +1081,27 @@ console.log(
             paymentIntent.amount
           ) / 100;
 
+          const { error: trxError } =
+await supabase
+  .from("cash_transacciones")
+  .insert({
+    user_id,
+    monto,
+    tipo: "RECARGA",
+    stripe_payment_id: stripePaymentId
+  });
+
+if (trxError) {
+
+  console.log(
+    "PAGO YA REGISTRADO:",
+    stripePaymentId
+  );
+
+  return res.sendStatus(200);
+
+}
+
         console.log(
           "STRIPE APROBADO",
           {
@@ -1115,27 +1136,6 @@ console.log(
             "user_id",
             user_id
           );
-
-const { error: trxError } =
-await supabase
-  .from("cash_transacciones")
-  .insert({
-    user_id,
-    monto,
-    tipo: "RECARGA",
-    stripe_payment_id: stripePaymentId
-  });
-
-if (trxError) {
-
-  console.log(
-    "PAGO YA REGISTRADO:",
-    stripePaymentId
-  );
-
-  return res.sendStatus(200);
-
-}
 
         console.log(
           "SALDO ACTUALIZADO",
