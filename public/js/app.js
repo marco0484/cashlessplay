@@ -453,31 +453,11 @@ async function pagar(){
   const user_id =
     ultimoUsuarioPago;
 
-  const inputMonto =
-    document.getElementById("montoPago");
-
-  console.log(
-    "INPUT MONTO:",
-    inputMonto
-  );
-
-  if(!inputMonto){
-
-    console.error(
-      "No existe el elemento con id='montoPago'"
-    );
-
-    alert(
-      "No se encontró el campo del monto."
-    );
-
-    return;
-
-  }
-
   const monto =
-    parseFloat(
-      inputMonto.value
+    carrito.reduce(
+      (total, producto) =>
+        total + (producto.precio * producto.cantidad),
+      0
     );
 
   const staff_id =
@@ -495,7 +475,7 @@ async function pagar(){
 
   }
 
-  if(isNaN(monto) || monto <= 0){
+  if(monto <= 0){
 
     alert("Carrito vacío");
 
@@ -575,8 +555,6 @@ async function pagar(){
     carrito = [];
 
     renderCarrito();
-
-    inputMonto.value = "";
 
   }catch(err){
 
@@ -912,18 +890,6 @@ function renderCarrito(){
   totalBox.innerHTML = `
     Total: $${total}
   `
-
-  const inputPago =
-  document.getElementById(
-    "montoPago"
-  )
-
-  if(inputPago){
-
-    inputPago.value = total
-
-  }
-
 }
 
 /* ===================================== */
@@ -1055,9 +1021,10 @@ async function confirmarPagoStripe(){
       elements,
 
       confirmParams:{
-        return_url:
-          window.location.href
-      }
+  return_url:
+    window.location.origin +
+    "/successfully.html"
+}
 
     });
 
@@ -1070,3 +1037,46 @@ async function confirmarPagoStripe(){
   }
 
 }
+
+/* ===================================== */
+/* RETORNO STRIPE */
+/* ===================================== */
+
+window.addEventListener("load", async () => {
+
+  const params =
+    new URLSearchParams(
+      window.location.search
+    );
+
+  const status =
+    params.get("redirect_status");
+
+  if(status !== "succeeded"){
+    return;
+  }
+
+  alert("✅ Recarga realizada correctamente.");
+
+  window.history.replaceState(
+    {},
+    document.title,
+    window.location.pathname
+  );
+
+  cerrarModalStripe();
+
+  document.getElementById(
+    "monto-recarga"
+  ).value = "";
+
+  if(ultimoUsuarioRecarga){
+
+    await cargarUsuario(
+      ultimoUsuarioRecarga,
+      "recarga"
+    );
+
+  }
+
+});
