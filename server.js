@@ -51,6 +51,9 @@ const stripe =
   new Stripe(
     process.env.STRIPE_SECRET_KEY
   );
+
+  const endpointSecret =
+  process.env.STRIPE_WEBHOOK_SECRET;
 // DB
 const pool = new Pool({
 
@@ -1006,6 +1009,114 @@ app.get(
     res.json({
       ok:true
     });
+
+});
+
+app.post(
+  "/webhook-stripe",
+  express.raw({
+    type: "application/json"
+  }),
+  async (req,res)=>{
+
+    const sig =
+      req.headers[
+        "stripe-signature"
+      ];
+
+    try{
+
+      const event =
+        stripe.webhooks.constructEvent(
+          req.body,
+          sig,
+          endpointSecret
+        );
+
+      if(
+        event.type ===
+        "payment_intent.succeeded"
+      ){
+
+        const paymentIntent =
+          event.data.object;
+
+        const user_id =
+          Number(
+            paymentIntent.metadata.user_id
+          );
+
+        const monto =
+          Number(
+            paymentIntent.amount
+          ) / 100;
+
+        console.log(
+          "STRIPE APROBADO",
+          {
+            user_id,
+            monto
+          }
+        );
+
+        const { data: wallet } =
+          await supabase
+            .from("cash_wallets")
+            .select("saldo")
+            .eq("user_id", user_id)
+            .single();
+
+        const saldoActual =
+          Number(
+            wallet?.saldo || 0
+          );
+
+        const nuevoSaldo =
+          saldoActual + monto;
+
+        await supabase
+          .from("cash_wallets")
+          .update({
+            saldo: nuevoSaldo,
+            actualizado:
+              new Date().toISOString()
+          })
+          .eq(
+            "user_id",
+            user_id
+          );
+
+        await supabase
+          .from("cash_transacciones")
+          .insert({
+            user_id,
+            monto,
+            tipo: "RECARGA"
+          });
+
+        console.log(
+          "SALDO ACTUALIZADO",
+          nuevoSaldo
+        );
+
+      }
+
+      res.json({
+        received:true
+      });
+
+    }catch(err){
+
+      console.error(
+        "WEBHOOK STRIPE ERROR:",
+        err
+      );
+
+      res.status(400).send(
+        err.message
+      );
+
+    }
 
 });
 
