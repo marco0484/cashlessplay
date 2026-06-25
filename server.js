@@ -227,9 +227,7 @@ app.post("/recargar", async (req, res) => {
       monto
     } = req.body;
 
-    /* ========================= */
-    /* CLOUD - SUPABASE */
-    /* ========================= */
+        /* CLOUD - SUPABASE */
 
     if(process.env.VERCEL){
 
@@ -397,6 +395,89 @@ VALUES
   }
 
 });
+
+// ===============================
+// PAGAR
+// ===============================
+
+app.post("/pagar", async (req, res) => {
+
+  try{
+
+    const {
+      user_id,
+      monto,
+      carrito,
+      staff_id
+    } = req.body;
+
+    const { data: wallet } =
+      await supabase
+        .from("cash_wallets")
+        .select("saldo")
+        .eq("user_id", user_id)
+        .single();
+
+    if(!wallet){
+
+      return res.status(404).json({
+        mensaje:"Wallet no encontrada"
+      });
+
+    }
+
+    if(Number(wallet.saldo) < Number(monto)){
+
+      return res.status(400).json({
+        mensaje:"Saldo insuficiente"
+      });
+
+    }
+
+    const nuevoSaldo =
+      Number(wallet.saldo) - Number(monto);
+
+    await supabase
+      .from("cash_wallets")
+      .update({
+
+        saldo:nuevoSaldo,
+        actualizado:new Date().toISOString()
+
+      })
+      .eq("user_id", user_id);
+
+    await supabase
+      .from("cash_transacciones")
+      .insert({
+
+        user_id,
+        monto,
+        tipo:"VENTA",
+        staff_id
+
+      });
+
+    res.json({
+
+      ok:true,
+      mensaje:"Pago realizado correctamente",
+      saldo:nuevoSaldo
+
+    });
+
+  }catch(err){
+
+    console.error(err);
+
+    res.status(500).json({
+      error:err.message
+    });
+
+  }
+
+});
+
 
 // ===============================
 // CONSULTAR
