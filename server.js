@@ -1178,43 +1178,6 @@ if (ventaError) {
   throw ventaError;
 }
 
-
-console.log("CARRITO:", carrito);
-console.log("VENTA:", venta);
-
-const detalles = carrito.map(item => ({
-  transaccion_id: venta.id,
-  producto_id: item.producto_id,
-  cantidad: item.cantidad,
-  precio_unitario: item.precio,
-  subtotal: item.precio * item.cantidad
-}));
-
-const { data: detalleData, error: detalleError } =
-await supabase
-  .from("cash_detalle_ventas")
-  .insert(detalles)
-  .select();
-
-console.log("DETALLE DATA:", detalleData);
-console.log("DETALLE ERROR:", detalleError);
-
-if (detalleError) {
-  console.error("ERROR DETALLE:", detalleError);
-  throw detalleError;
-}
-
-if (trxError) {
-
-  console.log(
-    "PAGO YA REGISTRADO:",
-    stripePaymentId
-  );
-
-  return res.sendStatus(200);
-
-}
-
         console.log(
           "STRIPE APROBADO",
           {
