@@ -491,6 +491,22 @@ input:focus{
 .mp-btn{
   background:#0077c8;
 }
+.stripe-btn{
+  height:58px;
+  border:none;
+  border-radius:14px;
+  background:#635bff;
+  color:#fff;
+  font-size:1rem;
+  font-weight:700;
+  cursor:pointer;
+  transition:.25s;
+}
+
+.stripe-btn:hover{
+  background:#7c74ff;
+  transform:translateY(-2px);
+}
 
 .manual-btn{
   background:var(--success);
