@@ -1179,35 +1179,6 @@ if (ventaError) {
   throw ventaError;
 }
 
-const detalles =
-
-console.log("CARRITO:", carrito);
-console.log("VENTA:", venta);
-
-carrito.map(item => ({
-
-  transaccion_id:
-    venta.id,
-
-  producto_id:
-    item.producto_id,
-
-  cantidad:
-    item.cantidad,
-
-  precio_unitario:
-    item.precio,
-
-  subtotal:
-    item.precio * item.cantidad
-
-}));
-
-const { data: detalleData, error: detalleError } =
-await supabase
-  .from("cash_detalle_ventas")
-  .insert(detalles)
-  .select();
 
 console.log("CARRITO:", carrito);
 console.log("VENTA:", venta);
