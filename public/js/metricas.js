@@ -50,25 +50,10 @@ async function cargarDashboard(){
     setText("uso-recargas", `${usoRecargas.toFixed(1)}%`);
     setText("saldo-promedio", money(saldoPromedio));
 
-    setText(
-      "ventas-detalle",
-      ventas > 0 ? "Consumo registrado correctamente" : "Sin ventas registradas"
-    );
-
-    setText(
-      "recargas-detalle",
-      recargas > 0 ? "Saldo ingresado al ecosistema" : "Sin recargas registradas"
-    );
-
-    setText(
-      "usuarios-detalle",
-      usuarios === 1 ? "1 wallet activa" : `${usuarios} wallets activas`
-    );
-
-    setText(
-      "saldo-detalle",
-      saldo > 0 ? "Disponible para consumo" : "Sin saldo circulante"
-    );
+    setText("ventas-detalle", ventas > 0 ? "Consumo registrado correctamente" : "Sin ventas registradas");
+    setText("recargas-detalle", recargas > 0 ? "Saldo ingresado al ecosistema" : "Sin recargas registradas");
+    setText("usuarios-detalle", usuarios === 1 ? "1 wallet activa" : `${usuarios} wallets activas`);
+    setText("saldo-detalle", saldo > 0 ? "Disponible para consumo" : "Sin saldo circulante");
 
     setText(
       "resumen-dashboard",
@@ -81,14 +66,10 @@ async function cargarDashboard(){
   }
 }
 
-cargarDashboard();
-
 let productosChart = null;
 
 async function cargarProductosTop(){
-
   try{
-
     const res = await fetch(`${API}/productos-top`);
 
     if(!res.ok){
@@ -96,82 +77,91 @@ async function cargarProductosTop(){
     }
 
     const productos = await res.json();
-
     const labels = productos.map(item => item.nombre);
     const valores = productos.map(item => Number(item.total));
 
-   productosChart = new Chart(ctx,{
-  type:"bar",
-  data:{
-    labels:labels,
-    datasets:[{
-      data:valores,
-      borderRadius:8,
-      borderSkipped:false,
-      backgroundColor:"rgba(148,163,184,.72)",
-      hoverBackgroundColor:"rgba(248,250,252,.92)",
-      barThickness:28,
-      maxBarThickness:32
-    }]
-  },
-  options:{
-    indexAxis:"y",
-    responsive:true,
-    maintainAspectRatio:false,
-    animation:{
-      duration:900,
-      easing:"easeOutQuart"
-    },
-    plugins:{
-      legend:{
-        display:false
-      },
-      tooltip:{
-        backgroundColor:"rgba(15,23,42,.95)",
-        titleColor:"#fff",
-        bodyColor:"#cbd5e1",
-        borderColor:"rgba(255,255,255,.12)",
-        borderWidth:1,
-        padding:14,
-        displayColors:false,
-        callbacks:{
-          label(context){
-            return `${context.raw} consumos`;
-          }
-        }
-      }
-    },
-    scales:{
-      x:{
-        beginAtZero:true,
-        grid:{
-          color:"rgba(148,163,184,.08)"
-        },
-        ticks:{
-          color:"#94a3b8",
-          precision:0
-        }
-      },
-      y:{
-        grid:{
-          display:false
-        },
-        ticks:{
-          color:"#cbd5e1",
-          font:{
-            size:13,
-            weight:"500"
-          }
-        }
-      }
+    const ctx = document.getElementById("productosChart");
+
+    if(!ctx){
+      return;
     }
-  }
-});
+
+    if(productosChart){
+      productosChart.destroy();
+    }
+
+    productosChart = new Chart(ctx,{
+      type:"bar",
+      data:{
+        labels,
+        datasets:[{
+          data:valores,
+          borderRadius:8,
+          borderSkipped:false,
+          backgroundColor:"rgba(148,163,184,.72)",
+          hoverBackgroundColor:"rgba(248,250,252,.92)",
+          barThickness:28,
+          maxBarThickness:32
+        }]
+      },
+      options:{
+        indexAxis:"y",
+        responsive:true,
+        maintainAspectRatio:false,
+        animation:{
+          duration:900,
+          easing:"easeOutQuart"
+        },
+        plugins:{
+          legend:{
+            display:false
+          },
+          tooltip:{
+            backgroundColor:"rgba(15,23,42,.95)",
+            titleColor:"#fff",
+            bodyColor:"#cbd5e1",
+            borderColor:"rgba(255,255,255,.12)",
+            borderWidth:1,
+            padding:14,
+            displayColors:false,
+            callbacks:{
+              label(context){
+                return `${context.raw} consumos`;
+              }
+            }
+          }
+        },
+        scales:{
+          x:{
+            beginAtZero:true,
+            grid:{
+              color:"rgba(148,163,184,.08)"
+            },
+            ticks:{
+              color:"#94a3b8",
+              precision:0
+            }
+          },
+          y:{
+            grid:{
+              display:false
+            },
+            ticks:{
+              color:"#cbd5e1",
+              font:{
+                size:13,
+                weight:"500"
+              }
+            }
+          }
+        }
+      }
+    });
 
   }catch(err){
     console.error("PRODUCTOS TOP ERROR:", err);
   }
-
 }
 
+cargarDashboard();
 cargarProductosTop();
