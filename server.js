@@ -154,74 +154,41 @@ app.post("/login", async (req, res) => {
 // RECARGAR
 // ===============================
 app.post("/recargar", async (req, res) => {
-
   try{
-
-    const {
-      user_id,
-      monto,
-      staff_id
-    } = req.body;
-
-        /* CLOUD - SUPABASE */
+    const { user_id, monto, staff_id } = req.body;
 
     if(process.env.VERCEL){
-
-      const { data: wallet } =
-      await supabase
+      const { data: wallet } = await supabase
         .from("cash_wallets")
         .select("user_id,saldo")
         .eq("user_id", user_id)
         .single();
 
-      /* SI NO EXISTE */
-
       if(!wallet){
-
         await supabase
           .from("cash_wallets")
-          .insert([{
-            user_id,
-            saldo: 0
-          }]);
-
+          .insert([{ user_id, saldo:0 }]);
       }
 
-      /* OBTENER SALDO ACTUAL */
-
-      const { data: actual } =
-      await supabase
+      const { data: actual } = await supabase
         .from("cash_wallets")
         .select("saldo")
         .eq("user_id", user_id)
         .single();
 
-      const nuevoSaldo =
-        Number(actual?.saldo || 0)
-        + Number(monto);
+      const nuevoSaldo = Number(actual?.saldo || 0) + Number(monto);
 
-      /* ACTUALIZAR */
-
-      const { error } =
-      await supabase
+      const { error:updateError } = await supabase
         .from("cash_wallets")
         .update({
-
-          saldo: nuevoSaldo,
-          actualizado:
-          new Date().toISOString()
-
+          saldo:nuevoSaldo,
+          actualizado:new Date().toISOString()
         })
         .eq("user_id", user_id);
 
-          if(error){
+      if(updateError) throw updateError;
 
-        throw error;
-
-      }
-
-      const { error: trxError } =
-      await supabase
+      const { error:trxError } = await supabase
         .from("cash_transacciones")
         .insert({
           user_id,
@@ -230,115 +197,44 @@ app.post("/recargar", async (req, res) => {
           staff_id
         });
 
-      if(trxError){
-
-        throw trxError;
-
-      }
+      if(trxError) throw trxError;
 
       return res.json({
-
         ok:true,
         saldo:nuevoSaldo
-
       });
-
-    /* ========================= */
-    /* LOCAL - POSTGRES */
-    /* ========================= */
-
-    const existe =
-    await pool.query(
-
-      `
-      SELECT user_id
-      FROM play.wallets
-      WHERE user_id = $1
-      `,
-
-      [user_id]
-
-    );
-
-    if(existe.rowCount === 0){
-
-      await pool.query(
-
-        `
-        INSERT INTO play.wallets
-        (
-          user_id,
-          saldo
-        )
-        VALUES
-        ($1,0)
-        `,
-
-        [user_id]
-
-      );
-
     }
 
-    const result =
-    await pool.query(
-
+    const result = await pool.query(
       `
       UPDATE play.wallets
-      SET
-        saldo = saldo + $1,
-        actualizado = CURRENT_TIMESTAMP
+      SET saldo = saldo + $1,
+      actualizado = CURRENT_TIMESTAMP
       WHERE user_id = $2
       RETURNING saldo
       `,
-
-      [
-        monto,
-        user_id
-      ]
-
+      [monto,user_id]
     );
 
     await pool.query(
-`
-INSERT INTO play.transacciones
-(
-  user_id,
-  monto,
-  tipo
-)
-VALUES
-(
-  $1,
-  $2,
-  'RECARGA'
-)
-`,
-[
-  user_id,
-  monto
-]
-);
+      `
+      INSERT INTO play.transacciones
+      (user_id,monto,tipo,staff_id)
+      VALUES ($1,$2,'RECARGA',$3)
+      `,
+      [user_id,monto,staff_id]
+    );
 
-    res.json({
-
+    return res.json({
       ok:true,
-
-      saldo:
-      result.rows[0].saldo
-
+      saldo:result.rows[0].saldo
     });
-
   }catch(err){
-
-    res.status(500).json({
-
-      error:"Error servidor"
-
+    console.error("RECARGA ERROR:",err);
+    return res.status(500).json({
+      error:err.message
     });
-
   }
-
 });
 
 // ===============================
