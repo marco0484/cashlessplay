@@ -159,8 +159,7 @@ app.post("/recargar", async (req, res) => {
 
     const {
       user_id,
-      monto,
-      staff_id
+      monto
     } = req.body;
 
         /* CLOUD - SUPABASE */
@@ -384,8 +383,7 @@ await supabase
   .insert({
     user_id,
     monto,
-    tipo: "VENTA",
-    staff_id
+    tipo: "VENTA"
   })
   .select()
   .single();
@@ -511,8 +509,7 @@ app.post("/crear-recarga-mp", async (req, res) => {
 
     const {
       user_id,
-      monto,
-      staff_id
+      monto
     } = req.body;
 
     if (!user_id || !monto) {
@@ -581,8 +578,7 @@ app.post(
 
       const {
         user_id,
-        monto,
-        staff_id
+        monto
       } = req.body;
 
       const paymentIntent =
@@ -987,8 +983,8 @@ await supabase
   .insert({
     user_id,
     monto,
-    tipo: "RECARGA",
-    staff_id
+    tipo: "RECARGA"
+
     })
   .select()
   .single();
