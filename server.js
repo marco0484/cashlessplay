@@ -489,7 +489,8 @@ app.post(
 
       const {
         user_id,
-        monto
+        monto,
+        staff_id
       } = req.body;
 
       const paymentIntent =

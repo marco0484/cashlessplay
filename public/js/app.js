@@ -624,7 +624,6 @@ async function pagarMercadoPago(){
   }
 
   try{
-
     const res =
     await fetch(
       API + "/crear-recarga-mp",
@@ -638,17 +637,15 @@ async function pagarMercadoPago(){
         },
 
         body: JSON.stringify({
-
           user_id,
-          monto
-
+          monto,
+          staff_id
         })
 
       }
     )
 
-    const data =
-    await res.json()
+    const data =  await res.json()
 
     if(
       !res.ok
@@ -667,29 +664,23 @@ async function pagarMercadoPago(){
 
     }
 
-    window.location.href =
-    data.init_point
+    window.location.href = data.init_point
 
   }catch(err){
-
     console.error(
       "ERROR MP:",
       err
     )
-
     alert("Error Mercado Pago")
-
   }
 
 }
-
 
 /* STRIPE */
 
 async function pagarStripe(){
 
-  const user_id =
-    ultimoUsuarioRecarga;
+  const user_id = ultimoUsuarioRecarga;
 
   const monto =
     parseFloat(
@@ -697,6 +688,9 @@ async function pagarStripe(){
         "monto-recarga"
       ).value
     );
+
+const staff_id = localStorage.getItem("staff_id");
+
 
   if(!user_id){
 
@@ -732,10 +726,9 @@ async function pagarStripe(){
           },
 
           body: JSON.stringify({
-
             user_id,
-            monto
-
+            monto,
+            staff_id
           })
 
         }
