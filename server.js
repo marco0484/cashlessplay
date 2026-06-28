@@ -538,33 +538,62 @@ app.get("/historial", async (req, res) => {
 
   try{
 
-    if(process.env.VERCEL){
+const { data: transacciones, error: trxError } =
+await supabase
+  .from("cash_transacciones")
+  .select("*")
+  .order("creado",{
+    ascending:false
+  });
 
-      const { data, error } =
-      await supabase
-        .from("cash_transacciones")
-.select(`
-  id,
-  user_id,
-  monto,
-  tipo,
-  staff_id,
-  creado,
-  staff:cash_users!cash_transacciones_staff_id_fkey(
-    nombre
+if(trxError){
+  throw trxError;
+}
+
+const staffIds = [
+  ...new Set(
+    (transacciones || [])
+      .map(t => Number(t.staff_id))
+      .filter(id => !isNaN(id))
   )
-`)
-.order("creado", {
-  ascending:false
-});
+];
 
-      if(error){
-        throw error;
-      }
+let staffMap = {};
 
-      return res.json(data);
+if(staffIds.length){
 
-    }
+  const { data: staffs, error: staffError } =
+  await supabase
+    .from("cash_users")
+    .select("id,nombre")
+    .in("id", staffIds);
+
+  if(staffError){
+    throw staffError;
+  }
+
+  staffMap = Object.fromEntries(
+    staffs.map(s => [
+      Number(s.id),
+      s.nombre
+    ])
+  );
+
+}
+
+const historial =
+(transacciones || []).map(t => ({
+
+  ...t,
+
+  staff_nombre:
+    staffMap[
+      Number(t.staff_id)
+    ] || null
+
+}));
+
+return res.json(historial);
 
     const result =
     await pool.query(`
