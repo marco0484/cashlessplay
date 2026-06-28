@@ -294,7 +294,8 @@ await supabase
   .insert({
     user_id,
     monto,
-    tipo: "VENTA"
+    tipo: "VENTA",
+    staff_id
   })
   .select()
   .single();
@@ -875,6 +876,16 @@ const event =
 
         const paymentIntent =
           event.data.object;
+
+          console.log(
+  "METADATA STRIPE:",
+  paymentIntent.metadata
+);
+
+console.log(
+  "STAFF:",
+  paymentIntent.metadata.staff_id
+);
 
           const stripePaymentId =
   paymentIntent.id;

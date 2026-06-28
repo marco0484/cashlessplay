@@ -689,27 +689,35 @@ async function pagarStripe(){
       ).value
     );
 
-const staff_id = localStorage.getItem("staff_id");
+const staff_id =
+localStorage.getItem("staff_id");
 
+if(!staff_id){
 
-  if(!user_id){
+  alert("No hay staff en sesión");
 
-    alert("Escanea usuario");
+  return;
 
-    return;
+}
 
-  }
+if(!user_id){
 
-  if(
-    isNaN(monto)
-    || monto <= 0
-  ){
+  alert("Escanea usuario");
 
-    alert("Monto inválido");
+  return;
 
-    return;
+}
 
-  }
+if(
+  isNaN(monto)
+  || monto <= 0
+){
+
+  alert("Monto inválido");
+
+  return;
+
+}
 
   try{
 
