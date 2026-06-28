@@ -159,7 +159,8 @@ app.post("/recargar", async (req, res) => {
 
     const {
       user_id,
-      monto
+      monto,
+      staff_id
     } = req.body;
 
         /* CLOUD - SUPABASE */
@@ -213,9 +214,25 @@ app.post("/recargar", async (req, res) => {
         })
         .eq("user_id", user_id);
 
-      if(error){
+          if(error){
 
         throw error;
+
+      }
+
+      const { error: trxError } =
+      await supabase
+        .from("cash_transacciones")
+        .insert({
+          user_id,
+          monto,
+          tipo:"RECARGA",
+          staff_id
+        });
+
+      if(trxError){
+
+        throw trxError;
 
       }
 
@@ -225,8 +242,6 @@ app.post("/recargar", async (req, res) => {
         saldo:nuevoSaldo
 
       });
-
-    }
 
     /* ========================= */
     /* LOCAL - POSTGRES */
