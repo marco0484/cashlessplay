@@ -1009,36 +1009,44 @@ if (ventaError) {
 /* ===================================================== */
 /* PRODUCTOS MÁS CONSUMIDOS */
 /* ===================================================== */
+/* ===================================================== */
+/* PRODUCTOS MÁS CONSUMIDOS */
+/* ===================================================== */
 app.get("/productos-top", async (req, res) => {
   try{
+    const nombresProductos = {
+      1:"Cerveza",
+      2:"Agua",
+      3:"Refresco",
+      4:"Trago",
+      5:"Six"
+    };
+
     if(process.env.VERCEL){
       const { data, error } = await supabase
         .from("cash_detalle_ventas")
-        .select("producto_id,cantidad");
+        .select("producto_id,cantidad,subtotal");
 
       if(error){
         throw error;
       }
 
-      const nombresProductos = {
-        1:"Cerveza",
-        2:"Agua",
-        3:"Refresco",
-        4:"Trago",
-        5:"Six"
-      };
-
       const resumen = {};
 
       data.forEach(item => {
-        const id = item.producto_id;
+        const id = Number(item.producto_id);
+
         if(!resumen[id]){
           resumen[id] = {
+            producto_id:id,
             nombre:nombresProductos[id] || `Producto ${id}`,
-            total:0
+            total:0,
+            ingresos:0
           };
         }
-        resumen[id].total += Number(item.cantidad);
+
+        resumen[id].total += Number(item.cantidad || 0);
+        resumen[id].ingresos += Number(item.subtotal || 0);
       });
 
       const resultado = Object.values(resumen)
@@ -1051,25 +1059,24 @@ app.get("/productos-top", async (req, res) => {
     const result = await pool.query(`
       SELECT
         producto_id,
-        SUM(cantidad) total
-      FROM play.detalle_ventas
+        SUM(cantidad) total,
+        SUM(subtotal) ingresos
+      FROM cash_detalle_ventas
       GROUP BY producto_id
       ORDER BY total DESC
       LIMIT 10
     `);
 
-    const nombresProductos = {
-      1:"Cerveza",
-      2:"Agua",
-      3:"Refresco",
-      4:"Trago",
-      5:"Six"
-    };
+    const resultado = result.rows.map(item => {
+      const id = Number(item.producto_id);
 
-    const resultado = result.rows.map(item => ({
-      nombre:nombresProductos[item.producto_id] || `Producto ${item.producto_id}`,
-      total:Number(item.total)
-    }));
+      return {
+        producto_id:id,
+        nombre:nombresProductos[id] || `Producto ${id}`,
+        total:Number(item.total || 0),
+        ingresos:Number(item.ingresos || 0)
+      };
+    });
 
     res.json(resultado);
 
