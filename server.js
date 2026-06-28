@@ -674,54 +674,66 @@ app.get("/dashboard", async (req, res) => {
 
   try{
 
-    if(process.env.VERCEL){
+ if(process.env.VERCEL){
 
-      const { data: wallets } =
-      await supabase
-        .from("cash_wallets")
-        .select("saldo");
+  const { data: wallets, error: walletsError } =
+  await supabase
+    .from("cash_wallets")
+    .select("saldo");
 
-      const { data: ventas } =
-      await supabase
-        .from("cash_transacciones")
-        .select("monto")
-        .eq("tipo","VENTA");
+  if(walletsError) throw walletsError;
 
-      const saldoTotal =
-      wallets.reduce(
-        (a,b)=>a+Number(b.saldo),
-        0
-      );
+  const { data: ventas, error: ventasError } =
+  await supabase
+    .from("cash_transacciones")
+    .select("monto")
+    .eq("tipo","VENTA");
 
-      const totalVentas =
-      ventas.reduce(
-        (a,b)=>a+Number(b.monto),
-        0
-      );
+  if(ventasError) throw ventasError;
 
-      const totalRecargas =
-      recargas.reduce(
-        (a,b)=>a+Number(b.monto),
-        0
-      );
+  const { data: recargas, error: recargasError } =
+  await supabase
+    .from("cash_transacciones")
+    .select("monto")
+    .eq("tipo","RECARGA");
 
-      return res.json({
+  if(recargasError) throw recargasError;
 
-        saldo_total:
-        saldoTotal,
+  const saldoTotal =
+  (wallets || []).reduce(
+    (a,b)=>a+Number(b.saldo || 0),
+    0
+  );
 
-        ventas_total:
-        totalVentas,
+  const totalVentas =
+  (ventas || []).reduce(
+    (a,b)=>a+Number(b.monto || 0),
+    0
+  );
 
-        recargas_total:
-        totalRecargas,
+  const totalRecargas =
+  (recargas || []).reduce(
+    (a,b)=>a+Number(b.monto || 0),
+    0
+  );
 
-        usuarios:
-        wallets.length
+  return res.json({
 
-      });
+    saldo_total:
+    saldoTotal,
 
-    }
+    ventas_total:
+    totalVentas,
+
+    recargas_total:
+    totalRecargas,
+
+    usuarios:
+    (wallets || []).length
+
+  });
+
+}
 
     const saldo =
     await pool.query(`
