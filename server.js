@@ -159,7 +159,8 @@ app.post("/recargar", async (req, res) => {
 
     const {
       user_id,
-      monto
+      monto,
+      staff_id
     } = req.body;
 
         /* CLOUD - SUPABASE */
@@ -510,7 +511,8 @@ app.post("/crear-recarga-mp", async (req, res) => {
 
     const {
       user_id,
-      monto
+      monto,
+      staff_id
     } = req.body;
 
     if (!user_id || !monto) {
@@ -579,7 +581,8 @@ app.post(
 
       const {
         user_id,
-        monto
+        monto,
+        staff_id
       } = req.body;
 
       const paymentIntent =
