@@ -115,25 +115,14 @@ async function cargarProductosTop(){
       data:{
         labels,
         datasets:[{
-          data:valores,
-          borderRadius:14,
-          borderSkipped:false,
-          backgroundColor:(context)=>{
-            const chart = context.chart;
-            const {ctx,chartArea} = chart;
-
-            if(!chartArea){
-              return "#8b5cf6";
-            }
-
-            const gradient = ctx.createLinearGradient(0,0,chartArea.right,0);
-            gradient.addColorStop(0,"#7c3aed");
-            gradient.addColorStop(.5,"#06b6d4");
-            gradient.addColorStop(1,"#22c55e");
-
-            return gradient;
-          }
-        }]
+  data:valores,
+  borderRadius:8,
+  borderSkipped:false,
+  backgroundColor:"rgba(148,163,184,.72)",
+  hoverBackgroundColor:"rgba(248,250,252,.92)",
+  barThickness:28,
+  maxBarThickness:32
+}]
       },
       options:{
         indexAxis:"y",
@@ -166,7 +155,7 @@ async function cargarProductosTop(){
           x:{
             beginAtZero:true,
             grid:{
-              color:"rgba(255,255,255,.06)"
+              color:"rgba(148,163,184,.08)"
             },
             ticks:{
               color:"#94a3b8",
@@ -178,10 +167,11 @@ async function cargarProductosTop(){
               display:false
             },
             ticks:{
-              color:"#f8fafc",
-              font:{
-                size:13,
-                weight:"600"
+              color:"#cbd5e1",
+font:{
+  size:13,
+  weight:"500"
+}
               }
             }
           }

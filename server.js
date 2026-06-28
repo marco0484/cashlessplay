@@ -1006,12 +1006,12 @@ if (ventaError) {
 /* ===================================================== */
 /* PRODUCTOS MÁS CONSUMIDOS */
 /* ===================================================== */
+/* ===================================================== */
+/* PRODUCTOS MÁS CONSUMIDOS */
+/* ===================================================== */
 app.get("/productos-top", async (req, res) => {
-
   try{
-
     if(process.env.VERCEL){
-
       const { data, error } = await supabase
         .from("cash_detalle_ventas")
         .select("producto_id,cantidad");
@@ -1020,23 +1020,32 @@ app.get("/productos-top", async (req, res) => {
         throw error;
       }
 
+      const nombresProductos = {
+        1:"Cerveza",
+        2:"Agua",
+        3:"Refresco",
+        4:"Trago",
+        5:"Six"
+      };
+
       const resumen = {};
 
       data.forEach(item => {
         const id = item.producto_id;
-        resumen[id] = (resumen[id] || 0) + Number(item.cantidad);
+        if(!resumen[id]){
+          resumen[id] = {
+            nombre:nombresProductos[id] || `Producto ${id}`,
+            total:0
+          };
+        }
+        resumen[id].total += Number(item.cantidad);
       });
 
-      const resultado = Object.entries(resumen)
-        .map(([producto_id,total]) => ({
-          nombre:`Producto ${producto_id}`,
-          total
-        }))
+      const resultado = Object.values(resumen)
         .sort((a,b) => b.total - a.total)
         .slice(0,10);
 
       return res.json(resultado);
-
     }
 
     const result = await pool.query(`
@@ -1049,23 +1058,27 @@ app.get("/productos-top", async (req, res) => {
       LIMIT 10
     `);
 
+    const nombresProductos = {
+      1:"Cerveza",
+      2:"Agua",
+      3:"Refresco",
+      4:"Trago",
+      5:"Six"
+    };
+
     const resultado = result.rows.map(item => ({
-      nombre:`Producto ${item.producto_id}`,
+      nombre:nombresProductos[item.producto_id] || `Producto ${item.producto_id}`,
       total:Number(item.total)
     }));
 
     res.json(resultado);
 
   }catch(err){
-
     console.error("PRODUCTOS TOP ERROR:", err);
-
     res.status(500).json({
       error:err.message
     });
-
   }
-
 });
 
 /* INICIAR SERVIDOR LOCAL */
