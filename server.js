@@ -502,9 +502,10 @@ app.post(
 
         currency: "mxn",
 
-        metadata:{
-          user_id
-        }
+metadata:{
+  user_id:String(user_id),
+  staff_id:String(staff_id || "")
+}
 
       });
 
@@ -882,6 +883,11 @@ const event =
             paymentIntent.metadata.user_id
           );
 
+          const staff_id =
+paymentIntent.metadata.staff_id
+  ? Number(paymentIntent.metadata.staff_id)
+  : null;
+
         const monto =
           Number(
             paymentIntent.amount
@@ -894,8 +900,8 @@ await supabase
   .insert({
     user_id,
     monto,
-    tipo: "RECARGA"
-
+    tipo: "RECARGA",
+    staff_id
     })
   .select()
   .single();
