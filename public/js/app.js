@@ -55,6 +55,24 @@ window.addEventListener("DOMContentLoaded", () => {
 
   }
 
+
+  const params = new URLSearchParams(window.location.search);
+
+if(params.get("recarga") === "success"){
+  alert("✅ Recarga realizada correctamente");
+  window.history.replaceState({},document.title,"index.html");
+}
+
+if(params.get("recarga") === "failure"){
+  alert("❌ La recarga no se completó");
+  window.history.replaceState({},document.title,"index.html");
+}
+
+if(params.get("recarga") === "pending"){
+  alert("⏳ La recarga quedó pendiente");
+  window.history.replaceState({},document.title,"index.html");
+}
+
   /* AUTOFOCUS */
 
   const input =

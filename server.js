@@ -53,7 +53,7 @@ const client = new MercadoPagoConfig({
 
 app.use(express.static(path.join(__dirname,"public")))
 app.get("/",(req,res)=>{
-  res.sendFile(path.join(__dirname,"public","pos.html"))
+    res.sendFile(path.join(__dirname,"public","index.html"))
 })
 
 // Stripe
@@ -538,13 +538,12 @@ app.post("/crear-recarga-mp", async (req, res) => {
     notification_url:
       "https://cashlessplay.vercel.app/webhook-mp",
 
-    back_urls: {
-      success: "https://cashlessplay.vercel.app",
-      failure: "https://cashlessplay.vercel.app",
-      pending: "https://cashlessplay.vercel.app"
-    },
-
-    auto_return: "approved"
+    back_urls:{
+  success:"https://cashlessplay.vercel.app/index.html?recarga=success",
+  failure:"https://cashlessplay.vercel.app/index.html?recarga=failure",
+  pending:"https://cashlessplay.vercel.app/index.html?recarga=pending"
+},
+auto_return:"approved"
 
   }
 
