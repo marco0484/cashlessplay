@@ -37,59 +37,78 @@
 
 </header>
 
-<main class="dashboard">
+<main class="metrics-shell">
 
-  <div class="metric-card">
-
-    <h3>💰 Ventas</h3>
-
-    <div
-      class="metric-value"
-      id="ventas"
-    >
-      $0
+  <section class="metrics-hero">
+    <div>
+      <span class="eyebrow">Cosmic Cashless</span>
+      <h2>Panel operativo</h2>
+      <p>Resumen en tiempo real de ventas, recargas, usuarios y saldo activo.</p>
     </div>
 
-  </div>
+    <div class="status-pill">
+      <span></span>
+      En línea
+    </div>
+  </section>
 
-  <div class="metric-card">
+  <section class="kpi-grid">
 
-    <h3>🔋 Recargas</h3>
+    <article class="kpi-card primary">
+      <div class="kpi-top">
+        <span>Ventas</span>
+        <strong>💳</strong>
+      </div>
+      <h3 id="ventas">$0</h3>
+      <p id="ventas-detalle">Ingresos por consumo</p>
+    </article>
 
-    <div
-      class="metric-value"
-      id="recargas"
-    >
-      $0
+    <article class="kpi-card cyan">
+      <div class="kpi-top">
+        <span>Recargas</span>
+        <strong>⚡</strong>
+      </div>
+      <h3 id="recargas">$0</h3>
+      <p id="recargas-detalle">Saldo cargado al sistema</p>
+    </article>
+
+    <article class="kpi-card green">
+      <div class="kpi-top">
+        <span>Usuarios</span>
+        <strong>👥</strong>
+      </div>
+      <h3 id="usuarios">0</h3>
+      <p id="usuarios-detalle">Wallets activas</p>
+    </article>
+
+    <article class="kpi-card amber">
+      <div class="kpi-top">
+        <span>Saldo circulante</span>
+        <strong>🏦</strong>
+      </div>
+      <h3 id="saldo">$0</h3>
+      <p id="saldo-detalle">Dinero disponible en wallets</p>
+    </article>
+
+  </section>
+
+  <section class="analytics-card">
+    <div>
+      <h3>Resumen inteligente</h3>
+      <p id="resumen-dashboard">Calculando comportamiento operativo...</p>
     </div>
 
-  </div>
-
-  <div class="metric-card">
-
-    <h3>👥 Usuarios</h3>
-
-    <div
-      class="metric-value"
-      id="usuarios"
-    >
-      0
+    <div class="mini-stats">
+      <div>
+        <span>Uso de recargas</span>
+        <strong id="uso-recargas">0%</strong>
+      </div>
+      <div>
+        <span>Saldo promedio</span>
+        <strong id="saldo-promedio">$0</strong>
+      </div>
     </div>
-
-  </div>
-
-  <div class="metric-card">
-
-    <h3>🏦 Saldo Circulante</h3>
-
-    <div
-      class="metric-value"
-      id="saldo"
-    >
-      $0
-    </div>
-
-  </div>
+  </section>
 
 </main>
 <footer class="footer-credit">

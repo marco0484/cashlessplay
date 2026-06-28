@@ -66,8 +66,8 @@ data.forEach(item=>{
       $${item.monto}
     </td>
     <td>
-      ${item.staff_id || "-"}
-    </td>
+  ${item.staff?.nombre || "-"}
+</td>
   </tr>
   `;
 

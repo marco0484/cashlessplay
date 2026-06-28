@@ -543,10 +543,20 @@ app.get("/historial", async (req, res) => {
       const { data, error } =
       await supabase
         .from("cash_transacciones")
-        .select("*")
-        .order("creado", {
-          ascending:false
-        });
+.select(`
+  id,
+  user_id,
+  monto,
+  tipo,
+  staff_id,
+  creado,
+  staff:cash_users!cash_transacciones_staff_id_fkey(
+    nombre
+  )
+`)
+.order("creado", {
+  ascending:false
+});
 
       if(error){
         throw error;
