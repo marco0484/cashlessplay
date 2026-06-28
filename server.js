@@ -1013,7 +1013,7 @@ app.get("/productos-top", async (req, res) => {
     if(process.env.VERCEL){
 
       const { data, error } = await supabase
-        .from("detalle_ventas")
+        .from("cash_detalle_ventas")
         .select("producto_id,cantidad");
 
       if(error){
