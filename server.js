@@ -1003,6 +1003,71 @@ if (ventaError) {
 
 });
 
+/* ===================================================== */
+/* PRODUCTOS MÁS CONSUMIDOS */
+/* ===================================================== */
+app.get("/productos-top", async (req, res) => {
+
+  try{
+
+    if(process.env.VERCEL){
+
+      const { data, error } = await supabase
+        .from("detalle_ventas")
+        .select("producto_id,cantidad");
+
+      if(error){
+        throw error;
+      }
+
+      const resumen = {};
+
+      data.forEach(item => {
+        const id = item.producto_id;
+        resumen[id] = (resumen[id] || 0) + Number(item.cantidad);
+      });
+
+      const resultado = Object.entries(resumen)
+        .map(([producto_id,total]) => ({
+          nombre:`Producto ${producto_id}`,
+          total
+        }))
+        .sort((a,b) => b.total - a.total)
+        .slice(0,10);
+
+      return res.json(resultado);
+
+    }
+
+    const result = await pool.query(`
+      SELECT
+        producto_id,
+        SUM(cantidad) total
+      FROM play.detalle_ventas
+      GROUP BY producto_id
+      ORDER BY total DESC
+      LIMIT 10
+    `);
+
+    const resultado = result.rows.map(item => ({
+      nombre:`Producto ${item.producto_id}`,
+      total:Number(item.total)
+    }));
+
+    res.json(resultado);
+
+  }catch(err){
+
+    console.error("PRODUCTOS TOP ERROR:", err);
+
+    res.status(500).json({
+      error:err.message
+    });
+
+  }
+
+});
+
 /* INICIAR SERVIDOR LOCAL */
 /* EN VERCEL APP.LISTEN SE IGNORA */
 app.listen(3000, () => {

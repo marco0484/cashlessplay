@@ -82,3 +82,119 @@ async function cargarDashboard(){
 }
 
 cargarDashboard();
+
+let productosChart = null;
+
+async function cargarProductosTop(){
+
+  try{
+
+    const res = await fetch(`${API}/productos-top`);
+
+    if(!res.ok){
+      throw new Error(`HTTP ${res.status}`);
+    }
+
+    const productos = await res.json();
+
+    const labels = productos.map(item => item.nombre);
+    const valores = productos.map(item => Number(item.total));
+
+    const ctx = document.getElementById("productosChart");
+
+    if(!ctx){
+      return;
+    }
+
+    if(productosChart){
+      productosChart.destroy();
+    }
+
+    productosChart = new Chart(ctx,{
+      type:"bar",
+      data:{
+        labels,
+        datasets:[{
+          data:valores,
+          borderRadius:14,
+          borderSkipped:false,
+          backgroundColor:(context)=>{
+            const chart = context.chart;
+            const {ctx,chartArea} = chart;
+
+            if(!chartArea){
+              return "#8b5cf6";
+            }
+
+            const gradient = ctx.createLinearGradient(0,0,chartArea.right,0);
+            gradient.addColorStop(0,"#7c3aed");
+            gradient.addColorStop(.5,"#06b6d4");
+            gradient.addColorStop(1,"#22c55e");
+
+            return gradient;
+          }
+        }]
+      },
+      options:{
+        indexAxis:"y",
+        responsive:true,
+        maintainAspectRatio:false,
+        animation:{
+          duration:900,
+          easing:"easeOutQuart"
+        },
+        plugins:{
+          legend:{
+            display:false
+          },
+          tooltip:{
+            backgroundColor:"rgba(15,23,42,.95)",
+            titleColor:"#fff",
+            bodyColor:"#cbd5e1",
+            borderColor:"rgba(255,255,255,.12)",
+            borderWidth:1,
+            padding:14,
+            displayColors:false,
+            callbacks:{
+              label:(context)=>{
+                return `${context.raw} consumos`;
+              }
+            }
+          }
+        },
+        scales:{
+          x:{
+            beginAtZero:true,
+            grid:{
+              color:"rgba(255,255,255,.06)"
+            },
+            ticks:{
+              color:"#94a3b8",
+              precision:0
+            }
+          },
+          y:{
+            grid:{
+              display:false
+            },
+            ticks:{
+              color:"#f8fafc",
+              font:{
+                size:13,
+                weight:"600"
+              }
+            }
+          }
+        }
+      }
+    });
+
+  }catch(err){
+
+    console.error("PRODUCTOS TOP ERROR:", err);
+
+  }
+
+}
+
+cargarProductosTop();
