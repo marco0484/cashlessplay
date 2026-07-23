@@ -73,7 +73,38 @@
     </div>
 
   </header>
+<!-- SELECTOR DE MÓDULO -->
+<div class="module-switcher">
 
+  <button
+    type="button"
+    id="btn-modulo-recarga"
+    class="module-switch-btn active"
+    onclick="mostrarModulo('recarga')"
+  >
+    <span class="module-switch-icon">↗</span>
+
+    <span class="module-switch-text">
+      <strong>Recarga</strong>
+      <small>Agregar saldo</small>
+    </span>
+  </button>
+
+  <button
+    type="button"
+    id="btn-modulo-venta"
+    class="module-switch-btn"
+    onclick="mostrarModulo('venta')"
+  >
+    <span class="module-switch-icon">↙</span>
+
+    <span class="module-switch-text">
+      <strong>Venta</strong>
+      <small>Cobrar productos</small>
+    </span>
+  </button>
+
+</div>
   <!-- ===================================== -->
   <!-- 🌌 CONTENIDO -->
   <!-- ===================================== -->

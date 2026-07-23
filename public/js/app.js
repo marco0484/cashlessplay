@@ -1057,6 +1057,72 @@ async function confirmarPagoStripe(){
 
 }
 
+function mostrarModulo(modulo) {
+  const panelRecarga = document.querySelector(".panel-izq");
+  const panelVenta = document.querySelector(".panel-der");
+
+  const btnRecarga = document.getElementById(
+    "btn-modulo-recarga"
+  );
+
+  const btnVenta = document.getElementById(
+    "btn-modulo-venta"
+  );
+
+  if (
+    !panelRecarga ||
+    !panelVenta ||
+    !btnRecarga ||
+    !btnVenta
+  ) {
+    return;
+  }
+
+  const mostrarRecarga =
+    modulo === "recarga";
+
+  panelRecarga.classList.toggle(
+    "modulo-visible",
+    mostrarRecarga
+  );
+
+  panelRecarga.classList.toggle(
+    "modulo-oculto",
+    !mostrarRecarga
+  );
+
+  panelVenta.classList.toggle(
+    "modulo-visible",
+    !mostrarRecarga
+  );
+
+  panelVenta.classList.toggle(
+    "modulo-oculto",
+    mostrarRecarga
+  );
+
+  btnRecarga.classList.toggle(
+    "active",
+    mostrarRecarga
+  );
+
+  btnVenta.classList.toggle(
+    "active",
+    !mostrarRecarga
+  );
+
+  window.scrollTo({
+    top: 0,
+    behavior: "smooth"
+  });
+}
+
+document.addEventListener(
+  "DOMContentLoaded",
+  () => {
+    mostrarModulo("recarga");
+  }
+);
 /* ===================================== */
 /* RETORNO STRIPE */
 /* ===================================== */
