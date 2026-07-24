@@ -46,6 +46,7 @@ createClient(
   SUPABASE_URL,
   SUPABASE_KEY
 );
+
 // Mercado
 const client = new MercadoPagoConfig({
   accessToken: process.env.MP_TOKEN
@@ -470,14 +471,10 @@ auto_return:"approved"
 
   } catch(err) {
     res.status(500).json({
-
       error:
       err.message
-
     });
-
   }
-
 });
 
 //  end point stripe 
