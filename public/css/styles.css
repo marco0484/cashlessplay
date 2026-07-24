@@ -1,74 +1,50 @@
-/* =========================================================
-   COSMIC CASHLESS
-   INTERFAZ POS · 2026
-   ========================================================= */
-
 :root {
   color-scheme: dark;
-
   --bg: #080a0f;
   --bg-soft: #0d1017;
-
   --surface: #11141c;
   --surface-soft: #161a24;
   --surface-hover: #1c2130;
   --surface-elevated: #202635;
-
   --border: rgba(255, 255, 255, 0.075);
   --border-strong: rgba(255, 255, 255, 0.13);
-
   --text: #f5f7fb;
   --text-soft: #d7dce7;
   --muted: #8c95a8;
   --muted-dark: #626b7d;
-
   --primary: #725cff;
   --primary-hover: #836fff;
   --primary-soft: rgba(114, 92, 255, 0.12);
   --primary-border: rgba(114, 92, 255, 0.35);
-
   --success: #33d69f;
   --success-hover: #42e8b1;
   --success-soft: rgba(51, 214, 159, 0.11);
   --success-border: rgba(51, 214, 159, 0.32);
-
   --danger: #ff5d6c;
   --danger-hover: #ff7481;
   --danger-soft: rgba(255, 93, 108, 0.12);
   --danger-border: rgba(255, 93, 108, 0.3);
-
   --warning: #f7b955;
   --warning-soft: rgba(247, 185, 85, 0.12);
-
   --mercado-pago: #009ee3;
   --mercado-pago-hover: #20b5f4;
-
   --stripe: #635bff;
   --stripe-hover: #756eff;
-
   --radius-sm: 10px;
   --radius-md: 14px;
   --radius-lg: 20px;
   --radius-xl: 26px;
-
   --shadow-sm:
     0 1px 2px rgba(0, 0, 0, 0.28),
     0 5px 16px rgba(0, 0, 0, 0.14);
-
   --shadow-md:
     0 2px 4px rgba(0, 0, 0, 0.25),
     0 18px 40px rgba(0, 0, 0, 0.26);
-
   --shadow-lg:
     0 8px 20px rgba(0, 0, 0, 0.32),
     0 30px 80px rgba(0, 0, 0, 0.38);
-
   --transition: 180ms ease;
 }
-
-/* =========================================================
-   RESET
-   ========================================================= */
 
 * {
   margin: 0;

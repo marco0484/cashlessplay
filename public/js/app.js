@@ -7,32 +7,22 @@ let elements;
 let stripeClientSecret;
 
 if(!staff){
-
   alert("Debes iniciar sesión")
-
   window.location.href = "login.html"
-
 }
 
 /* CONFIG API */
 
-const modo =
-localStorage.getItem("modo") || "local";
+const modo = localStorage.getItem("modo") || "local";
 
 const API =
   modo === "cloud"
     ? "https://cashlessplay.vercel.app"
     : "http://localhost:3000";
 
-console.log("MODO:", modo);
-console.log("API:", API);
-
-// const API = "http://192.168.100.23:3000"
-
 let scanner = null
 let moduloActivo = null
 
-console.log("APP JS CARGADO ✅")
 
 /* ===================================== */
 /* MOSTRAR STAFF */
@@ -135,8 +125,6 @@ function onScanSuccess(decodedText){
     }catch(e){}
 
   }
-
-  console.log("QR:", decodedText)
 
   const valor =
   decodedText.trim()
@@ -354,25 +342,14 @@ async function recargar(){
     "staff_id"
   )
 
-  console.log("USER:", user_id)
-  console.log("MONTO:", monto)
-
   if(!user_id){
-
-    alert(
-      "Escanea o escribe usuario"
-    )
-
+    alert("Escanea o escribe usuario")
     return
-
   }
 
   if(isNaN(monto) || monto <= 0){
-
     alert("Monto inválido")
-
     return
-
   }
 
   try{
@@ -412,9 +389,7 @@ async function recargar(){
         "Error en recarga"
 
       )
-
       return
-
     }
 
     /* ACTUALIZAR INFO */
@@ -438,7 +413,6 @@ async function recargar(){
       ">
         Nuevo saldo: $${data.saldo}
       </div>
-
     `
 
     /* LIMPIAR */
@@ -455,11 +429,8 @@ async function recargar(){
       "ERROR RECARGA:",
       err
     )
-
     alert("Error de conexión")
-
   }
-
 }
 
 /* ===================================== */
@@ -529,23 +500,17 @@ async function pagar(){
       await fetch(
         API + "/pagar",
         {
-
           method:"POST",
-
           headers:{
             "Content-Type":
               "application/json"
           },
-
           body:JSON.stringify({
-
             user_id,
             monto,
             carrito,
             staff_id
-
           })
-
         }
       );
 
@@ -555,11 +520,9 @@ async function pagar(){
     if(!res.ok){
 
       alert(
-
         data.mensaje ||
         data.error ||
         "Error en pago"
-
       );
 
       return;
@@ -567,11 +530,8 @@ async function pagar(){
     }
 
     alert(data.mensaje);
-
     ultimoUsuarioPago = null;
-
     carrito = [];
-
     renderCarrito();
 
   }catch(err){
@@ -591,9 +551,7 @@ async function pagar(){
 /* ===================================== */
 
 async function pagarMercadoPago(){
-
-  const user_id =
-  ultimoUsuarioRecarga
+  const user_id = ultimoUsuarioRecarga
 
   const monto =
   parseFloat(
@@ -745,13 +703,7 @@ if(
     const data =
       await res.json();
 
-    console.log(
-      "STRIPE:",
-      data
-    );
-
-    stripeClientSecret =
-data.clientSecret;
+  stripeClientSecret = data.clientSecret;
 
 mostrarModalStripe();
 
@@ -794,18 +746,13 @@ function agregarProducto(
   }else{
 
     carrito.push({
-
       producto_id,
       nombre,
       precio,
       cantidad:1
-
     })
-
   }
-
   renderCarrito()
-
 }
 
 /* ===================================== */
@@ -828,11 +775,8 @@ function eliminarProducto(nombre){
 /* ===================================== */
 
 function limpiarCarrito(){
-
   carrito = []
-
   renderCarrito()
-
 }
 
 /* ===================================== */
@@ -946,13 +890,9 @@ function detectarRFID(valor, tipo){
     /* GUARDAR USUARIO */
 
     if(tipo === "recarga"){
-
       ultimoUsuarioRecarga = id
-
     }else{
-
       ultimoUsuarioPago = id
-
     }
 
     /* INPUT */
@@ -968,16 +908,12 @@ function detectarRFID(valor, tipo){
 
     /* EFECTO VISUAL */
 
-    input.classList.add(
-      "scanned"
-    )
+    input.classList.add("scanned")
 
     setTimeout(()=>{
-
       input.classList.remove(
         "scanned"
       )
-
     },400)
 
     /* CONSULTAR */
@@ -1161,7 +1097,5 @@ window.addEventListener("load", async () => {
       ultimoUsuarioRecarga,
       "recarga"
     );
-
   }
-
 });
