@@ -542,59 +542,60 @@ async function pagar(){
 /* ===================================== */
 
 async function pagarMercadoPago(){
-  const user_id = ultimoUsuarioRecarga
+
+  const user_id = ultimoUsuarioRecarga;
 
   const monto =
-  parseFloat(
+    parseFloat(
+      document.getElementById(
+        "monto-recarga"
+      ).value
+    );
 
-    document.getElementById(
-      "monto-recarga"
-    ).value
+  const staff_id =
+    localStorage.getItem("staff_id");
 
-  )
+  if(!staff_id){
+    alert("No hay staff en sesión");
+    return;
+  }
 
   if(!user_id){
-
-    alert("Escanea usuario")
-
-    return
-
+    alert("Escanea usuario");
+    return;
   }
 
   if(
     isNaN(monto)
     || monto <= 0
   ){
-
-    alert("Monto inválido")
-
-    return
-
+    alert("Monto inválido");
+    return;
   }
 
   try{
+
     const res =
-    await fetch(
-      API + "/crear-recarga-mp",
-      {
+      await fetch(
+        API + "/crear-recarga-mp",
+        {
+          method:"POST",
 
-        method:"POST",
+          headers:{
+            "Content-Type":
+              "application/json"
+          },
 
-        headers:{
-          "Content-Type":
-          "application/json"
-        },
+          body: JSON.stringify({
+            user_id,
+            monto,
+            staff_id
+          })
+        }
+      );
 
-        body: JSON.stringify({
-          user_id,
-          monto,
-          staff_id
-        })
-
-      }
-    )
-
-    const data =  await res.json()
+    const data =
+      await res.json();
 
     if(
       !res.ok
@@ -602,29 +603,27 @@ async function pagarMercadoPago(){
     ){
 
       alert(
-
         data.error ||
         data.mensaje ||
         "Error Mercado Pago"
+      );
 
-      )
-
-      return
-
+      return;
     }
 
-    window.location.href = data.init_point
+    window.location.href =
+      data.init_point;
 
   }catch(err){
+
     console.error(
       "ERROR MP:",
       err
-    )
-    alert("Error Mercado Pago")
+    );
+
+    alert("Error Mercado Pago");
   }
-
 }
-
 /* STRIPE */
 
 async function pagarStripe(){
