@@ -63,6 +63,7 @@ if(params.get("recarga") === "pending"){
   window.history.replaceState({},document.title,"index.html");
 }
 
+});
 
 /* ===================================== */
 /* INICIAR SCANNER */
