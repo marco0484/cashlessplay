@@ -63,16 +63,6 @@ if(params.get("recarga") === "pending"){
   window.history.replaceState({},document.title,"index.html");
 }
 
-  /* AUTOFOCUS */
-
-  const input =
-  document.getElementById("userid-pago")
-
-  if(input){
-    input.focus()
-  }
-
-})
 
 /* ===================================== */
 /* INICIAR SCANNER */
@@ -868,25 +858,25 @@ function detectarRFID(valor, tipo){
     const limpio =
     valor.trim()
 
-    let id = limpio
+let id = limpio;
 
-    /* WINDOWS MANDA 000 EXTRA */
+/* QUITAR CEROS A LA IZQUIERDA */
 
-    if(
-      limpio.length === 10 &&
-      limpio.startsWith("000")
-    ){
+id = id.replace(/^0+/, "");
 
-      id = limpio.slice(3)
+/* VALIDAR */
 
-    }
+if(!/^\d{7,}$/.test(id)){
+  console.warn(
+    "RFID todavía incompleto:",
+    limpio,
+    "=>",
+    id
+  );
+  return;
+}
 
-    /* VALIDAR */
-
-    if(!/^\d{7}$/.test(id)){
-      return
-    }
-
+console.log("RFID:", limpio, "=> ID BD:", id);
     /* GUARDAR USUARIO */
 
     if(tipo === "recarga"){
@@ -929,7 +919,7 @@ function detectarRFID(valor, tipo){
 
     input.focus()
 
-  },150)
+  },300)
 
 }
 
@@ -1046,6 +1036,18 @@ function mostrarModulo(modulo) {
     "active",
     !mostrarRecarga
   );
+
+  const inputActivo = document.getElementById(
+  mostrarRecarga
+    ? "userid-recarga"
+    : "userid-pago"
+);
+
+setTimeout(() => {
+  if(inputActivo){
+    inputActivo.focus();
+  }
+}, 100);
 
   window.scrollTo({
     top: 0,
