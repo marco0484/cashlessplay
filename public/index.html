@@ -24,15 +24,9 @@
   <!-- 🌌 NAVBAR -->
   <!-- ===================================== -->
   <header class="navbar">
-
     <div class="nav-left">
-
       <h1>Cashless</h1>
-
-      <span class="subtitle">
-       By: Cosmis Pass
-      </span>
-
+   <span class="subtitle">  By Cosmic Pass </span>
     </div>
 
     <div class="nav-center">
@@ -100,7 +94,7 @@
 
     <span class="module-switch-text">
       <strong>Venta</strong>
-      <small>Cobrar productos</small>
+     <small>Descontar saldo</small>
     </span>
   </button>
 
@@ -113,7 +107,10 @@
     <!-- ===================================== -->
     <!-- 💳 RECARGA -->
     <!-- ===================================== -->
-    <section class="panel panel-izq">
+<section
+  id="modulo-recarga"
+  class="panel panel-izq"
+>
 
       <div class="panel-header">
 
@@ -228,48 +225,32 @@
       <!-- ===================================== -->
       <!-- 💳 ACCIONES -->
       <!-- ===================================== -->
-   <div class="acciones">
+<div class="acciones">
 
-  <button
-    class="mp-btn"
-    onclick="pagarMercadoPago()"
-  >
-    💳 Mercado Pago
-  </button>
+<button class="mp-btn" onclick="pagarMercadoPago()">
+💳 Mercado Pago
+</button>
 
-  <button
-  class="stripe-btn"
-  onclick="pagarStripe()"
->
-  Tarjeta
+<button class="stripe-btn" onclick="pagarStripe()">
+💳 Tarjeta
 </button>
 
 
-  <button
-    class="manual-btn"
-    onclick="recargar()"
-  >
-    Pago con efectivo
-  </button>
-
-</div>
-
-    </section>
+<button id="btn-recarga-efectivo" class="manual-btn" onclick="recargar()">
+💵 Recargar en efectivo
+</button>
+        </div>
+            </section>
 
     <!--COBRO -->
-    <section class="panel panel-der">
-
+    <section id="modulo-venta" class="panel panel-der">
      <div class="panel-header">
-
   <span class="panel-tag">
     MÓDULO
   </span>
 
-  <h2>Cobros</h2>
-
-  <p>
-    Registro de consumos y pagos
-  </p>
+<h2>Venta</h2>
+<p> Registra productos y descuenta saldo </p>
 
 </div>
 
@@ -318,64 +299,59 @@
         class="info-box"
       >
 
-        <div class="info-placeholder">
-
-          Esperando usuario para cobrar
-
-        </div>
-
-      </div>
-
-      <!-- ===================================== -->
+<div class="info-placeholder">  Esperando usuario para venta </div>
+    </div>
+    
       <!-- 🍺 PRODUCTOS -->
-      <!-- ===================================== -->
       <div class="productos-section">
 
-        <label>
-          Productos
-        </label>
+        <label> Productos </label>
 
-        <div class="productos">
+  <div class="productos">
+
+  <div class="productos">
 
   <button onclick="agregarProducto(1,'Cerveza',50)">
-    🍺 Cerveza · $80
+    🍺 Cerveza · $50
   </button>
 
   <button onclick="agregarProducto(2,'Trago',150)">
-    🍸 Trago · $180
+    🍸 Trago · $150
   </button>
 
   <button onclick="agregarProducto(3,'Six',300)">
-    🔥 Six · $450
+    🍺 Six · $300
   </button>
 
   <button onclick="agregarProducto(4,'Maruchan',40)">
-    🍜 Maruchan · $50
+    🍜 Maruchan · $40
   </button>
 
   <button onclick="agregarProducto(5,'Agua',20)">
-    💧 Agua · $50
+    💧 Agua · $20
   </button>
 
   <button onclick="agregarProducto(6,'Electrolit',50)">
-    🧃 Electrolit · $60
+    ⚡ Electrolit · $50
   </button>
 
   <button onclick="agregarProducto(7,'Cigarro',10)">
     🚬 Cigarro · $10
   </button>
 
-  <button onclick="agregarProducto(8,'Chela DJ',0)">
+  <button
+    class="producto-cortesia"
+    onclick="agregarProducto(8,'Chela DJ',0)"
+  >
     🎧 Chela DJ · Cortesía
   </button>
 
 </div>
-
       </div>
+            </div>
+                  </div>
 
-      <!-- ===================================== -->
       <!-- 🛒 CARRITO -->
-      <!-- ===================================== -->
       <div class="carrito-section">
 
         <label>
@@ -401,11 +377,8 @@
     Total: $0
   </div>
 
-  <button
-    class="pagar-btn"
-    onclick="pagar()"
-  >
-    ⚡ Cobrar
+  <button id="btn-cobrar" class="pagar-btn" onclick="pagar()">
+  ⚡ Confirmar venta
   </button>
 
 </div>

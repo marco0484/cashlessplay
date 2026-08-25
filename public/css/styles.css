@@ -864,6 +864,26 @@ input[type="number"] {
   transform: none;
 }
 
+/* PRODUCTO DE CORTESÍA */
+
+.productos .producto-cortesia {
+  border-color: var(--warning);
+  background: var(--warning-soft);
+}
+
+.productos .producto-cortesia:hover {
+  border-color: var(--warning);
+  background: rgba(247, 185, 85, 0.18);
+}
+
+.productos .producto-cortesia::after {
+  content: "DJ";
+  color: var(--warning);
+  border-color: rgba(247, 185, 85, 0.35);
+  background: rgba(247, 185, 85, 0.10);
+  font-size: 0.65rem;
+}
+
 /* =========================================================
    CARRITO
    ========================================================= */
@@ -1507,9 +1527,9 @@ input:disabled {
   }
 
   .pos-container {
-    margin-top: 152px;
-    grid-template-columns: 1fr;
-  }
+  margin-top: 22px;
+  grid-template-columns: 1fr;
+}
 
   .panel-izq {
     position: static;
