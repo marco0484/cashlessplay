@@ -755,11 +755,17 @@ input[type="number"] {
 
 .productos-section {
   margin-top: 22px;
+  width: 100%;
+  grid-column: 1 / -1;
 }
 
 .productos {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  width: 100%;
+
+  grid-template-columns:
+    repeat(auto-fit, minmax(160px, 1fr));
+
   gap: 12px;
   margin-top: 10px;
 }
