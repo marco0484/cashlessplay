@@ -851,75 +851,77 @@ function renderCarrito(){
 
 function detectarRFID(valor, tipo){
 
-  clearTimeout(timerRFID)
+  clearTimeout(timerRFID);
 
-  timerRFID = setTimeout(async ()=>{
+  timerRFID = setTimeout(async () => {
 
-    const limpio =
-    valor.trim()
+    const limpio = valor.trim();
 
-let id = limpio;
+    /* QUITAR CEROS A LA IZQUIERDA SI EXISTEN */
+    const id = limpio.replace(/^0+/, "");
 
-/* QUITAR CEROS A LA IZQUIERDA */
+    /* SOLO VALIDAR QUE SEAN NÚMEROS */
+    if(!/^\d+$/.test(id)){
+      console.warn(
+        "RFID inválido:",
+        limpio,
+        "=>",
+        id
+      );
+      return;
+    }
 
-id = id.replace(/^0+/, "");
+    console.log(
+      "✅ RFID:",
+      limpio,
+      "=> ID BD:",
+      id
+    );
 
-/* VALIDAR */
-
-if(!/^\d{7,}$/.test(id)){
-  console.warn(
-    "RFID todavía incompleto:",
-    limpio,
-    "=>",
-    id
-  );
-  return;
-}
-
-console.log("RFID:", limpio, "=> ID BD:", id);
     /* GUARDAR USUARIO */
 
     if(tipo === "recarga"){
-      ultimoUsuarioRecarga = id
+      ultimoUsuarioRecarga = id;
     }else{
-      ultimoUsuarioPago = id
+      ultimoUsuarioPago = id;
     }
 
     /* INPUT */
 
     const input =
-    document.getElementById(
-      `userid-${tipo}`
-    )
+      document.getElementById(
+        `userid-${tipo}`
+      );
 
     if(!input){
-      return
+      console.error(
+        "No existe input:",
+        `userid-${tipo}`
+      );
+      return;
     }
 
     /* EFECTO VISUAL */
 
-    input.classList.add("scanned")
+    input.classList.add("scanned");
 
-    setTimeout(()=>{
-      input.classList.remove(
-        "scanned"
-      )
-    },400)
+    setTimeout(() => {
+      input.classList.remove("scanned");
+    },400);
 
-    /* CONSULTAR */
+    /* CONSULTAR USUARIO */
 
     await cargarUsuario(
       id,
       tipo
-    )
+    );
 
     /* LIMPIAR */
 
-    input.value = ""
+    input.value = "";
+    input.focus();
 
-    input.focus()
-
-  },300)
+  },300);
 
 }
 
