@@ -11,22 +11,31 @@ const {
 require("dotenv").config();
 const app = express();
 
+/* ========================= */
+/* CATÁLOGO DE PRODUCTOS */
+/* ========================= */
+
+const PRODUCTOS = {
+  1: { nombre: "Cerveza", precio: 50 },
+  2: { nombre: "Trago", precio: 150 },
+  3: { nombre: "Six", precio: 300 },
+  4: { nombre: "Maruchan", precio: 45 },
+  5: { nombre: "Agua", precio: 25 },
+  6: { nombre: "Electrolit", precio: 50 },
+  7: { nombre: "Cigarro", precio: 10 },
+  8: { nombre: "Chela DJ", precio: 0 },
+  9: { nombre: "Pulque", precio: 80 }
+};
+
 app.use(cors());
-
 app.use((req, res, next) => {
-
   if (req.originalUrl === "/webhook-stripe") {
-
     next();
-
-  } else {
-
+  } 
+  else {
     express.json()(req, res, next);
-
   }
-
 });
-
 
 /* ========================= */
 /* SUPABASE */
@@ -154,189 +163,539 @@ app.post("/login", async (req, res) => {
 // ===============================
 // RECARGAR
 // ===============================
+
 app.post("/recargar", async (req, res) => {
-  try{
-    const { user_id, monto, staff_id } = req.body;
 
-    if(process.env.VERCEL){
-      const { data: wallet } = await supabase
-        .from("cash_wallets")
-        .select("user_id,saldo")
-        .eq("user_id", user_id)
-        .single();
-
-      if(!wallet){
-        await supabase
-          .from("cash_wallets")
-          .insert([{ user_id, saldo:0 }]);
-      }
-
-      const { data: actual } = await supabase
-        .from("cash_wallets")
-        .select("saldo")
-        .eq("user_id", user_id)
-        .single();
-
-      const nuevoSaldo = Number(actual?.saldo || 0) + Number(monto);
-
-      const { error:updateError } = await supabase
-        .from("cash_wallets")
-        .update({
-          saldo:nuevoSaldo,
-          actualizado:new Date().toISOString()
-        })
-        .eq("user_id", user_id);
-
-      if(updateError) throw updateError;
-
-      const { error:trxError } = await supabase
-        .from("cash_transacciones")
-        .insert({
-          user_id,
-          monto,
-          tipo:"RECARGA",
-          staff_id
-        });
-
-      if(trxError) throw trxError;
-
-      return res.json({
-        ok:true,
-        saldo:nuevoSaldo
-      });
-    }
-
-    const result = await pool.query(
-      `
-      UPDATE play.wallets
-      SET saldo = saldo + $1,
-      actualizado = CURRENT_TIMESTAMP
-      WHERE user_id = $2
-      RETURNING saldo
-      `,
-      [monto,user_id]
-    );
-
-    await pool.query(
-      `
-      INSERT INTO play.transacciones
-      (user_id,monto,tipo,staff_id)
-      VALUES ($1,$2,'RECARGA',$3)
-      `,
-      [user_id,monto,staff_id]
-    );
-
-    return res.json({
-      ok:true,
-      saldo:result.rows[0].saldo
-    });
-  }catch(err){
-    console.error("RECARGA ERROR:",err);
-    return res.status(500).json({
-      error:err.message
-    });
-  }
-});
-
-// ===============================
-// PAGAR
-// ===============================
-
-app.post("/pagar", async (req, res) => {
-
-  try{
+  try {
 
     const {
       user_id,
       monto,
-      carrito,
       staff_id
     } = req.body;
 
-    const { data: wallet } =
-      await supabase
-        .from("cash_wallets")
-        .select("saldo")
-        .eq("user_id", user_id)
-        .single();
 
-    if(!wallet){
+    const usuarioId =
+      Number(user_id);
 
-      return res.status(404).json({
-        mensaje:"Wallet no encontrada"
-      });
+    const montoRecarga =
+      Number(monto);
 
-    }
+    const staffId =
+      Number(staff_id);
 
-    if(Number(wallet.saldo) < Number(monto)){
+
+    /* ========================= */
+    /* VALIDACIONES */
+    /* ========================= */
+
+    if(
+      !Number.isInteger(usuarioId) ||
+      usuarioId <= 0
+    ){
 
       return res.status(400).json({
-        mensaje:"Saldo insuficiente"
+        mensaje:
+          "Usuario inválido"
       });
 
     }
 
-    const nuevoSaldo =
-      Number(wallet.saldo) - Number(monto);
 
-    await supabase
-      .from("cash_wallets")
-      .update({
+    if(
+      !Number.isFinite(montoRecarga) ||
+      montoRecarga <= 0
+    ){
 
-        saldo:nuevoSaldo,
-        actualizado:new Date().toISOString()
+      return res.status(400).json({
+        mensaje:
+          "Monto inválido"
+      });
 
-      })
-      .eq("user_id", user_id);
+    }
 
-   const { data: venta, error: ventaError } =
-await supabase
-  .from("cash_transacciones")
-  .insert({
-    user_id,
-    monto,
-    tipo: "VENTA",
-    staff_id
-  })
-  .select()
-  .single();
 
-if (ventaError) {
-  throw ventaError;
-}
+    if(
+      !Number.isInteger(staffId) ||
+      staffId <= 0
+    ){
 
-const detalles = carrito.map(item => ({
-  transaccion_id: venta.id,
-  producto_id: item.producto_id,
-  cantidad: item.cantidad,
-  precio_unitario: item.precio,
-  subtotal: item.precio * item.cantidad
-}));
+      return res.status(400).json({
+        mensaje:
+          "Staff inválido"
+      });
 
-const { error: detalleError } =
-await supabase
-  .from("cash_detalle_ventas")
-  .insert(detalles);
+    }
 
-if (detalleError) {
-  throw detalleError;
-}
 
-res.json({
-  ok: true,
-  mensaje: "Pago realizado correctamente",
-  saldo: nuevoSaldo
-});
+    /* ========================= */
+    /* CLOUD / SUPABASE */
+    /* ========================= */
 
-  }catch(err){
-    res.status(500).json({
-      error:err.message
+    if(process.env.VERCEL){
+
+      const {
+        data,
+        error
+      } = await supabase.rpc(
+        "procesar_recarga_cashless",
+        {
+
+          p_user_id:
+            usuarioId,
+
+          p_staff_id:
+            staffId,
+
+          p_monto:
+            montoRecarga
+
+        }
+      );
+
+
+      if(error){
+
+        console.error(
+          "RPC RECARGA ERROR:",
+          error
+        );
+
+
+        if(
+          error.message
+            ?.includes(
+              "Wallet no encontrada"
+            )
+        ){
+
+          return res
+            .status(404)
+            .json({
+              mensaje:
+                "Wallet no encontrada"
+            });
+
+        }
+
+
+        throw error;
+
+      }
+
+
+      return res.json({
+
+        ok: true,
+
+        mensaje:
+          "Recarga realizada correctamente",
+
+        monto:
+          Number(data.monto),
+
+        saldo:
+          Number(data.saldo),
+
+        transaccion_id:
+          data.transaccion_id
+
+      });
+
+    }
+
+
+    /* ========================= */
+    /* LOCAL */
+    /* ========================= */
+
+    const clientDB =
+      await pool.connect();
+
+
+    try {
+
+      await clientDB.query(
+        "BEGIN"
+      );
+
+
+      const walletResult =
+        await clientDB.query(
+          `
+          SELECT saldo
+          FROM play.wallets
+          WHERE user_id = $1
+          FOR UPDATE
+          `,
+          [usuarioId]
+        );
+
+
+      if(
+        walletResult.rows.length === 0
+      ){
+
+        throw new Error(
+          "Wallet no encontrada"
+        );
+
+      }
+
+
+      const result =
+        await clientDB.query(
+          `
+          UPDATE play.wallets
+          SET
+            saldo = saldo + $1,
+            actualizado =
+              CURRENT_TIMESTAMP
+          WHERE user_id = $2
+          RETURNING saldo
+          `,
+          [
+            montoRecarga,
+            usuarioId
+          ]
+        );
+
+
+      const trx =
+        await clientDB.query(
+          `
+          INSERT INTO play.transacciones
+          (
+            user_id,
+            monto,
+            tipo,
+            staff_id
+          )
+          VALUES
+          (
+            $1,
+            $2,
+            'RECARGA',
+            $3
+          )
+          RETURNING id
+          `,
+          [
+            usuarioId,
+            montoRecarga,
+            staffId
+          ]
+        );
+
+
+      await clientDB.query(
+        "COMMIT"
+      );
+
+
+      return res.json({
+
+        ok: true,
+
+        mensaje:
+          "Recarga realizada correctamente",
+
+        monto:
+          montoRecarga,
+
+        saldo:
+          Number(
+            result.rows[0].saldo
+          ),
+
+        transaccion_id:
+          trx.rows[0].id
+
+      });
+
+
+    } catch(error){
+
+      await clientDB.query(
+        "ROLLBACK"
+      );
+
+      throw error;
+
+
+    } finally {
+
+      clientDB.release();
+
+    }
+
+
+  } catch(err){
+
+    console.error(
+      "RECARGA ERROR:",
+      err
+    );
+
+
+    if(
+      err.message
+        ?.includes(
+          "Wallet no encontrada"
+        )
+    ){
+
+      return res
+        .status(404)
+        .json({
+          mensaje:
+            "Wallet no encontrada"
+        });
+
+    }
+
+
+    return res.status(500).json({
+
+      mensaje:
+        "No fue posible realizar la recarga",
+
+      error:
+        err.message
+
     });
 
   }
 
 });
 
+// PAGAR
+
+app.post("/pagar", async (req, res) => {
+
+  try {
+
+    const {
+      user_id,
+      carrito,
+      staff_id
+    } = req.body;
+
+
+    /* ========================= */
+    /* VALIDACIONES */
+    /* ========================= */
+
+    const usuarioId = Number(user_id);
+    const staffId = Number(staff_id);
+
+
+    if(
+      !Number.isInteger(usuarioId) ||
+      usuarioId <= 0
+    ){
+      return res.status(400).json({
+        mensaje: "Usuario inválido"
+      });
+    }
+
+
+    if(
+      !Number.isInteger(staffId) ||
+      staffId <= 0
+    ){
+      return res.status(400).json({
+        mensaje: "Staff inválido"
+      });
+    }
+
+
+    if(
+      !Array.isArray(carrito) ||
+      carrito.length === 0
+    ){
+      return res.status(400).json({
+        mensaje: "Carrito vacío"
+      });
+    }
+
+
+    /* ========================= */
+    /* CALCULAR PRECIOS EN SERVER */
+    /* ========================= */
+
+    const detalles = [];
+
+    let monto = 0;
+
+
+    for(const item of carrito){
+      const productoId = Number(item.producto_id);
+      const cantidad = Number(item.cantidad);
+      const producto = PRODUCTOS[productoId];
+
+      if(!producto){
+
+        return res.status(400).json({
+          mensaje:
+            `Producto inválido: ${productoId}`
+        });
+
+      }
+
+
+      if(
+        !Number.isInteger(cantidad) ||
+        cantidad <= 0 ||
+        cantidad > 100
+      ){
+
+        return res.status(400).json({
+          mensaje:
+            `Cantidad inválida para ${producto.nombre}`
+        });
+
+      }
+
+
+      const subtotal =
+        producto.precio * cantidad;
+
+
+      monto += subtotal;
+
+
+      detalles.push({
+
+        producto_id: productoId,
+
+        cantidad,
+
+        precio_unitario:
+          producto.precio,
+
+        subtotal
+
+      });
+
+    }
+
+
+    if(monto < 0){
+
+      return res.status(400).json({
+        mensaje: "Monto inválido"
+      });
+
+    }
+
+
+    /* ========================= */
+/* PROCESAR VENTA ATÓMICA */
+/* ========================= */
+
+const {
+  data,
+  error
+} = await supabase.rpc(
+  "procesar_venta_cashless",
+  {
+
+    p_user_id:
+      usuarioId,
+
+    p_staff_id:
+      staffId,
+
+    p_monto:
+      monto,
+
+    p_detalles:
+      detalles
+
+  }
+);
+
+
+if(error){
+
+  console.error(
+    "RPC VENTA ERROR:",
+    error
+  );
+
+
+  if(
+    error.message
+      ?.includes("Saldo insuficiente")
+  ){
+
+    return res.status(400).json({
+      mensaje: "Saldo insuficiente"
+    });
+
+  }
+
+
+  if(
+    error.message
+      ?.includes("Wallet no encontrada")
+  ){
+
+    return res.status(404).json({
+      mensaje: "Wallet no encontrada"
+    });
+
+  }
+
+
+  throw error;
+
+}
+
+
+/* ========================= */
+/* RESPUESTA */
+/* ========================= */
+
+return res.json({
+
+  ok: true,
+
+  mensaje:
+    "Pago realizado correctamente",
+
+  total:
+    Number(data.monto),
+
+  saldo:
+    Number(data.saldo),
+
+  transaccion_id:
+    data.transaccion_id
+
+});
+
+  } catch(err) {
+
+    console.error(
+      "PAGO ERROR:",
+      err
+    );
+
+    return res.status(500).json({
+
+      mensaje:
+        "No fue posible procesar la venta",
+
+      error:
+        err.message
+
+    });
+
+  }
+
+});
 
 // ===============================
 // CONSULTAR
@@ -422,68 +781,160 @@ app.post("/crear-recarga-mp", async (req, res) => {
 
     const {
       user_id,
-      monto
+      monto,
+      staff_id
     } = req.body;
 
-    if (!user_id || !monto) {
+
+    const usuarioId =
+      Number(user_id);
+
+    const montoRecarga =
+      Number(monto);
+
+    const staffId =
+      Number(staff_id);
+
+
+    if(
+      !Number.isInteger(usuarioId) ||
+      usuarioId <= 0
+    ){
 
       return res.status(400).json({
-        error: "Datos incompletos"
+        mensaje: "Usuario inválido"
       });
 
     }
-    const preference = new Preference(client);
-    const result = await preference.create({
 
-  body: {
 
-    items: [
-      {
-        title: `Recarga Cashless Usuario ${user_id}`,
-        quantity: 1,
-        unit_price: Number(monto),
-        currency_id: "MXN"
-      }
-    ],
+    if(
+      !Number.isFinite(montoRecarga) ||
+      montoRecarga <= 0
+    ){
 
-    external_reference: String(user_id),
+      return res.status(400).json({
+        mensaje: "Monto inválido"
+      });
 
-    notification_url:
-      "https://cashlessplay.vercel.app/webhook-mp",
+    }
 
-    back_urls:{
-  success:"https://cashlessplay.vercel.app/index.html?recarga=success",
-  failure:"https://cashlessplay.vercel.app/index.html?recarga=failure",
-  pending:"https://cashlessplay.vercel.app/index.html?recarga=pending"
-},
-auto_return:"approved"
 
-  }
+    if(
+      !Number.isInteger(staffId) ||
+      staffId <= 0
+    ){
 
-});
+      return res.status(400).json({
+        mensaje: "Staff inválido"
+      });
 
-    res.json({
+    }
+
+
+    const preference =
+      new Preference(client);
+
+
+    const result =
+      await preference.create({
+
+        body: {
+
+          items: [
+            {
+
+              title:
+                `Recarga Cashless Usuario ${usuarioId}`,
+
+              quantity: 1,
+
+              unit_price:
+                montoRecarga,
+
+              currency_id:
+                "MXN"
+
+            }
+          ],
+
+
+          /*
+            Guardamos usuario + staff.
+
+            Ejemplo:
+            25|3
+          */
+
+          external_reference:
+            `${usuarioId}|${staffId}`,
+
+
+          notification_url:
+            "https://cashlessplay.vercel.app/webhook-mp",
+
+
+          back_urls: {
+
+            success:
+              "https://cashlessplay.vercel.app/index.html?recarga=success",
+
+            failure:
+              "https://cashlessplay.vercel.app/index.html?recarga=failure",
+
+            pending:
+              "https://cashlessplay.vercel.app/index.html?recarga=pending"
+
+          },
+
+
+          auto_return:
+            "approved"
+
+        }
+
+      });
+
+
+    return res.json({
+
+      ok: true,
 
       init_point:
-      result.init_point
+        result.init_point
 
     });
+
 
   } catch(err) {
-    res.status(500).json({
+
+    console.error(
+      "CREAR MP ERROR:",
+      err
+    );
+
+
+    return res.status(500).json({
+
+      mensaje:
+        "No fue posible crear la recarga",
+
       error:
-      err.message
+        err.message
+
     });
+
   }
+
 });
 
 //  end point stripe 
 
 app.post(
   "/crear-recarga-stripe",
-  async (req,res)=>{
+  async (req,res) => {
 
-    try{
+    try {
 
       const {
         user_id,
@@ -491,44 +942,120 @@ app.post(
         staff_id
       } = req.body;
 
+
+      const usuarioId =
+        Number(user_id);
+
+      const montoRecarga =
+        Number(monto);
+
+      const staffId =
+        Number(staff_id);
+
+
+      /* ========================= */
+      /* VALIDACIONES */
+      /* ========================= */
+
+      if(
+        !Number.isInteger(usuarioId) ||
+        usuarioId <= 0
+      ){
+
+        return res.status(400).json({
+          mensaje: "Usuario inválido"
+        });
+
+      }
+
+
+      if(
+        !Number.isFinite(montoRecarga) ||
+        montoRecarga <= 0
+      ){
+
+        return res.status(400).json({
+          mensaje: "Monto inválido"
+        });
+
+      }
+
+
+      if(
+        !Number.isInteger(staffId) ||
+        staffId <= 0
+      ){
+
+        return res.status(400).json({
+          mensaje: "Staff inválido"
+        });
+
+      }
+
+
+      /* ========================= */
+      /* CREAR PAYMENT INTENT */
+      /* ========================= */
+
       const paymentIntent =
-      await stripe.paymentIntents.create({
+        await stripe.paymentIntents.create({
 
-        amount:
-          Math.round(
-            Number(monto) * 100
-          ),
+          amount:
+            Math.round(
+              montoRecarga * 100
+            ),
 
-        currency: "mxn",
+          currency:
+            "mxn",
 
-metadata:{
-  user_id:String(user_id),
-  staff_id:String(staff_id || "")
-}
+          metadata: {
 
-      });
+            user_id:
+              String(usuarioId),
 
-      res.json({
+            staff_id:
+              String(staffId)
 
-        ok:true,
+          }
+
+        });
+
+
+      return res.json({
+
+        ok: true,
 
         paymentIntentId:
-        paymentIntent.id,
+          paymentIntent.id,
 
         clientSecret:
-        paymentIntent.client_secret
+          paymentIntent.client_secret
 
       });
 
-    }catch(err){
-      res.status(500).json({
-        error: err.message
+
+    } catch(err) {
+
+      console.error(
+        "STRIPE CREATE ERROR:",
+        err
+      );
+
+
+      return res.status(500).json({
+
+        mensaje:
+          "No fue posible crear el pago",
+
+        error:
+          err.message
+
       });
 
     }
 
-});
-
+  }
+);
 /* HISTORIAL */
 
 app.get("/historial", async (req, res) => {
@@ -783,93 +1310,222 @@ app.get("/test-supabase", async (req, res) => {
 app.post("/webhook-mp", async (req, res) => {
 
   try {
-if (
-  req.body?.topic === "merchant_order"
-) {
-  return res.sendStatus(200);
-}
+
+
+    /* ========================= */
+    /* IGNORAR MERCHANT ORDER */
+    /* ========================= */
+
+    if(
+      req.body?.topic ===
+      "merchant_order"
+    ){
+
+      return res.sendStatus(200);
+
+    }
+
+
+    /* ========================= */
+    /* PAYMENT ID */
+    /* ========================= */
 
     const paymentId =
       req.body?.data?.id ||
       req.body?.resource;
 
-    if (!paymentId) {
+
+    if(!paymentId){
+
       return res.sendStatus(200);
+
     }
+
+
+    /* ========================= */
+    /* CONSULTAR MERCADO PAGO */
+    /* ========================= */
 
     const payment =
       new Payment(client);
+
 
     const pago =
       await payment.get({
         id: paymentId
       });
 
-    if (
-      pago.status !== "approved"
-    ) {
+
+    if(
+      pago.status !==
+      "approved"
+    ){
+
       return res.sendStatus(200);
+
     }
 
-    const user_id =
-      Number(
-        pago.external_reference
+
+    /* ========================= */
+    /* USUARIO + STAFF */
+    /* ========================= */
+
+    const referencia =
+      String(
+        pago.external_reference || ""
       );
+
+
+    const [
+      userRaw,
+      staffRaw
+    ] =
+      referencia.split("|");
+
+
+    const user_id =
+      Number(userRaw);
+
+    const staff_id =
+      Number(staffRaw);
+
 
     const monto =
       Number(
         pago.transaction_amount
       );
 
-      const { error: trxError } =
-await supabase
-  .from("cash_transacciones")
-  .insert({
-    user_id,
-    monto,
-    tipo: "RECARGA",
-    mp_payment_id: pago.id
-  });
 
-if (trxError) {
+    if(
+      !Number.isInteger(user_id) ||
+      user_id <= 0
+    ){
 
-  return res.sendStatus(200);
+      console.error(
+        "MP USER INVÁLIDO:",
+        referencia
+      );
 
-}
+      return res.sendStatus(200);
 
-    const { data: wallet } =
-      await supabase
-        .from("cash_wallets")
-        .select("saldo")
-        .eq("user_id", user_id)
-        .single();
+    }
 
-    const saldoActual =
-      Number(wallet?.saldo || 0);
 
-    const nuevoSaldo =
-      saldoActual + monto;
+    if(
+      !Number.isInteger(staff_id) ||
+      staff_id <= 0
+    ){
 
-    const { error } =
-      await supabase
-        .from("cash_wallets")
-        .update({
-          saldo: nuevoSaldo,
-          actualizado:
-            new Date().toISOString()
-        })
-        .eq("user_id", user_id);
+      console.error(
+        "MP STAFF INVÁLIDO:",
+        referencia
+      );
 
-    if (error) {
+      return res.sendStatus(200);
+
+    }
+
+
+    if(
+      !Number.isFinite(monto) ||
+      monto <= 0
+    ){
+
+      console.error(
+        "MP MONTO INVÁLIDO:",
+        monto
+      );
+
+      return res.sendStatus(200);
+
+    }
+
+
+    /* ========================= */
+    /* RECARGA ATÓMICA */
+    /* ========================= */
+
+    const {
+      data,
+      error
+    } = await supabase.rpc(
+      "procesar_recarga_mp",
+      {
+
+        p_user_id:
+          user_id,
+
+        p_staff_id:
+          staff_id,
+
+        p_monto:
+          monto,
+
+        p_mp_payment_id:
+          String(pago.id)
+
+      }
+    );
+
+
+    if(error){
+
+      console.error(
+        "RPC MP ERROR:",
+        error
+      );
 
       return res.sendStatus(500);
 
     }
 
+
+    /* ========================= */
+    /* WEBHOOK REPETIDO */
+    /* ========================= */
+
+    if(data?.duplicado){
+
+      console.log(
+        "MP YA PROCESADO:",
+        pago.id
+      );
+
+      return res.sendStatus(200);
+
+    }
+
+
+    console.log(
+      "✅ RECARGA MP:",
+      {
+        payment_id:
+          pago.id,
+
+        user_id,
+
+        staff_id,
+
+        monto,
+
+        saldo:
+          data?.saldo
+      }
+    );
+
+
     return res.sendStatus(200);
 
-  } catch (err) {
+
+  } catch(err) {
+
+    console.error(
+      "WEBHOOK MP ERROR:",
+      err
+    );
+
     return res.sendStatus(500);
+
   }
 
 });
@@ -885,139 +1541,231 @@ app.get(
     });
 
 });
-
 app.post(
   "/webhook-stripe",
-  express.raw({ type: "*/*" }),
-  async (req,res)=>{
+
+  express.raw({
+    type: "*/*"
+  }),
+
+  async (req,res) => {
 
     const sig =
       req.headers[
         "stripe-signature"
       ];
 
-    try{
 
-const event =
-  stripe.webhooks.constructEvent(
-    req.body,
-    sig,
-    endpointSecret
-  );
+    try {
+
+
+      /* ========================= */
+      /* VALIDAR FIRMA STRIPE */
+      /* ========================= */
+
+      const event =
+        stripe.webhooks.constructEvent(
+          req.body,
+          sig,
+          endpointSecret
+        );
+
+
+      /* ========================= */
+      /* SOLO PAGOS EXITOSOS */
+      /* ========================= */
 
       if(
-        event.type ===
+        event.type !==
         "payment_intent.succeeded"
       ){
 
-        const paymentIntent =
-          event.data.object;
-
-          console.log(
-  "METADATA STRIPE:",
-  paymentIntent.metadata
-);
-
-console.log(
-  "STAFF:",
-  paymentIntent.metadata.staff_id
-);
-
-          const stripePaymentId =
-  paymentIntent.id;
-
-        const user_id =
-          Number(
-            paymentIntent.metadata.user_id
-          );
-
-          const staff_id =
-paymentIntent.metadata.staff_id
-  ? Number(paymentIntent.metadata.staff_id)
-  : null;
-
-        const monto =
-          Number(
-            paymentIntent.amount
-          ) / 100;
-
-
-const { data: venta, error: ventaError } =
-await supabase
-  .from("cash_transacciones")
-  .insert({
-    user_id,
-    monto,
-    tipo: "RECARGA",
-    staff_id
-    })
-  .select()
-  .single();
-
-if (ventaError) {
-  throw ventaError;
-}
-        const { data: wallet } =
-          await supabase
-            .from("cash_wallets")
-            .select("saldo")
-            .eq("user_id", user_id)
-            .single();
-
-        const saldoActual =
-          Number(
-            wallet?.saldo || 0
-          );
-
-        const nuevoSaldo =
-          saldoActual + monto;
-
-        await supabase
-          .from("cash_wallets")
-          .update({
-            saldo: nuevoSaldo,
-            actualizado:
-              new Date().toISOString()
-          })
-          .eq(
-            "user_id",
-            user_id
-          );
+        return res.json({
+          received: true
+        });
 
       }
 
-      res.json({
-        received:true
+
+      const paymentIntent =
+        event.data.object;
+
+
+      /* ========================= */
+      /* DATOS DEL PAGO */
+      /* ========================= */
+
+      const stripePaymentId =
+        paymentIntent.id;
+
+
+      const user_id =
+        Number(
+          paymentIntent
+            .metadata
+            .user_id
+        );
+
+
+      const staff_id =
+        Number(
+          paymentIntent
+            .metadata
+            .staff_id
+        );
+
+
+      const monto =
+        Number(
+          paymentIntent.amount
+        ) / 100;
+
+
+      /* ========================= */
+      /* VALIDACIONES */
+      /* ========================= */
+
+      if(
+        !Number.isInteger(user_id) ||
+        user_id <= 0
+      ){
+
+        console.error(
+          "STRIPE USER INVÁLIDO:",
+          user_id
+        );
+
+        return res.sendStatus(200);
+
+      }
+
+
+      if(
+        !Number.isInteger(staff_id) ||
+        staff_id <= 0
+      ){
+
+        console.error(
+          "STRIPE STAFF INVÁLIDO:",
+          staff_id
+        );
+
+        return res.sendStatus(200);
+
+      }
+
+
+      if(
+        !Number.isFinite(monto) ||
+        monto <= 0
+      ){
+
+        console.error(
+          "STRIPE MONTO INVÁLIDO:",
+          monto
+        );
+
+        return res.sendStatus(200);
+
+      }
+
+
+      /* ========================= */
+      /* RECARGA ATÓMICA */
+      /* ========================= */
+
+      const {
+        data,
+        error
+      } = await supabase.rpc(
+        "procesar_recarga_stripe",
+        {
+
+          p_user_id:
+            user_id,
+
+          p_staff_id:
+            staff_id,
+
+          p_monto:
+            monto,
+
+          p_stripe_payment_id:
+            stripePaymentId
+
+        }
+      );
+
+
+      if(error){
+
+        console.error(
+          "RPC STRIPE ERROR:",
+          error
+        );
+
+        return res.sendStatus(500);
+
+      }
+
+
+      /* ========================= */
+      /* WEBHOOK DUPLICADO */
+      /* ========================= */
+
+      if(data?.duplicado){
+
+        console.log(
+          "STRIPE YA PROCESADO:",
+          stripePaymentId
+        );
+
+        return res.sendStatus(200);
+
+      }
+
+
+      console.log(
+        "✅ RECARGA STRIPE:",
+        {
+          stripe_payment_id:
+            stripePaymentId,
+          user_id,
+          staff_id,
+          monto,
+          saldo:
+            data?.saldo
+        }
+      );
+
+
+      return res.json({
+        received: true
       });
 
-    }catch(err){
 
-      res.status(400).send(
-        err.message
+    } catch(err) {
+
+      console.error(
+        "WEBHOOK STRIPE ERROR:",
+        err
+      );
+
+
+      return res.status(400).send(
+        "Webhook Stripe inválido"
       );
 
     }
 
-});
+  }
+);
 
-/* ===================================================== */
+
 /* PRODUCTOS MÁS CONSUMIDOS */
-/* ===================================================== */
-/* ===================================================== */
-/* PRODUCTOS MÁS CONSUMIDOS */
-/* ===================================================== */
-/* ===================================================== */
-/* PRODUCTOS MÁS CONSUMIDOS */
-/* ===================================================== */
 app.get("/productos-top", async (req, res) => {
   try{
-    const nombresProductos = {
-      1:"Cerveza",
-      2:"Agua",
-      3:"Refresco",
-      4:"Trago",
-      5:"Six"
-    };
+  
 
     if(process.env.VERCEL){
       const { data, error } = await supabase
@@ -1036,7 +1784,7 @@ app.get("/productos-top", async (req, res) => {
         if(!resumen[id]){
           resumen[id] = {
             producto_id:id,
-            nombre:nombresProductos[id] || `Producto ${id}`,
+          nombre: PRODUCTOS[id]?.nombre || `Producto ${id}`,
             total:0,
             ingresos:0
           };
@@ -1064,16 +1812,23 @@ app.get("/productos-top", async (req, res) => {
       LIMIT 10
     `);
 
-    const resultado = result.rows.map(item => {
-      const id = Number(item.producto_id);
+const resultado = result.rows.map(item => {
+  const id = Number(item.producto_id);
 
-      return {
-        producto_id:id,
-        nombre:nombresProductos[id] || `Producto ${id}`,
-        total:Number(item.total || 0),
-        ingresos:Number(item.ingresos || 0)
-      };
-    });
+  return {
+    producto_id: id,
+
+    nombre:
+      PRODUCTOS[id]?.nombre ||
+      `Producto ${id}`,
+
+    total:
+      Number(item.total || 0),
+
+    ingresos:
+      Number(item.ingresos || 0)
+  };
+});
 
     res.json(resultado);
 
