@@ -11,9 +11,7 @@ const {
 require("dotenv").config();
 const app = express();
 
-/* ========================= */
 /* CATÁLOGO DE PRODUCTOS */
-/* ========================= */
 
 const PRODUCTOS = {
   1: { nombre: "Cerveza", precio: 50 },
@@ -37,18 +35,11 @@ app.use((req, res, next) => {
   }
 });
 
-/* ========================= */
 /* SUPABASE */
-/* ========================= */
 
-const { createClient } =
-require("@supabase/supabase-js");
-
-const SUPABASE_URL =
-  "https://caoqqzzwwpiivmqqeigw.supabase.co";
-
-const SUPABASE_KEY =
-  "sb_publishable_4FaRj7XuzifYgPa8BjtO8A_C46t5q0Q";
+const { createClient } = require("@supabase/supabase-js");
+const SUPABASE_URL = "https://caoqqzzwwpiivmqqeigw.supabase.co";
+const SUPABASE_KEY = "sb_publishable_4FaRj7XuzifYgPa8BjtO8A_C46t5q0Q";
 
 const supabase =
 createClient(
@@ -76,22 +67,19 @@ const stripe =
     process.env.STRIPE_SECRET_KEY
   );
 
-  const endpointSecret =
-  process.env.STRIPE_WEBHOOK_SECRET;
-// DB
+  const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET;
+
 const pool = new Pool({
 
-  user:"postgres",
-  host:"localhost",
-  database:"postgres",
-  password:"Unitec88",
-  port:5432
+  user: process.env.DB_USER,
+  host: process.env.DB_HOST,
+  database: process.env.DB_NAME,
+  password: process.env.DB_PASSWORD,
+  port: Number(process.env.DB_PORT || 5432)
+});
 
-})
+/* REGISTRO */
 
-// ===============================
-// REGISTRO
-// ===============================
 app.post("/registro",async(req,res)=>{
   const {nombre,email}=req.body
 
