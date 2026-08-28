@@ -1729,6 +1729,177 @@ tbody td:nth-child(6) {
 
 }
 
+/* =========================================================
+   AJUSTE HISTORIAL MÓVIL COMPACTO
+   ========================================================= */
+
+@media (max-width: 799px) {
+
+  /* CONTENEDOR DE MOVIMIENTOS */
+
+  tbody {
+    padding: 6px;
+  }
+
+  tbody tr {
+    margin-bottom: 6px;
+
+    padding: 10px 11px;
+
+    gap: 0 10px;
+
+    border-radius: 13px;
+
+    grid-template-columns:
+      repeat(2, minmax(0, 1fr));
+  }
+
+
+  /* CELDAS MÁS COMPACTAS */
+
+  tbody td {
+    padding: 5px 0;
+
+    gap: 2px;
+
+    font-size: 0.76rem;
+
+    line-height: 1.25;
+  }
+
+
+  /* LABELS */
+
+  tbody td::before {
+    margin-bottom: 2px;
+
+    font-size: 0.52rem;
+
+    line-height: 1;
+
+    letter-spacing: 0.06em;
+  }
+
+
+  /* ID Y FECHA YA NO NECESITAN TANTO ESPACIO */
+
+  tbody td:nth-child(1) {
+    grid-column: auto;
+  }
+
+  tbody td:nth-child(2) {
+    grid-column: auto;
+
+    text-align: right;
+    align-items: flex-end;
+  }
+
+
+  /* USUARIO Y STAFF */
+
+  tbody td:nth-child(3),
+  tbody td:nth-child(6) {
+    grid-column: auto;
+  }
+
+
+  /* TIPO */
+
+  tbody td:nth-child(4) {
+    grid-column: auto;
+
+    align-items: flex-start;
+  }
+
+
+  /* MONTO */
+
+  tbody td:nth-child(5) {
+    grid-column: auto;
+
+    align-items: flex-end;
+    text-align: right;
+  }
+
+
+  .monto {
+    font-size: 1.08rem;
+
+    font-weight: 850;
+  }
+
+
+  /* ============================== */
+  /* RECARGA / VENTA COMPACTOS */
+  /* ============================== */
+
+  .tipo-recarga,
+  .tipo-venta,
+  .tipo-reembolso {
+
+    width: fit-content;
+
+    min-height: 24px;
+
+    padding: 4px 8px;
+
+    display: inline-flex;
+
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 8px;
+
+    font-size: 0.61rem;
+
+    font-weight: 800;
+
+    line-height: 1;
+
+    letter-spacing: 0.025em;
+
+    white-space: nowrap;
+  }
+
+
+  /* QUITAMOS EL PUNTO
+     PORQUE CHOCA CON EL LABEL "TIPO" */
+
+  .tipo-recarga::before,
+  .tipo-venta::before,
+  .tipo-reembolso::before {
+
+    width: auto;
+    height: auto;
+
+    background: none;
+    box-shadow: none;
+
+  }
+
+
+  /* STAFF */
+
+  tbody td:nth-child(6) {
+    font-size: 0.75rem;
+  }
+
+
+  /* CARD SIN TANTO ESPACIO VERTICAL */
+
+  tbody tr::before {
+    width: 2px;
+
+    border-radius:
+      13px
+      0
+      0
+      13px;
+  }
+
+}
+
+
 
 /* =========================================================
    REDUCIR MOVIMIENTO
