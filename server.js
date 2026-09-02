@@ -1291,9 +1291,6 @@ app.get("/test-supabase", async (req, res) => {
 
 });
 
-/* ===================================================== */
-/* WEBHOOK MERCADO PAGO */
-/* ===================================================== */
 
 /* ===================================================== */
 /* WEBHOOK MERCADO PAGO - PRODUCCION */
@@ -1302,14 +1299,6 @@ app.get("/test-supabase", async (req, res) => {
 app.post("/webhook-mp", async (req, res) => {
 
   try {
-
-    console.log("======================================");
-    console.log("📩 WEBHOOK MERCADO PAGO RECIBIDO");
-    console.log("QUERY:", req.query);
-    console.log("BODY:", req.body);
-    console.log("======================================");
-
-
     /* ===================================== */
     /* TIPO DE NOTIFICACION */
     /* ===================================== */
@@ -1319,26 +1308,6 @@ app.post("/webhook-mp", async (req, res) => {
       req.body?.topic ||
       req.query?.type ||
       req.query?.topic;
-
-
-    console.log("TIPO MP:", tipo);
-
-
-    /* ===================================== */
-    /* IGNORAR MERCHANT ORDER */
-    /* ===================================== */
-
-    if(
-      tipo === "merchant_order"
-    ){
-
-      console.log(
-        "ℹ️ Merchant order ignorada"
-      );
-
-      return res.sendStatus(200);
-
-    }
 
 
     /* ===================================== */
@@ -1371,12 +1340,6 @@ app.post("/webhook-mp", async (req, res) => {
     }
 
 
-    console.log(
-      "PAYMENT ID MP:",
-      paymentId
-    );
-
-
     /* ===================================== */
     /* SIN PAYMENT ID */
     /* ===================================== */
@@ -1391,116 +1354,26 @@ app.post("/webhook-mp", async (req, res) => {
 
     }
 
-
-    /* ===================================== */
-    /* SOLO PAGOS */
-    /* ===================================== */
-
-    if(
-      tipo &&
-      tipo !== "payment"
-    ){
-
-      console.log(
-        "ℹ️ Evento MP ignorado:",
-        tipo
-      );
-
-      return res.sendStatus(200);
-
-    }
-
-
     /* ===================================== */
     /* CONSULTAR PAGO REAL EN MERCADO PAGO */
     /* ===================================== */
 
-    const payment =
-      new Payment(client);
-
-
-    const pago =
-      await payment.get({
-        id: paymentId
-      });
-
-
-    console.log(
-      "💳 PAGO MP CONSULTADO:",
-      {
-        id:
-          pago.id,
-
-        status:
-          pago.status,
-
-        external_reference:
-          pago.external_reference,
-
-        monto:
-          pago.transaction_amount
-      }
-    );
-
-
-    /* ===================================== */
-    /* SOLO PAGOS APROBADOS */
-    /* ===================================== */
-
-    if(
-      pago.status !== "approved"
-    ){
-
-      console.log(
-        "ℹ️ Pago todavía no aprobado:",
-        pago.status
-      );
-
-      return res.sendStatus(200);
-
-    }
-
+    const payment = new Payment(client);
+    const pago = await payment.get({id: paymentId});
 
     /* ===================================== */
     /* USUARIO + STAFF */
     /* ===================================== */
 
-    const referencia =
-      String(
-        pago.external_reference || ""
-      );
+    const referencia = String(pago.external_reference || "");
 
+    const [userRaw,staffRaw] = referencia.split("|");
 
-    const [
-      userRaw,
-      staffRaw
-    ] =
-      referencia.split("|");
+    const user_id = Number(userRaw);
 
+    const staff_id = Number(staffRaw);
 
-    const user_id =
-      Number(userRaw);
-
-
-    const staff_id =
-      Number(staffRaw);
-
-
-    const monto =
-      Number(
-        pago.transaction_amount
-      );
-
-
-    console.log(
-      "DATOS RECARGA MP:",
-      {
-        user_id,
-        staff_id,
-        monto
-      }
-    );
-
+    const monto = Number(pago.transaction_amount);
 
     /* ===================================== */
     /* VALIDAR USUARIO */
@@ -1563,11 +1436,6 @@ app.post("/webhook-mp", async (req, res) => {
     /* RECARGA ATOMICA EN SUPABASE */
     /* ===================================== */
 
-    console.log(
-      "🚀 EJECUTANDO procesar_recarga_mp..."
-    );
-
-
     const {
       data,
       error
@@ -1612,48 +1480,9 @@ app.post("/webhook-mp", async (req, res) => {
 
     }
 
-
-    /* ===================================== */
-    /* WEBHOOK DUPLICADO */
-    /* ===================================== */
-
-    if(data?.duplicado){
-
-      console.log(
-        "♻️ MP YA PROCESADO:",
-        pago.id
-      );
-
-      return res.sendStatus(200);
-
-    }
-
-
     /* ===================================== */
     /* OK */
     /* ===================================== */
-
-    console.log(
-      "✅ RECARGA MP REGISTRADA:",
-      {
-
-        payment_id:
-          pago.id,
-
-        user_id,
-
-        staff_id,
-
-        monto,
-
-        saldo:
-          data?.saldo,
-
-        transaccion_id:
-          data?.transaccion_id
-
-      }
-    );
 
 
     return res.sendStatus(200);
@@ -1856,30 +1685,6 @@ app.post(
       /* WEBHOOK DUPLICADO */
       /* ========================= */
 
-      if(data?.duplicado){
-
-        console.log(
-          "STRIPE YA PROCESADO:",
-          stripePaymentId
-        );
-
-        return res.sendStatus(200);
-
-      }
-
-
-      console.log(
-        "✅ RECARGA STRIPE:",
-        {
-          stripe_payment_id:
-            stripePaymentId,
-          user_id,
-          staff_id,
-          monto,
-          saldo:
-            data?.saldo
-        }
-      );
 
 
       return res.json({
@@ -1981,12 +1786,4 @@ const resultado = result.rows.map(item => {
       error:err.message
     });
   }
-});
-
-/* INICIAR SERVIDOR LOCAL */
-/* EN VERCEL APP.LISTEN SE IGNORA */
-app.listen(3000, () => {
-  console.log(
-    "Servidor corriendo 🚀"
-  );
 });

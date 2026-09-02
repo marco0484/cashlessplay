@@ -23,10 +23,13 @@ const API =
 let scanner = null
 let moduloActivo = null
 
+/* Obtiene el id del evento actual  */
 
-/* ===================================== */
+const idEvento =
+  new URLSearchParams(window.location.search).get("id_evento")
+  || localStorage.getItem("id_evento");
+
 /* MOSTRAR STAFF */
-/* ===================================== */
 
 window.addEventListener("DOMContentLoaded", () => {
 
@@ -103,6 +106,180 @@ function iniciarScanner(modulo){
 
 }
 
+/* ===================================== */
+/* CARGAR PRODUCTOS */
+/* ===================================== */
+
+async function cargarProductos(){
+
+  const contenedor =
+    document.getElementById("productos");
+
+  if(!contenedor){
+    console.warn("No existe contenedor #productos");
+    return;
+  }
+
+  if(!idEvento){
+
+    console.warn("No existe id_evento");
+
+    contenedor.innerHTML = `
+      <div class="productos-loading">
+        ⚠ Evento no identificado
+      </div>
+    `;
+
+    return;
+  }
+
+  try{
+
+    contenedor.innerHTML = `
+      <div class="productos-loading">
+        Cargando productos...
+      </div>
+    `;
+
+    const res =
+      await fetch(
+        API +
+        "/cash/productos?id_evento=" +
+        encodeURIComponent(idEvento)
+      );
+
+    const data =
+      await res.json();
+
+    if(!res.ok){
+
+      throw new Error(
+        data.error ||
+        data.mensaje ||
+        "No fue posible obtener productos"
+      );
+
+    }
+
+    contenedor.innerHTML = "";
+
+    if(
+      !Array.isArray(data)
+      || data.length === 0
+    ){
+
+      contenedor.innerHTML = `
+        <div class="productos-loading">
+          No hay productos disponibles
+        </div>
+      `;
+
+      return;
+    }
+
+    data.forEach(producto => {
+
+      const boton =
+        document.createElement("button");
+
+      boton.type = "button";
+
+      /* Mantener estilo especial de cortesía */
+      if(
+        Number(producto.precio) === 0
+      ){
+        boton.classList.add(
+          "producto-cortesia"
+        );
+      }
+
+      boton.innerHTML = `
+        ${obtenerIconoProducto(producto.nombre)}
+        ${producto.nombre}
+        ·
+        ${
+          Number(producto.precio) === 0
+            ? "Cortesía"
+            : "$" + Number(producto.precio).toFixed(0)
+        }
+      `;
+
+      boton.addEventListener(
+        "click",
+        () => {
+
+          agregarProducto(
+            Number(producto.id),
+            producto.nombre,
+            Number(producto.precio)
+          );
+
+        }
+      );
+
+      contenedor.appendChild(
+        boton
+      );
+
+    });
+
+  }catch(err){
+
+    console.error(
+      "ERROR PRODUCTOS:",
+      err
+    );
+
+    contenedor.innerHTML = `
+      <div class="productos-loading">
+        ⚠ Error cargando productos
+      </div>
+    `;
+
+  }
+
+}
+
+function obtenerIconoProducto(nombre){
+
+  const n =
+    String(nombre)
+      .toLowerCase();
+
+  if(n.includes("cerveza")){
+    return "🍺";
+  }
+
+  if(n.includes("six")){
+    return "🍺";
+  }
+
+  if(n.includes("trago")){
+    return "🍸";
+  }
+
+  if(n.includes("maruchan")){
+    return "🍜";
+  }
+
+  if(n.includes("agua")){
+    return "💧";
+  }
+
+  if(n.includes("electrolit")){
+    return "⚡";
+  }
+
+  if(n.includes("cigarro")){
+    return "🚬";
+  }
+
+  if(n.includes("dj")){
+    return "🎧";
+  }
+
+  return "🛒";
+}
 /* ===================================== */
 /* QR ESCANEADO */
 /* ===================================== */
@@ -1060,9 +1237,14 @@ setTimeout(() => {
 document.addEventListener(
   "DOMContentLoaded",
   () => {
+
     mostrarModulo("recarga");
+
+    cargarProductos();
+
   }
 );
+
 /* ===================================== */
 /* RETORNO STRIPE */
 /* ===================================== */
