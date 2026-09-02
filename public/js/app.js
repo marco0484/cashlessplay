@@ -25,9 +25,12 @@ let moduloActivo = null
 
 /* Obtiene el id del evento actual  */
 
-const idEvento =
+/*const idEvento =
   new URLSearchParams(window.location.search).get("id_evento")
   || localStorage.getItem("id_evento");
+*/
+
+const idEvento = 1;
 
 /* MOSTRAR STAFF */
 
