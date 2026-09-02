@@ -23,10 +23,17 @@
   <!-- ===================================== -->
   <!-- 🌌 NAVBAR -->
   <!-- ===================================== -->
+
   <header class="navbar">
+
     <div class="nav-left">
+
       <h1>Cashless</h1>
-   <span class="subtitle">  By Cosmic Pass </span>
+
+      <span class="subtitle">
+        By Cosmic Pass
+      </span>
+
     </div>
 
     <div class="nav-center">
@@ -67,65 +74,101 @@
     </div>
 
   </header>
-<!-- SELECTOR DE MÓDULO -->
-<div class="module-switcher">
 
-  <button
-    type="button"
-    id="btn-modulo-recarga"
-    class="module-switch-btn active"
-    onclick="mostrarModulo('recarga')"
-  >
-    <span class="module-switch-icon">↗</span>
 
-    <span class="module-switch-text">
-      <strong>Recarga</strong>
-      <small>Agregar saldo</small>
-    </span>
-  </button>
+  <!-- ===================================== -->
+  <!-- 🔄 SELECTOR DE MÓDULO -->
+  <!-- ===================================== -->
 
-  <button
-    type="button"
-    id="btn-modulo-venta"
-    class="module-switch-btn"
-    onclick="mostrarModulo('venta')"
-  >
-    <span class="module-switch-icon">↙</span>
+  <div class="module-switcher">
 
-    <span class="module-switch-text">
-      <strong>Venta</strong>
-     <small>Descontar saldo</small>
-    </span>
-  </button>
+    <button
+      type="button"
+      id="btn-modulo-recarga"
+      class="module-switch-btn active"
+      onclick="mostrarModulo('recarga')"
+    >
 
-</div>
+      <span class="module-switch-icon">
+        ↗
+      </span>
+
+      <span class="module-switch-text">
+
+        <strong>Recarga</strong>
+
+        <small>
+          Agregar saldo
+        </small>
+
+      </span>
+
+    </button>
+
+
+    <button
+      type="button"
+      id="btn-modulo-venta"
+      class="module-switch-btn"
+      onclick="mostrarModulo('venta')"
+    >
+
+      <span class="module-switch-icon">
+        ↙
+      </span>
+
+      <span class="module-switch-text">
+
+        <strong>Venta</strong>
+
+        <small>
+          Descontar saldo
+        </small>
+
+      </span>
+
+    </button>
+
+  </div>
+
+
   <!-- ===================================== -->
   <!-- 🌌 CONTENIDO -->
   <!-- ===================================== -->
+
   <main class="pos-container">
+
 
     <!-- ===================================== -->
     <!-- 💳 RECARGA -->
     <!-- ===================================== -->
-<section
-  id="modulo-recarga"
-  class="panel panel-izq"
->
+
+    <section
+      id="modulo-recarga"
+      class="panel panel-izq"
+    >
 
       <div class="panel-header">
 
-  <span class="panel-tag">
-    MÓDULO
-  </span>
+        <span class="panel-tag">
+          MÓDULO
+        </span>
 
-  <h2>Recargas</h2>
+        <h2>
+          Recargas
+        </h2>
 
-  <p>
-    Agrega saldo a dispositivos registrados
-  </p>
+        <p>
+          Agrega saldo a dispositivos registrados
+        </p>
 
-</div>
-      <!-- SCANNER -->
+      </div>
+
+
+      <!-- ===================================== -->
+      <!-- 📷 SCANNER RECARGA -->
+      <!-- ===================================== -->
+
       <div class="scanner">
 
         <button
@@ -142,9 +185,11 @@
 
       </div>
 
+
       <!-- ===================================== -->
-      <!-- INPUT -->
+      <!-- 👤 USUARIO RECARGA -->
       <!-- ===================================== -->
+
       <div class="input-group">
 
         <label>
@@ -159,23 +204,28 @@
         />
 
       </div>
-      <!-- INFO -->
+
+
+      <!-- ===================================== -->
+      <!-- ℹ️ INFO RECARGA -->
+      <!-- ===================================== -->
+
       <div
         id="info-recarga"
         class="info-box"
       >
 
         <div class="info-placeholder">
-
-           Esperando usuario para recarga
-
+          Esperando usuario para recarga
         </div>
 
       </div>
 
+
       <!-- ===================================== -->
       <!-- 💸 MONTOS -->
       <!-- ===================================== -->
+
       <div class="monto-section">
 
         <label>
@@ -204,9 +254,11 @@
 
       </div>
 
+
       <!-- ===================================== -->
       <!-- 💵 MONTO EXTRA -->
       <!-- ===================================== -->
+
       <div class="input-group">
 
         <label>
@@ -222,41 +274,70 @@
 
       </div>
 
-      <!-- ===================================== -->
-      <!-- 💳 ACCIONES -->
-      <!-- ===================================== -->
-<div class="acciones">
-
-<button class="mp-btn" onclick="pagarMercadoPago()">
-💳 Mercado Pago
-</button>
-
-<button class="stripe-btn" onclick="pagarStripe()">
-💳 Tarjeta
-</button>
-
-
-<button id="btn-recarga-efectivo" class="manual-btn" onclick="recargar()">
-💵 Recargar en efectivo
-</button>
-        </div>
-            </section>
-
-    <!--COBRO -->
-    <section id="modulo-venta" class="panel panel-der">
-     <div class="panel-header">
-  <span class="panel-tag">
-    MÓDULO
-  </span>
-
-<h2>Venta</h2>
-<p> Registra productos y descuenta saldo </p>
-
-</div>
 
       <!-- ===================================== -->
-      <!-- 📷 SCANNER -->
+      <!-- 💳 ACCIONES RECARGA -->
       <!-- ===================================== -->
+
+      <div class="acciones">
+
+        <button
+          class="mp-btn"
+          onclick="pagarMercadoPago()"
+        >
+          💳 Mercado Pago
+        </button>
+
+        <button
+          class="stripe-btn"
+          onclick="pagarStripe()"
+        >
+          💳 Tarjeta
+        </button>
+
+        <button
+          id="btn-recarga-efectivo"
+          class="manual-btn"
+          onclick="recargar()"
+        >
+          💵 Recargar en efectivo
+        </button>
+
+      </div>
+
+    </section>
+
+
+    <!-- ===================================== -->
+    <!-- 🛒 VENTA -->
+    <!-- ===================================== -->
+
+    <section
+      id="modulo-venta"
+      class="panel panel-der"
+    >
+
+      <div class="panel-header">
+
+        <span class="panel-tag">
+          MÓDULO
+        </span>
+
+        <h2>
+          Venta
+        </h2>
+
+        <p>
+          Registra productos y descuenta saldo
+        </p>
+
+      </div>
+
+
+      <!-- ===================================== -->
+      <!-- 📷 SCANNER VENTA -->
+      <!-- ===================================== -->
+
       <div class="scanner">
 
         <button
@@ -273,9 +354,11 @@
 
       </div>
 
+
       <!-- ===================================== -->
-      <!-- 👤 INPUT -->
+      <!-- 👤 USUARIO VENTA -->
       <!-- ===================================== -->
+
       <div class="input-group">
 
         <label>
@@ -291,21 +374,31 @@
 
       </div>
 
+
       <!-- ===================================== -->
-      <!-- 💰 INFO -->
+      <!-- 💰 INFO VENTA -->
       <!-- ===================================== -->
+
       <div
         id="info-pago"
         class="info-box"
       >
 
-<div class="info-placeholder">  Esperando usuario para venta </div>
-    </div>
-    
+        <div class="info-placeholder">
+          Esperando usuario para venta
+        </div>
+
+      </div>
+
+
+      <!-- ===================================== -->
       <!-- 🍺 PRODUCTOS -->
+      <!-- ===================================== -->
+
       <div class="productos-section">
           <label> Productos </label>
 
+<<<<<<< HEAD
 <!-- 🍺 PRODUCTOS  DINAMICO -->
 <div class="productos-section">
 
@@ -328,50 +421,72 @@
 
         <!-- MENUAL SETEADO EN DURO, NO DINAMICO
   <div class="productos">
+=======
+        <label>
+          Productos
+        </label>
 
-  <button onclick="agregarProducto(1,'Cerveza',50)">
-    🍺 Cerveza · $50
-  </button>
+        <div class="productos">
 
-  <button onclick="agregarProducto(2,'Trago',150)">
-    🍸 Trago · $150
-  </button>
+          <button onclick="agregarProducto(1,'Cerveza',50)">
+            🍺 Cerveza · $50
+          </button>
+>>>>>>> ad5d61dcb7365300ed36d641fafc0beb2ad2aba7
 
-  <button onclick="agregarProducto(3,'Six',300)">
-    🍺 Six · $300
-  </button>
+          <button onclick="agregarProducto(2,'Trago',150)">
+            🍸 Trago · $150
+          </button>
 
-  <button onclick="agregarProducto(4,'Maruchan',40)">
-    🍜 Maruchan · $40
-  </button>
+          <button onclick="agregarProducto(3,'Six',300)">
+            🍺 Six · $300
+          </button>
 
-  <button onclick="agregarProducto(5,'Agua',20)">
-    💧 Agua · $20
-  </button>
+          <button onclick="agregarProducto(4,'Maruchan',40)">
+            🍜 Maruchan · $40
+          </button>
 
-  <button onclick="agregarProducto(6,'Electrolit',50)">
-    ⚡ Electrolit · $50
-  </button>
+          <button onclick="agregarProducto(5,'Agua',25)">
+            💧 Agua · $25
+          </button>
 
-  <button onclick="agregarProducto(7,'Cigarro',10)">
-    🚬 Cigarro · $10
-  </button>
+          <button onclick="agregarProducto(6,'Electrolit',50)">
+            ⚡ Electrolit · $50
+          </button>
 
-  <button
-    class="producto-cortesia"
-    onclick="agregarProducto(8,'Chela DJ',0)"
-  >
-    🎧 Chela DJ · Cortesía
-  </button>
+          <button onclick="agregarProducto(7,'Cigarro',10)">
+            🚬 Cigarro · $10
+          </button>
 
-</div>
+          <button
+            class="producto-cortesia"
+            onclick="agregarProducto(8,'Chela DJ',0)"
+          >
+            🎧 Chela DJ · Cortesía
+          </button>
+
+          <button onclick="agregarProducto(9,'Pulque',80)">
+            🥤 Pulque · $80
+          </button>
+
+          <button onclick="agregarProducto(10,'Agua mineral con hielos',50)">
+  🧊 Agua mineral con hielos · $50
+</button>
+
+        </div>
       </div>
+<<<<<<< HEAD
             </div>
                   </div>
                 -->
 
+=======
+>>>>>>> ad5d61dcb7365300ed36d641fafc0beb2ad2aba7
 
+
+      <!-- ===================================== -->
       <!-- 🛒 CARRITO -->
+      <!-- ===================================== -->
+
       <div class="carrito-section">
 
         <label>
@@ -385,38 +500,51 @@
 
       </div>
 
-      <!-- ===================================== -->
-      <!-- ⚡ ACCIONES -->
-      <!-- ===================================== -->
-<div class="checkout-bar">
-
-  <div
-    id="total-box"
-    class="total-box"
-  >
-    Total: $0
-  </div>
-
-  <button id="btn-cobrar" class="pagar-btn" onclick="pagar()">
-  ⚡ Confirmar venta
-  </button>
-
-</div>
-
-<div class="acciones-secundarias">
-
-  <button
-    onclick="limpiarCarrito()"
-    class="clear-btn"
-  >
-    🗑 Limpiar carrito
-  </button>
-
-</div>
 
       <!-- ===================================== -->
-      <!-- 🔥 QR -->
+      <!-- ⚡ CHECKOUT -->
       <!-- ===================================== -->
+
+      <div class="checkout-bar">
+
+        <div
+          id="total-box"
+          class="total-box"
+        >
+          Total: $0
+        </div>
+
+        <button
+          id="btn-cobrar"
+          class="pagar-btn"
+          onclick="pagar()"
+        >
+          ⚡ Confirmar venta
+        </button>
+
+      </div>
+
+
+      <!-- ===================================== -->
+      <!-- 🗑 ACCIONES SECUNDARIAS -->
+      <!-- ===================================== -->
+
+      <div class="acciones-secundarias">
+
+        <button
+          onclick="limpiarCarrito()"
+          class="clear-btn"
+        >
+          🗑 Limpiar carrito
+        </button>
+
+      </div>
+
+
+      <!-- ===================================== -->
+      <!-- 🔥 QR PAGO -->
+      <!-- ===================================== -->
+
       <div
         id="qr-pago"
         class="qr-box"
@@ -425,49 +553,68 @@
     </section>
 
   </main>
-<!-- ===================================== -->
-<!-- STRIPE MODAL -->
-<!-- ===================================== -->
 
-<div id="stripe-modal" class="stripe-modal">
 
-  <div class="stripe-card">
+  <!-- ===================================== -->
+  <!-- 💳 STRIPE MODAL -->
+  <!-- ===================================== -->
 
-    <div class="stripe-header">
+  <div
+    id="stripe-modal"
+    class="stripe-modal"
+  >
 
-      <h3>💳 Pago con Tarjeta</h3>
+    <div class="stripe-card">
+
+      <div class="stripe-header">
+
+        <h3>
+          💳 Pago con Tarjeta
+        </h3>
+
+        <button
+          class="stripe-close"
+          onclick="cerrarModalStripe()"
+        >
+          ✕
+        </button>
+
+      </div>
+
+      <div
+        id="payment-element"
+        class="payment-element"
+      ></div>
 
       <button
-        class="stripe-close"
-        onclick="cerrarModalStripe()"
+        class="stripe-pay-btn"
+        onclick="confirmarPagoStripe()"
       >
-        ✕
+        Pagar ahora
       </button>
 
     </div>
 
-    <div
-      id="payment-element"
-      class="payment-element"
-    ></div>
-
-    <button
-      class="stripe-pay-btn"
-      onclick="confirmarPagoStripe()"
-    >
-      Pagar ahora
-    </button>
-
   </div>
 
-</div>
-<footer class="footer-credit">
-  Desarrollado por <strong>Cosmic Pass</strong> 🚀
-</footer>
+
+  <!-- ===================================== -->
+  <!-- 🚀 FOOTER -->
+  <!-- ===================================== -->
+
+  <footer class="footer-credit">
+    Desarrollado por <strong>Cosmic Pass</strong> 🚀
+  </footer>
+
+
+  <!-- ===================================== -->
+  <!-- 📜 SCRIPTS -->
+  <!-- ===================================== -->
 
   <script src="https://unpkg.com/html5-qrcode"></script>
   <script src="https://js.stripe.com/v3/"></script>
   <script src="js/app.js"></script>
 
 </body>
+
 </html>
