@@ -33,11 +33,8 @@ const idEvento =
 
 window.addEventListener("DOMContentLoaded", () => {
 
-  const nombre =
-  localStorage.getItem("staff_nombre")
-
-  const modo =
-  localStorage.getItem("modo") || "local"
+  const nombre = localStorage.getItem("staff_nombre")
+  const modo = localStorage.getItem("modo") || "local"
 
   if(nombre){
 
