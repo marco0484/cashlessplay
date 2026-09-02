@@ -1787,3 +1787,5 @@ const resultado = result.rows.map(item => {
     });
   }
 });
+
+module.exports = app;
