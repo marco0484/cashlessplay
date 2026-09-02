@@ -596,9 +596,7 @@ async function recargar(){
   }
 }
 
-/* ===================================== */
 /* PAGAR */
-/* ===================================== */
 
 async function pagar(){
 
@@ -622,14 +620,6 @@ async function pagar(){
     alert(
       "Escanea o escribe usuario"
     );
-
-    return;
-
-  }
-
-  if(monto <= 0){
-
-    alert("Carrito vacío");
 
     return;
 
@@ -693,8 +683,10 @@ async function pagar(){
     }
 
     alert(data.mensaje);
+
     ultimoUsuarioPago = null;
     carrito = [];
+
     renderCarrito();
 
   }catch(err){
@@ -709,9 +701,8 @@ async function pagar(){
   }
 
 }
-/* ===================================== */
+
 /* MERCADO PAGO */
-/* ===================================== */
 
 async function pagarMercadoPago(){
 
