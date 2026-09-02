@@ -14,12 +14,7 @@ if(!staff){
 /* CONFIG API */
 
 const modo = localStorage.getItem("modo") || "local";
-
-const API =
-  modo === "cloud"
-    ? "https://cashlessplay.vercel.app"
-    : "http://localhost:3000";
-
+const API = window.location.origin;
 let scanner = null
 let moduloActivo = null
 

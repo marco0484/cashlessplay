@@ -1788,4 +1788,28 @@ const resultado = result.rows.map(item => {
   }
 });
 
+// =====================================
+// PRODUCTOS CASHLESS - PRUEBA EVENTO 1
+// =====================================
+
+app.get("/cash/productos", async (req, res) => {
+
+  const idEvento = Number(req.query.id_evento);
+
+  if(idEvento !== 1){
+    return res.json([]);
+  }
+
+  const productos = Object.entries(PRODUCTOS).map(
+    ([id, producto]) => ({
+      id: Number(id),
+      nombre: producto.nombre,
+      precio: producto.precio
+    })
+  );
+
+  return res.json(productos);
+
+});
+
 module.exports = app;
