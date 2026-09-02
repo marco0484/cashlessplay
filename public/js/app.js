@@ -917,19 +917,33 @@ function agregarProducto(
   renderCarrito()
 }
 
-/* ===================================== */
 /* ELIMINAR PRODUCTO */
-/* ===================================== */
 
-function eliminarProducto(nombre){
+function eliminarProducto(producto_id){
 
-  carrito =
-  carrito.filter(
-    p => p.nombre !== nombre
-  )
+  const producto =
+    carrito.find(
+      p => p.producto_id === producto_id
+    );
 
-  renderCarrito()
+  if(!producto){
+    return;
+  }
 
+  if(producto.cantidad > 1){
+
+    producto.cantidad--;
+
+  }else{
+
+    carrito =
+      carrito.filter(
+        p => p.producto_id !== producto_id
+      );
+
+  }
+
+  renderCarrito();
 }
 
 /* ===================================== */
@@ -994,15 +1008,11 @@ function renderCarrito(){
           </strong>
 
           <button
-            class="eliminar-btn"
-            onclick="
-              eliminarProducto(
-                '${p.nombre}'
-              )
-            "
-          >
-            ✕
-          </button>
+  class="eliminar-btn"
+  onclick="eliminarProducto(${p.producto_id})"
+>
+  ✕
+</button>
 
         </div>
 
