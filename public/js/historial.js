@@ -1,3 +1,16 @@
+const staff = localStorage.getItem("staff_id");
+
+if(!staff){
+
+  alert("Debes iniciar sesión");
+
+  window.location.replace("login.html");
+
+  throw new Error("Sesión no iniciada");
+}
+
+
+
 const modo =
 localStorage.getItem("modo") || "local";
 
