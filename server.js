@@ -41,10 +41,21 @@ const { createClient } = require("@supabase/supabase-js");
 const SUPABASE_URL = "https://caoqqzzwwpiivmqqeigw.supabase.co";
 const SUPABASE_KEY = "sb_publishable_4FaRj7XuzifYgPa8BjtO8A_C46t5q0Q";
 
+
+
 const supabase =
 createClient(
   SUPABASE_URL,
   SUPABASE_KEY
+);
+
+const SUPABASE_SERVICE_ROLE_KEY =
+  process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+
+const supabaseAdmin = createClient(
+  SUPABASE_URL,
+  SUPABASE_SERVICE_ROLE_KEY
 );
 
 // Mercado
@@ -119,7 +130,7 @@ app.post("/login", async (req, res) => {
 
   try{
 
-    const { data, error } = await supabase
+    const { data, error } = await supabaseAdmin
       .from("cash_users")
       .select("id,nombre")
       .eq("nombre", nombre)
