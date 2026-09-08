@@ -274,7 +274,53 @@ app.post("/recargar", async (req, res) => {
 
     }
 
+app.get("/cash/productos", async (req, res) => {
 
+  const id_evento = Number(req.query.id_evento);
+
+  if (!id_evento) {
+    return res.status(400).json({
+      error: "id_evento requerido"
+    });
+  }
+
+  try {
+
+    const { data, error } = await supabaseAdmin
+      .from("cash_productos")
+      .select("*")
+      .eq("id_evento", id_evento)
+      .eq("activo", true)
+      .order("nombre");
+
+    if (error) {
+
+      console.error(
+        "❌ ERROR PRODUCTOS SUPABASE:",
+        error
+      );
+
+      return res.status(500).json({
+        error: error.message
+      });
+    }
+
+    return res.json(data || []);
+
+  } catch (err) {
+
+    console.error(
+      "❌ ERROR PRODUCTOS:",
+      err
+    );
+
+    return res.status(500).json({
+      error: err.message
+    });
+
+  }
+
+});
     /* ========================= */
     /* LOCAL */
     /* ========================= */
