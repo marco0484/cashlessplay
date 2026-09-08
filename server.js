@@ -11,20 +11,6 @@ const {
 require("dotenv").config();
 const app = express();
 
-/* CATÁLOGO DE PRODUCTOS */
-
-const PRODUCTOS = {
-  1: { nombre: "Cerveza", precio: 50 },
-  2: { nombre: "Trago", precio: 150 },
-  3: { nombre: "Six", precio: 300 },
-  4: { nombre: "Maruchan", precio: 45 },
-  5: { nombre: "Agua", precio: 25 },
-  6: { nombre: "Electrolit", precio: 50 },
-  7: { nombre: "Cigarro", precio: 10 },
-  8: { nombre: "Chela DJ", precio: 0 },
-  9: { nombre: "Pulque", precio: 80 }
-};
-
 app.use(cors());
 app.use((req, res, next) => {
   if (req.originalUrl === "/webhook-stripe") {
@@ -62,16 +48,9 @@ app.get("/",(req,res)=>{
 
 // Stripe
 
-const Stripe =
-  require("stripe");
-
-const stripe =
-  new Stripe(
-    process.env.STRIPE_SECRET_KEY
-  );
-
-  const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET;
-
+const Stripe = require("stripe");
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
+const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET;
 const pool = new Pool({
 
   user: process.env.DB_USER,
