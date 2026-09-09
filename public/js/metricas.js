@@ -1,18 +1,12 @@
 const staff = localStorage.getItem("staff_id");
 
 if(!staff){
-
   alert("Debes iniciar sesión");
-
   window.location.replace("login.html");
-
   throw new Error("Sesión no iniciada");
 }
 
-const API =
-  modo === "cloud"
-    ? "https://cashlessplay.vercel.app"
-    : "http://localhost:3000";
+const API = window.location.origin;
 
 const money = valor =>
   Number(valor || 0).toLocaleString("es-MX", {
@@ -172,5 +166,7 @@ async function cargarProductosTop(){
   }
 }
 
-cargarDashboard();
-cargarProductosTop();
+document.addEventListener("DOMContentLoaded", () => {
+  cargarDashboard();
+  cargarProductosTop();
+});
