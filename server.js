@@ -1731,73 +1731,117 @@ app.post(
 
 /* PRODUCTOS MÁS CONSUMIDOS */
 app.get("/productos-top", async (req, res) => {
-  try{
-  
 
-    if(process.env.VERCEL){
-      const { data, error } = await supabaseAdmin
-        .from("cash_detalle_ventas")
-        .select("producto_id,cantidad,subtotal");
+  try {
 
-      if(error){
-        throw error;
-      }
+    const {
+      data: detalles,
+      error: detallesError
+    } = await supabaseAdmin
+      .from("cash_detalle_ventas")
+      .select("producto_id, cantidad");
 
-      const resumen = {};
+    if (detallesError) {
+      console.error(
+        "PRODUCTOS TOP DETALLES ERROR:",
+        detallesError
+      );
 
-      data.forEach(item => {
-        const id = Number(item.producto_id);
-
-        if(!resumen[id]){
-          resumen[id] = {
-            producto_id:id,
-          nombre: PRODUCTOS[id]?.nombre || `Producto ${id}`,
-            total:0,
-            ingresos:0
-          };
-        }
-
-        resumen[id].total += Number(item.cantidad || 0);
-        resumen[id].ingresos += Number(item.subtotal || 0);
-      });
-
-      const resultado = Object.values(resumen)
-        .sort((a,b) => b.total - a.total)
-        .slice(0,10);
-
-      return res.json(resultado);
+      throw detallesError;
     }
 
-    const result = await pool.query(`
-      SELECT
-        producto_id,
-        SUM(cantidad) total,
-        SUM(subtotal) ingresos
-      FROM cash_detalle_ventas
-      GROUP BY producto_id
-      ORDER BY total DESC
-      LIMIT 10
-    `);
+    if (!detalles || detalles.length === 0) {
+      return res.json([]);
+    }
 
-const resultado = result.rows.map(item => {
-  const id = Number(item.producto_id);
 
-  return {
-    producto_id: id,
-    nombre:  PRODUCTOS[id]?.nombre || `Producto ${id}`,
-    total:   Number(item.total || 0),
-    ingresos:Number(item.ingresos || 0)
-  };
-});
+    /* ========================= */
+    /* AGRUPAR CONSUMOS */
+    /* ========================= */
 
-    res.json(resultado);
+    const agrupados = {};
 
-  }catch(err){
-    console.error("PRODUCTOS TOP ERROR:", err);
-    res.status(500).json({
-      error:err.message
+    for (const item of detalles) {
+
+      const productoId =
+        Number(item.producto_id);
+
+      const cantidad =
+        Number(item.cantidad || 0);
+
+      if (!productoId) continue;
+
+      agrupados[productoId] =
+        (agrupados[productoId] || 0) + cantidad;
+    }
+
+
+    /* ========================= */
+    /* OBTENER PRODUCTOS */
+    /* ========================= */
+
+    const ids =
+      Object.keys(agrupados)
+        .map(Number);
+
+    if (ids.length === 0) {
+      return res.json([]);
+    }
+
+    const {
+      data: productos,
+      error: productosError
+    } = await supabaseAdmin
+      .from("cash_productos")
+      .select("id,nombre")
+      .in("id", ids);
+
+    if (productosError) {
+
+      console.error(
+        "PRODUCTOS TOP PRODUCTOS ERROR:",
+        productosError
+      );
+
+      throw productosError;
+    }
+
+
+    /* ========================= */
+    /* ARMAR RESPUESTA */
+    /* ========================= */
+
+    const resultado =
+      productos
+        .map(producto => ({
+          id: producto.id,
+          nombre: producto.nombre,
+          total:
+            agrupados[Number(producto.id)] || 0
+        }))
+        .sort(
+          (a, b) => b.total - a.total
+        )
+        .slice(0, 10);
+
+
+    return res.json(resultado);
+
+  } catch (err) {
+
+    console.error(
+      "PRODUCTOS TOP ERROR:",
+      err
+    );
+
+    return res.status(500).json({
+      mensaje:
+        "No fue posible obtener productos top",
+      error: err.message
     });
+
   }
+
 });
 
 app.get("/prueba-ruta", (req, res) => {
