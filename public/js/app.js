@@ -488,22 +488,14 @@ function logout(){
 
 async function recargar(){
 
-  const user_id =
-  ultimoUsuarioRecarga
+  const user_id = ultimoUsuarioRecarga
+  const monto = parseFloat(
+                            document.getElementById(
+                              "monto-recarga"
+                            ).value
+                          )
 
-  const monto =
-  parseFloat(
-
-    document.getElementById(
-      "monto-recarga"
-    ).value
-
-  )
-
-  const staff_id =
-  localStorage.getItem(
-    "staff_id"
-  )
+  const staff_id = localStorage.getItem("staff_id")
 
   if(!user_id){
     alert("Escanea o escribe usuario")

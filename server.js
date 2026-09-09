@@ -738,7 +738,7 @@ app.get("/usuario/:user_id", async (req, res) => {
     if(process.env.VERCEL){
 
       const { data, error } =
-      await supabase
+      await supabaseAdmin
         .from("cash_wallets")
         .select(
           "user_id,desc_dispositivo,saldo"
@@ -1726,16 +1726,9 @@ const resultado = result.rows.map(item => {
 
   return {
     producto_id: id,
-
-    nombre:
-      PRODUCTOS[id]?.nombre ||
-      `Producto ${id}`,
-
-    total:
-      Number(item.total || 0),
-
-    ingresos:
-      Number(item.ingresos || 0)
+    nombre:  PRODUCTOS[id]?.nombre || `Producto ${id}`,
+    total:   Number(item.total || 0),
+    ingresos:Number(item.ingresos || 0)
   };
 });
 
