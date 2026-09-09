@@ -1762,13 +1762,8 @@ app.get("/productos-top", async (req, res) => {
     const agrupados = {};
 
     for (const item of detalles) {
-
-      const productoId =
-        Number(item.producto_id);
-
-      const cantidad =
-        Number(item.cantidad || 0);
-
+      const productoId = Number(item.producto_id);
+      const cantidad = Number(item.cantidad || 0);
       if (!productoId) continue;
 
       agrupados[productoId] =
