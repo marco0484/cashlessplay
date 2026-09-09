@@ -202,7 +202,7 @@ app.post("/recargar", async (req, res) => {
       const {
         data,
         error
-      } = await supabase.rpc(
+      } = await supabaseAdmin.rpc(
         "procesar_recarga_cashless",
         {
 
@@ -1070,7 +1070,7 @@ app.get("/historial", async (req, res) => {
   try{
 
 const { data: transacciones, error: trxError } =
-await supabase
+await supabaseAdmin
   .from("cash_transacciones")
   .select("*")
   .order("creado",{
@@ -1094,7 +1094,7 @@ let staffMap = {};
 if(staffIds.length){
 
   const { data: staffs, error: staffError } =
-  await supabase
+  await supabaseAdmin
     .from("cash_users")
     .select("id,nombre")
     .in("id", staffIds);
@@ -1160,14 +1160,14 @@ app.get("/dashboard", async (req, res) => {
  if(process.env.VERCEL){
 
   const { data: wallets, error: walletsError } =
-  await supabase
+  await supabaseAdmin
     .from("cash_wallets")
     .select("saldo");
 
   if(walletsError) throw walletsError;
 
   const { data: ventas, error: ventasError } =
-  await supabase
+  await supabaseAdmin
     .from("cash_transacciones")
     .select("monto")
     .eq("tipo","VENTA");
@@ -1175,7 +1175,7 @@ app.get("/dashboard", async (req, res) => {
   if(ventasError) throw ventasError;
 
   const { data: recargas, error: recargasError } =
-  await supabase
+  await supabaseAdmin
     .from("cash_transacciones")
     .select("monto")
     .eq("tipo","RECARGA");
@@ -1288,7 +1288,7 @@ app.get("/test-supabase", async (req, res) => {
   try {
 
     const { data, error } =
-      await supabase
+      await supabaseAdmin
         .from("cash_users")
         .select("*")
         .limit(1);
@@ -1459,7 +1459,7 @@ app.post("/webhook-mp", async (req, res) => {
       data,
       error
     } =
-      await supabase.rpc(
+      await supabaseAdmin.rpc(
         "procesar_recarga_mp",
         {
 
@@ -1668,7 +1668,7 @@ app.post(
       const {
         data,
         error
-      } = await supabase.rpc(
+      } = await supabaseAdmin.rpc(
         "procesar_recarga_stripe",
         {
 
@@ -1735,7 +1735,7 @@ app.get("/productos-top", async (req, res) => {
   
 
     if(process.env.VERCEL){
-      const { data, error } = await supabase
+      const { data, error } = await supabaseAdmin
         .from("cash_detalle_ventas")
         .select("producto_id,cantidad,subtotal");
 
