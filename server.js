@@ -145,14 +145,9 @@ app.post("/recargar", async (req, res) => {
     } = req.body;
 
 
-    const usuarioId =
-      Number(user_id);
-
-    const montoRecarga =
-      Number(monto);
-
-    const staffId =
-      Number(staff_id);
+    const usuarioId    = Number(user_id);
+    const montoRecarga = Number(monto);
+    const staffId      = Number(staff_id);
 
 
     /* ========================= */
@@ -859,66 +854,27 @@ app.post("/crear-recarga-mp", async (req, res) => {
 
           items: [
             {
-
-              title:
-                `Recarga Cashless Usuario ${usuarioId}`,
-
+              title: `Recarga Cashless Usuario ${usuarioId}`,
               quantity: 1,
-
-              unit_price:
-                montoRecarga,
-
-              currency_id:
-                "MXN"
-
+              unit_price: montoRecarga,
+              currency_id:"MXN"
             }
           ],
-
-
-          /*
-            Guardamos usuario + staff.
-
-            Ejemplo:
-            25|3
-          */
-
-          external_reference:
-            `${usuarioId}|${staffId}`,
-
-
-          notification_url:
-            "https://cashlessplay.vercel.app/webhook-mp",
-
-
+          external_reference: `${usuarioId}|${staffId}`,
+          notification_url: "https://cashlessplay.vercel.app/webhook-mp",
           back_urls: {
-
-            success:
-              "https://cashlessplay.vercel.app/index.html?recarga=success",
-
-            failure:
-              "https://cashlessplay.vercel.app/index.html?recarga=failure",
-
-            pending:
-              "https://cashlessplay.vercel.app/index.html?recarga=pending"
-
+            success: "https://cashlessplay.vercel.app/index.html?recarga=success",
+            failure: "https://cashlessplay.vercel.app/index.html?recarga=failure",
+            pending: "https://cashlessplay.vercel.app/index.html?recarga=pending"
           },
-
-
-          auto_return:
-            "approved"
-
+          auto_return: "approved"
         }
-
       });
 
 
     return res.json({
-
       ok: true,
-
-      init_point:
-        result.init_point
-
+      init_point:result.init_point
     });
 
 
@@ -959,19 +915,9 @@ app.post(
       } = req.body;
 
 
-      const usuarioId =
-        Number(user_id);
-
-      const montoRecarga =
-        Number(monto);
-
-      const staffId =
-        Number(staff_id);
-
-
-      /* ========================= */
-      /* VALIDACIONES */
-      /* ========================= */
+      const usuarioId    = Number(user_id);
+      const montoRecarga = Number(monto);
+      const staffId      = Number(staff_id);
 
       if(
         !Number.isInteger(usuarioId) ||
@@ -1020,33 +966,18 @@ app.post(
             Math.round(
               montoRecarga * 100
             ),
-
-          currency:
-            "mxn",
-
+          currency:"mxn",
           metadata: {
-
-            user_id:
-              String(usuarioId),
-
-            staff_id:
-              String(staffId)
-
+            user_id: String(usuarioId),
+            staff_id: String(staffId)
           }
-
         });
 
 
       return res.json({
-
         ok: true,
-
-        paymentIntentId:
-          paymentIntent.id,
-
-        clientSecret:
-          paymentIntent.client_secret
-
+        paymentIntentId:paymentIntent.id,
+        clientSecret:paymentIntent.client_secret
       });
 
 
@@ -1059,17 +990,10 @@ app.post(
 
 
       return res.status(500).json({
-
-        mensaje:
-          "No fue posible crear el pago",
-
-        error:
-          err.message
-
+        mensaje: "No fue posible crear el pago",
+        error: err.message
       });
-
     }
-
   }
 );
 /* HISTORIAL */
@@ -1814,30 +1738,6 @@ const resultado = result.rows.map(item => {
       error:err.message
     });
   }
-});
-
-// =====================================
-// PRODUCTOS CASHLESS - PRUEBA EVENTO 1
-// =====================================
-
-app.get("/cash/productos", async (req, res) => {
-
-  const idEvento = Number(req.query.id_evento);
-
-  if(idEvento !== 1){
-    return res.json([]);
-  }
-
-  const productos = Object.entries(PRODUCTOS).map(
-    ([id, producto]) => ({
-      id: Number(id),
-      nombre: producto.nombre,
-      precio: producto.precio
-    })
-  );
-
-  return res.json(productos);
-
 });
 
 module.exports = app;
