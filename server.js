@@ -539,112 +539,187 @@ app.post("/pagar", async (req, res) => {
       });
     }
 
-
-    /* ========================= */
-    /* CALCULAR PRECIOS EN SERVER */
-    /* ========================= */
-
-    const detalles = [];
-
-    let monto = 0;
-
-
-    for(const item of carrito){
-      const productoId = Number(item.producto_id);
-      const cantidad = Number(item.cantidad);
-      const producto = PRODUCTOS[productoId];
-
-      if(!producto){
-
-        return res.status(400).json({
-          mensaje:
-            `Producto inválido: ${productoId}`
-        });
-
-      }
-
-
-      if(
-        !Number.isInteger(cantidad) ||
-        cantidad <= 0 ||
-        cantidad > 100
-      ){
-
-        return res.status(400).json({
-          mensaje:
-            `Cantidad inválida para ${producto.nombre}`
-        });
-
-      }
-
-
-      const subtotal =
-        producto.precio * cantidad;
-
-
-      monto += subtotal;
-
-
-      detalles.push({
-
-        producto_id: productoId,
-
-        cantidad,
-
-        precio_unitario:
-          producto.precio,
-
-        subtotal
-
-      });
-
-    }
-
-
-    if(monto < 0){
-
-      return res.status(400).json({
-        mensaje: "Monto inválido"
-      });
-
-    }
-
-
-    /* ========================= */
-/* PROCESAR VENTA ATÓMICA */
 /* ========================= */
+/* CALCULAR PRECIOS EN SERVER */
+/* ========================= */
+
+const detalles = [];
+
+let monto = 0;
+
+
+/* ========================= */
+/* OBTENER PRODUCTOS REALES */
+/* ========================= */
+
+const productoIds = carrito.map(item =>
+  Number(item.producto_id)
+);
+
+
+/* Validar IDs */
+
+if(
+  productoIds.some(id =>
+    !Number.isInteger(id) || id <= 0
+  )
+){
+
+  return res.status(400).json({
+    mensaje: "Producto inválido"
+  });
+
+}
+
+
+/* Consultar productos desde Supabase */
+
+const {
+  data: productos,
+  error: productosError
+} = await supabaseAdmin
+  .from("cash_productos")
+  .select(
+    "id, nombre, precio, activo"
+  )
+  .in("id", productoIds)
+  .eq("activo", true);
+
+
+if(productosError){
+
+  console.error(
+    "PRODUCTOS ERROR:",
+    productosError
+  );
+
+  throw productosError;
+
+}
+
+
+/* ========================= */
+/* MAPEAR PRODUCTOS */
+/* ========================= */
+
+const productosMap = new Map(
+  productos.map(producto => [
+    Number(producto.id),
+    producto
+  ])
+);
+
+
+/* ========================= */
+/* CALCULAR TOTAL */
+/* ========================= */
+
+for(const item of carrito){
+
+  const productoId =
+    Number(item.producto_id);
+
+  const cantidad =
+    Number(item.cantidad);
+
+
+  const producto =
+    productosMap.get(productoId);
+
+
+  if(!producto){
+
+    return res.status(400).json({
+      mensaje:
+        `Producto inválido o inactivo: ${productoId}`
+    });
+
+  }
+
+
+  if(
+    !Number.isInteger(cantidad) ||
+    cantidad <= 0 ||
+    cantidad > 100
+  ){
+
+    return res.status(400).json({
+      mensaje:
+        `Cantidad inválida para ${producto.nombre}`
+    });
+
+  }
+
+
+  /* ========================= */
+  /* PRECIO REAL DE SUPABASE */
+  /* ========================= */
+
+  const precio =
+    Number(producto.precio);
+
+
+  if(
+    !Number.isFinite(precio) ||
+    precio < 0
+  ){
+
+    return res.status(400).json({
+      mensaje:
+        `Precio inválido para ${producto.nombre}`
+    });
+
+  }
+
+
+  const subtotal =
+    precio * cantidad;
+
+
+  monto += subtotal;
+
+
+  detalles.push({
+    producto_id: productoId,
+    cantidad,
+    precio_unitario: precio,
+    subtotal
+  });
+}
+
+
+/* ========================= */
+/* VALIDAR MONTO FINAL */
+/* ========================= */
+
+if(
+  !Number.isFinite(monto) ||
+  monto <= 0
+){
+
+  return res.status(400).json({
+    mensaje: "Monto inválido"
+  });
+
+}
 
 const {
   data,
   error
-} = await supabase.rpc(
+} = await supabaseAdmin.rpc(
   "procesar_venta_cashless",
   {
-
-    p_user_id:
-      usuarioId,
-
-    p_staff_id:
-      staffId,
-
-    p_monto:
-      monto,
-
-    p_detalles:
-      detalles
-
+    p_user_id:  usuarioId,
+    p_staff_id: staffId,
+    p_monto:    monto,
+    p_detalles: detalles
   }
 );
 
 
 if(error){
 
-  console.error(
-    "RPC VENTA ERROR:",
-    error
-  );
-
-
+  console.error( "RPC VENTA ERROR:", error);
   if(
     error.message
       ?.includes("Saldo insuficiente")
@@ -679,21 +754,11 @@ if(error){
 /* ========================= */
 
 return res.json({
-
   ok: true,
-
-  mensaje:
-    "Pago realizado correctamente",
-
-  total:
-    Number(data.monto),
-
-  saldo:
-    Number(data.saldo),
-
-  transaccion_id:
-    data.transaccion_id
-
+  mensaje: "Pago realizado correctamente",
+  total: Number(data.monto),
+  saldo: Number(data.saldo),
+  transaccion_id: data.transaccion_id
 });
 
   } catch(err) {
@@ -704,17 +769,10 @@ return res.json({
     );
 
     return res.status(500).json({
-
-      mensaje:
-        "No fue posible procesar la venta",
-
-      error:
-        err.message
-
-    });
-
-  }
-
+                          mensaje: "No fue posible procesar la venta",
+                          error:err.message
+                                });
+              }
 });
 
 // ===============================
