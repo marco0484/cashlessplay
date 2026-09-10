@@ -1,5 +1,7 @@
+
 async function login(modo){
 
+  // Guardamos solamente el modo de operación
   localStorage.setItem(
     "modo",
     modo
@@ -11,10 +13,10 @@ async function login(modo){
       : "http://localhost:3000";
 
   const nombre =
-  document.getElementById("username").value.trim();
+    document.getElementById("username").value.trim();
 
   const pin =
-  document.getElementById("pin").value.trim();
+    document.getElementById("pin").value.trim();
 
   if(!nombre || !pin){
 
@@ -32,6 +34,10 @@ async function login(modo){
       headers: {
         "Content-Type": "application/json"
       },
+
+      // Permite que el navegador reciba
+      // y posteriormente envíe la cookie de sesión
+      credentials: "include",
 
       body: JSON.stringify({
         nombre,
@@ -53,10 +59,9 @@ async function login(modo){
 
     }
 
-    localStorage.setItem(
-      "staff_id",
-      data.staff_id
-    );
+    // Ya NO guardamos staff_id en localStorage.
+    // El staff_id ahora viaja dentro de la
+    // cookie HttpOnly creada por el servidor.
 
     localStorage.setItem(
       "staff_nombre",
@@ -64,7 +69,7 @@ async function login(modo){
     );
 
     window.location.href =
-    "index.html";
+      "index.html";
 
   }catch(err){
 
