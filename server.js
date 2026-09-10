@@ -78,6 +78,44 @@ function requireStaff(req, res, next) {
   }
 }
 
+app.get("/sesion", requireStaff, async (req, res) => {
+
+  try {
+
+    const { data, error } = await supabaseAdmin
+      .from("cash_users")
+      .select("id,nombre")
+      .eq("id", req.staff.staff_id)
+      .single();
+
+    if(error || !data){
+
+      return res.status(401).json({
+        ok: false,
+        mensaje: "Staff no válido"
+      });
+
+    }
+
+    res.json({
+      ok: true,
+      staff_id: data.id,
+      nombre: data.nombre
+    });
+
+  } catch(error) {
+
+    console.error("❌ ERROR SESION:", error);
+
+    res.status(500).json({
+      ok: false,
+      mensaje: "Error verificando sesión"
+    });
+
+  }
+
+});
+
 
 app.get("/",(req,res)=>{res.sendFile(path.join(__dirname,"public","index.html"))})
 
