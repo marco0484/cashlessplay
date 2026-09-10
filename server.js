@@ -11,6 +11,12 @@ const {
 } = require("mercadopago");
 
 require("dotenv").config();
+
+console.log(
+  "SESSION_SECRET configurada:",
+  !!process.env.SESSION_SECRET
+);
+
 const app = express();
 app.use(cookieParser());
 
