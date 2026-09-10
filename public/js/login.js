@@ -63,13 +63,49 @@ async function login(modo){
     // El staff_id ahora viaja dentro de la
     // cookie HttpOnly creada por el servidor.
 
-    localStorage.setItem(
-      "staff_nombre",
-      data.nombre
-    );
+localStorage.setItem(
+  "staff_nombre",
+  data.nombre
+);
 
-    window.location.href =
-      "index.html";
+/* ===================================== */
+/* VERIFICAR QUE LA SESIÓN QUEDÓ ACTIVA */
+/* ===================================== */
+
+const sesion = await fetch(
+  API + "/sesion",
+  {
+    credentials: "include"
+  }
+);
+
+const sesionData = await sesion.json();
+
+console.log(
+  "🔐 SESIÓN DESPUÉS DEL LOGIN:",
+  sesionData
+);
+
+if(!sesion.ok){
+
+  alert(
+    "Login correcto, pero la sesión no quedó activa."
+  );
+
+  console.error(
+    "❌ LA COOKIE NO FUE RECONOCIDA",
+    sesionData
+  );
+
+  return;
+}
+
+console.log(
+  "✅ LOGIN + SESIÓN CORRECTOS"
+);
+
+window.location.href =
+  "index.html";
 
   }catch(err){
 

@@ -1,4 +1,5 @@
-const staff = localStorage.getItem("staff_id")
+let staff = null;
+
 let timerRFID = null
 let ultimoUsuarioRecarga = null
 let ultimoUsuarioPago = null
@@ -6,9 +7,50 @@ let stripe;
 let elements;
 let stripeClientSecret;
 
-if(!staff){
-  alert("Debes iniciar sesión")
-  window.location.href = "login.html"
+
+/* ===================================== */
+/* VERIFICAR SESIÓN */
+/* ===================================== */
+
+async function verificarSesion(){
+
+  try{
+
+    const res = await fetch(
+      window.location.origin + "/sesion",
+      {
+        credentials: "include"
+      }
+    );
+
+    if(!res.ok){
+
+      console.warn(
+        "❌ Sesión no válida:",
+        res.status
+      );
+
+      window.location.href = "login.html";
+
+      return null;
+    }
+
+    const data = await res.json();
+
+    return data;
+
+  }catch(error){
+
+    console.error(
+      "❌ ERROR VERIFICANDO SESIÓN:",
+      error
+    );
+
+    window.location.href = "login.html";
+
+    return null;
+  }
+
 }
 
 /* CONFIG API */
@@ -1226,9 +1268,7 @@ document.addEventListener(
   "DOMContentLoaded",
   async () => {
 
-    // =====================================
-    // VERIFICAR SESIÓN
-    // =====================================
+    console.log("🔐 Verificando sesión...");
 
     staff = await verificarSesion();
 
@@ -1236,9 +1276,10 @@ document.addEventListener(
       return;
     }
 
-    // =====================================
-    // MOSTRAR USUARIO
-    // =====================================
+    console.log(
+      "✅ Sesión válida:",
+      staff
+    );
 
     const elementoUsuario =
       document.getElementById("usuario-logeado");
@@ -1252,10 +1293,6 @@ document.addEventListener(
         `👤 ${staff.nombre} | ${modo.toUpperCase()}`;
 
     }
-
-    // =====================================
-    // INICIAR POS
-    // =====================================
 
     mostrarModulo("recarga");
 
