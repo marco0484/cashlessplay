@@ -243,20 +243,18 @@ app.post("/login", async (req, res) => {
 // RECARGAR
 // ===============================
 
-app.post("/recargar", async (req, res) => {
-
+app.post("/recargar", requireStaff, async (req, res) => {
   try {
 
-    const {
-      user_id,
-      monto,
-      staff_id
-    } = req.body;
+ const {
+  user_id,
+  monto
+} = req.body;
 
 
-    const usuarioId    = Number(user_id);
-    const montoRecarga = Number(monto);
-    const staffId      = Number(staff_id);
+const usuarioId    = Number(user_id);
+const montoRecarga = Number(monto);
+const staffId      = Number(req.staff.staff_id);
 
 
     /* ========================= */
