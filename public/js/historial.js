@@ -1,35 +1,85 @@
-const staff = localStorage.getItem("staff_id");
-
-if(!staff){
-
-  alert("Debes iniciar sesión");
-
-  window.location.replace("login.html");
-
-  throw new Error("Sesión no iniciada");
-}
-
-
-
 const modo =
-localStorage.getItem("modo") || "local";
+  localStorage.getItem("modo") || "local";
 
 const API =
-  modo === "cloud"
-    ? "https://cashlessplay.vercel.app"
-    : "http://localhost:3000";
+  window.location.origin;
 
 console.log("MODO:", modo);
 console.log("API:", API);
+
+
+/* ===================================== */
+/* VERIFICAR SESIÓN */
+/* ===================================== */
+
+async function verificarSesion(){
+
+  try{
+
+    const res =
+      await fetch(
+        `${API}/sesion`,
+        {
+          credentials: "include"
+        }
+      );
+
+    if(!res.ok){
+
+      console.warn(
+        "Sesión no válida:",
+        res.status
+      );
+
+      window.location.replace(
+        "login.html"
+      );
+
+      return null;
+    }
+
+    const data =
+      await res.json();
+
+    console.log(
+      "✅ SESIÓN HISTORIAL:",
+      data
+    );
+
+    return data;
+
+  }catch(err){
+
+    console.error(
+      "ERROR VERIFICANDO SESIÓN:",
+      err
+    );
+
+    window.location.replace(
+      "login.html"
+    );
+
+    return null;
+  }
+
+}
+
+
+/* ===================================== */
+/* CARGAR HISTORIAL */
+/* ===================================== */
 
 async function cargarHistorial(){
 
   try{
 
     const res =
-    await fetch(
-      `${API}/historial`
-    );
+      await fetch(
+        `${API}/historial`,
+        {
+          credentials: "include"
+        }
+      );
 
     if(!res.ok){
 
@@ -40,51 +90,70 @@ async function cargarHistorial(){
     }
 
     const data =
-await res.json();
+      await res.json();
 
-const tabla =
-document.getElementById(
-  "tabla-historial"
-);
+    const tabla =
+      document.getElementById(
+        "tabla-historial"
+      );
 
-const total =
-document.getElementById(
-  "total-registros"
-);
+    const total =
+      document.getElementById(
+        "total-registros"
+      );
 
-tabla.innerHTML = "";
+    if(!tabla){
+      return;
+    }
 
-if(total){
+    tabla.innerHTML = "";
 
-  total.innerText =
-  `${data.length} registros`;
+    if(total){
 
-}
+      total.innerText =
+        `${data.length} registros`;
 
-data.forEach(item=>{
+    }
 
-  tabla.innerHTML += `
-  <tr>
-    <td>${item.id}</td>
-    <td>${new Date(item.creado).toLocaleString()}</td>
-    <td>${item.user_id}</td>
-    <td class="${
-      item.tipo === "RECARGA"
-        ? "tipo-recarga"
-        : "tipo-venta"
-    }">
-      ${item.tipo}
-    </td>
-    <td class="monto">
-      $${item.monto}
-    </td>
-    <td>
-  ${item.staff_nombre || "-"}
-</td>
-  </tr>
-  `;
+    data.forEach(item => {
 
-});
+      tabla.innerHTML += `
+        <tr>
+
+          <td>
+            ${item.id}
+          </td>
+
+          <td>
+            ${new Date(
+              item.creado
+            ).toLocaleString()}
+          </td>
+
+          <td>
+            ${item.user_id}
+          </td>
+
+          <td class="${
+            item.tipo === "RECARGA"
+              ? "tipo-recarga"
+              : "tipo-venta"
+          }">
+            ${item.tipo}
+          </td>
+
+          <td class="monto">
+            $${item.monto}
+          </td>
+
+          <td>
+            ${item.staff_nombre || "-"}
+          </td>
+
+        </tr>
+      `;
+
+    });
 
 
   }catch(err){
@@ -98,4 +167,23 @@ data.forEach(item=>{
 
 }
 
-cargarHistorial();
+
+/* ===================================== */
+/* INICIO */
+/* ===================================== */
+
+document.addEventListener(
+  "DOMContentLoaded",
+  async () => {
+
+    const staff =
+      await verificarSesion();
+
+    if(!staff){
+      return;
+    }
+
+    cargarHistorial();
+
+  }
+);
