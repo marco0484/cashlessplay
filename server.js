@@ -1,7 +1,9 @@
-const express = require("express");
-const cors = require("cors");
-const { Pool } = require("pg");
-const path = require("path");
+const express      = require("express");
+const cors         = require("cors");
+const jwt          = require("jsonwebtoken");
+const cookieParser = require("cookie-parser");
+const { Pool }     = require("pg");
+const path         = require("path");
 const {
   MercadoPagoConfig,
   Preference,
@@ -10,6 +12,7 @@ const {
 
 require("dotenv").config();
 const app = express();
+app.use(cookieParser());
 
 app.use(cors());
 app.use((req, res, next) => {
@@ -42,9 +45,41 @@ const client = new MercadoPagoConfig({
 });
 
 app.use(express.static(path.join(__dirname,"public")))
-app.get("/",(req,res)=>{
-    res.sendFile(path.join(__dirname,"public","index.html"))
-})
+
+function requireStaff(req, res, next) {
+
+  const token = req.cookies.cash_session;
+
+  if (!token) {
+    return res.status(401).json({
+      ok: false,
+      mensaje: "Sesión no iniciada"
+    });
+  }
+
+  try {
+
+    const decoded = jwt.verify(
+      token,
+      process.env.SESSION_SECRET
+    );
+
+    req.staff = decoded;
+
+    next();
+
+  } catch (error) {
+
+    return res.status(401).json({
+      ok: false,
+      mensaje: "Sesión inválida o expirada"
+    });
+
+  }
+}
+
+
+app.get("/",(req,res)=>{res.sendFile(path.join(__dirname,"public","index.html"))})
 
 // Stripe
 
@@ -91,15 +126,15 @@ app.post("/login", async (req, res) => {
   const nombre = req.body.nombre;
   const pin = parseInt(req.body.pin);
 
-  if(!nombre || !pin){
+  if (!nombre || !pin) {
 
     return res.status(400).json({
-      mensaje:"Datos incompletos"
+      mensaje: "Datos incompletos"
     });
 
   }
 
-  try{
+  try {
 
     const { data, error } = await supabaseAdmin
       .from("cash_users")
@@ -108,19 +143,49 @@ app.post("/login", async (req, res) => {
       .eq("pin", pin)
       .single();
 
-    if(error){
+    if (error || !data) {
+
       return res.status(401).json({
-        mensaje:"Credenciales incorrectas"
+        mensaje: "Credenciales incorrectas"
       });
 
     }
 
+    // ==========================================
+    // CREAR SESIÓN SEGURA
+    // ==========================================
+
+    const token = jwt.sign(
+      {
+        staff_id: data.id
+      },
+      process.env.SESSION_SECRET,
+      {
+        expiresIn: "8h"
+      }
+    );
+
+    // ==========================================
+    // GUARDAR SESIÓN EN COOKIE
+    // ==========================================
+
+    res.cookie("cash_session", token, {
+      httpOnly: true,
+      secure: !!process.env.VERCEL,
+      sameSite: "lax",
+      maxAge: 8 * 60 * 60 * 1000
+    });
+
+    // ==========================================
+    // RESPUESTA
+    // ==========================================
+
     res.json({
-      staff_id: data.id,
+      ok: true,
       nombre: data.nombre
     });
 
-  }catch(err){
+  } catch (err) {
 
     res.status(500).json({
       error: err.message

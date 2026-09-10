@@ -1026,17 +1026,11 @@ a {
   }
 
   .analytics-card {
-
-    padding:
-      20px;
-
+    padding: 20px;
   }
 
   .mini-stats div {
-
-    min-height:
-      94px;
-
+    min-height: 94px;
   }
 
   .charts-section {
@@ -1047,26 +1041,18 @@ a {
         30px
       );
 
-    margin-top:
-      14px;
+    margin-top: 14px;
 
   }
 
   .chart-header {
-
     padding:
       19px;
-
   }
 
   .chart-body {
-
-    height:
-      380px;
-
-    padding:
-      18px;
-
+    height: 380px;
+    padding: 18px;
   }
 
 }
@@ -1095,25 +1081,12 @@ a {
   }
 
   .metrics-hero {
-
-    padding:
-      26px;
-
-    flex-direction:
-      row;
-
-    align-items:
-      center;
-
-    justify-content:
-      space-between;
-
-    gap:
-      26px;
-
-    border-radius:
-      22px;
-
+    padding: 26px;
+    flex-direction: row;
+    align-items: center;
+    justify-content:space-between;
+    gap: 26px;
+    border-radius: 22px;
   }
 
   .status-pill {
@@ -1157,11 +1130,8 @@ a {
         0.8fr
       );
 
-    align-items:
-      center;
-
-    gap:
-      24px;
+    align-items:center;
+    gap:24px;
 
   }
 
