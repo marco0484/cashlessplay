@@ -1,39 +1,3 @@
-async function verificarSesion(){
-
-  try{
-
-    const res = await fetch(
-      window.location.origin + "/sesion",
-      {
-        credentials: "include"
-      }
-    );
-
-    if(!res.ok){
-
-      window.location.href = "login.html";
-      return null;
-
-    }
-
-    const data = await res.json();
-
-    return data;
-
-  }catch(error){
-
-    console.error(
-      "❌ Error verificando sesión:",
-      error
-    );
-
-    window.location.href = "login.html";
-    return null;
-
-  }
-
-}
-
 const staff = localStorage.getItem("staff_id")
 let timerRFID = null
 let ultimoUsuarioRecarga = null
@@ -1260,7 +1224,38 @@ setTimeout(() => {
 
 document.addEventListener(
   "DOMContentLoaded",
-  () => {
+  async () => {
+
+    // =====================================
+    // VERIFICAR SESIÓN
+    // =====================================
+
+    staff = await verificarSesion();
+
+    if(!staff){
+      return;
+    }
+
+    // =====================================
+    // MOSTRAR USUARIO
+    // =====================================
+
+    const elementoUsuario =
+      document.getElementById("usuario-logeado");
+
+    const modo =
+      localStorage.getItem("modo") || "local";
+
+    if(elementoUsuario){
+
+      elementoUsuario.innerText =
+        `👤 ${staff.nombre} | ${modo.toUpperCase()}`;
+
+    }
+
+    // =====================================
+    // INICIAR POS
+    // =====================================
 
     mostrarModulo("recarga");
 
