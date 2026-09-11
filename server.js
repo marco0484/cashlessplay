@@ -598,8 +598,7 @@ app.get("/cash/productos", async (req, res) => {
 // ===============================
 
 
-app.post("/pagar", async (req, res) => {
-
+app.post("/pagar", requireStaff, async (req,res)=>{
   try {
 
     const {

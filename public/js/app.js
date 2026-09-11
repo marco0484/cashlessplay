@@ -644,11 +644,6 @@ async function pagar(){
       0
     );
 
-  const staff_id =
-    localStorage.getItem(
-      "staff_id"
-    );
-
   if(!user_id){
 
     alert(
@@ -670,17 +665,6 @@ async function pagar(){
 
   }
 
-  if(!staff_id){
-
-    alert("Debes iniciar sesión");
-
-    window.location.href =
-      "login.html";
-
-    return;
-
-  }
-
   try{
 
     const res =
@@ -695,9 +679,8 @@ async function pagar(){
           body:JSON.stringify({
             user_id,
             monto,
-            carrito,
-            staff_id
-          })
+            carrito
+                             })
         }
       );
 

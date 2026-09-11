@@ -1,8 +1,6 @@
-const modo =
-  localStorage.getItem("modo") || "local";
+const modo = localStorage.getItem("modo") || "local";
 
-const API =
-  window.location.origin;
+const API = window.location.origin;
 
 console.log("MODO:", modo);
 console.log("API:", API);
